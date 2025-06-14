@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
+import Logo from '../assets/logo.png'; // Logo import
 import './Header.css';
 import PageWrapper from './PageWrapper';
 
@@ -143,15 +144,27 @@ const Header = () => {
           .spin-on-hover:hover {
             transform: rotate(360deg);
           }
+          .logo-img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            vertical-align: middle;
+          }
+          @media (max-width: 640px) {
+            .logo-img {
+              width: 48px;
+              height: 48px;
+            }
+          }
         `}
       </style>
       <header className="fixed top-0 left-0 w-full backdrop-blur-md border-b border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 z-50">
-        <nav className="flex items-center justify-between px-4 sm:px-6 md:px-10 lg:px-5 h-16">
+        <nav className="flex items-center justify-between px-4 sm:px-6 md:px-10 lg:px-5 h-20">
           <Link to="/" className="flex items-center text-xl font-extrabold text-red-600 dark:text-red-400 hover:scale-105 transition-all duration-200" onClick={() => {
             window.scrollTo({ top: 0 });
             addToHistory('Home', '/');
           }}>
-            <i className="fas fa-bolt mr-2 spin-on-hover"></i> AI Tools Hub
+            <img src={Logo} alt="AI Tools Hub Logo" className="logo-img mr-2" /> AI Tools Hub
           </Link>
 
           {/* Mobile Hamburger */}
