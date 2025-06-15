@@ -167,13 +167,14 @@ const Login = () => {
             )}
           </button>
         </form>
-
         {showResetModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:px-4">
-            <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-sm space-y-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:px-4 backdrop-blur-sm">
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-sm space-y-4 shadow-2xl transition-all duration-300">
               <div className="flex justify-between items-center">
-                <h3 className="text-base sm:text-lg font-bold">Reset Password <span aria-hidden="true">🚀</span></h3>
-                <button onClick={() => setShowResetModal(false)} className="text-gray-600 hover:text-gray-900">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                  Reset Password <span aria-hidden="true">🚀</span>
+                </h3>
+                <button onClick={() => setShowResetModal(false)} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                   <i className="fas fa-times"></i>
                 </button>
               </div>
@@ -181,7 +182,7 @@ const Login = () => {
                 {resetMessage && <p className="text-green-600 text-xs sm:text-sm">{resetMessage}</p>}
                 {resetError && <p className="text-red-600 text-xs sm:text-sm">{resetError}</p>}
                 <div>
-                  <label htmlFor="reset-email" className="block text-xs sm:text-sm font-medium text-gray-700">
+                  <label htmlFor="reset-email" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                     Email
                   </label>
                   <input
@@ -189,9 +190,9 @@ const Login = () => {
                     type="email"
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                   className="w-full px-3 py-2 text-xs sm:text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 text-gray-900 bg-white"
+                    className="w-full px-3 py-2 text-xs sm:text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     placeholder="Enter your email"
-                  />ray-3
+                  />
                 </div>
                 <button
                   type="submit"
@@ -203,6 +204,7 @@ const Login = () => {
             </div>
           </div>
         )}
+
 
         <div className="mt-4 sm:mt-6 text-center">
           <p className="text-xs sm:text-sm text-gray-600">
