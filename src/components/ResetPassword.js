@@ -74,7 +74,6 @@ import React, { useState } from 'react';
              <h2 className="text-2xl font-bold text-gray-900">Reset Password 🪄</h2>
              <p className="text-gray-600 text-sm mt-2">Enter your new password below</p>
            </div>
-
            <form onSubmit={handleSubmit} className="space-y-6">
              {message && (
                <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md text-sm">
