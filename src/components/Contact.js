@@ -23,19 +23,26 @@ const Contact = () => {
 
     try {
       setIsLoading(true);
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/api/contact`,
-        form,
-        {
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+
+     const apiUrl =
+  (process.env.REACT_APP_API_URL?.trim() || 'http://localhost:5000') +
+  '/api/contact';
+
+
+      console.log('📬 Sending to:', apiUrl); // Debug log
+
+      const res = await axios.post(apiUrl, form, {
+        headers: { 'Content-Type': 'application/json' }
+      });
 
       toast.success(res.data.message || 'Message sent!');
       setForm({ name: '', email: '', message: '' });
     } catch (error) {
+      console.error('❌ API Error:', error); // Debug log
       toast.error(
-        error.response?.data?.error || 'Server error. Please try again later.'
+        error.response?.data?.error ||
+          error.message ||
+          'Server error. Please try again later.'
       );
     } finally {
       setIsLoading(false);
@@ -55,7 +62,8 @@ const Contact = () => {
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-md shadow-sm border border-gray-200 dark:border-gray-700">
         <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Got a question, suggestion, or just wanna chat about AI? We’re all ears... or rather, all pixels! 😎
+          Got a question, suggestion, or just wanna chat about AI? We’re all
+          ears... or rather, all pixels! 😎
         </p>
         <p className="text-gray-700 dark:text-gray-300 mb-4">
           Drop us a line at{' '}
@@ -70,7 +78,9 @@ const Contact = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Name
+            </label>
             <input
               type="text"
               name="name"
@@ -83,7 +93,9 @@ const Contact = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -96,7 +108,9 @@ const Contact = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Message
+            </label>
             <textarea
               name="message"
               value={form.message}
@@ -119,15 +133,23 @@ const Contact = () => {
 
         {/* Social Links */}
         <div className="mt-8">
-          <h3 className="text-gray-700 dark:text-gray-300 mb-2 font-semibold">Follow us:</h3>
+          <h3 className="text-gray-700 dark:text-gray-300 mb-2 font-semibold">
+            Follow us:
+          </h3>
           <ul className="flex gap-4">
             <li>
-              <a href="#" className="text-blue-500 hover:text-blue-700 text-sm flex items-center gap-1">
+              <a
+                href="#"
+                className="text-blue-500 hover:text-blue-700 text-sm flex items-center gap-1"
+              >
                 <i className="fab fa-twitter"></i> Twitter
               </a>
             </li>
             <li>
-              <a href="#" className="text-gray-800 dark:text-white hover:text-black text-sm flex items-center gap-1">
+              <a
+                href="#"
+                className="text-gray-800 dark:text-white hover:text-black text-sm flex items-center gap-1"
+              >
                 <i className="fab fa-github"></i> GitHub
               </a>
             </li>
