@@ -1,4 +1,26 @@
 const toolsData = [
+
+  {
+    id: 'chatbots',
+    name: 'ChatGPT Alternatives',
+    tools: [
+      {name: 'ChatGPT AI',description:"ChatGPT-4o is OpenAI’s fastest and smartest AI model yet.", url:'https://www.ChatGPT.com', icon: 'fas fa-comment-alt',isNew:false,comingSoon: false, badge: 'Recommended'},
+      { name: 'EasyPeasy AI', description: 'The fastest way to get work done with generative AI.', url: 'https://www.easypeasy.ai', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false },
+      { name: 'Perplexity AI', description: 'AI search engine that answers queries using natural language.', url: 'https://www.perplexity.ai', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Cohesive', description: 'ChatGPT on steroids with better workflow tools.', url: 'https://www.cohesive.so', icon: 'fas fa-comment-alt', isNew: true, comingSoon: false },
+      { name: 'GPTGO', description: 'Google + GPT combo tool.', url: 'https://gptgo.ai', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false },
+      { name: 'AIPRM', description: 'Over 2,500 free ChatGPT prompts.', url: 'https://www.aiprm.com', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false },
+      { name: 'Grok', description: 'AI assistant by xAI, witty and truth-seeking.', icon: 'fas fa-comment-alt', url: 'https://x.ai/grok', isNew: true, comingSoon: false, badge: 'Recommended' },
+      { name: 'Claude', description: 'Conversational AI by Anthropic, safe and helpful.', icon: 'fas fa-comment-alt', url: 'https://claude.ai/new', isNew: false, comingSoon: false },
+      { name: 'Gemini (Bard)', description: 'Google’s most advanced AI, now branded Gemini, with Search integration.', icon: 'fas fa-comment-alt', url: 'https://gemini.google.com/app', isNew: false, comingSoon: false },
+      { name: 'Pi (HeyPi)', description: 'Emotional intelligence and supportive conversations.', icon: 'fas fa-comment-alt', url: 'https://pi.ai/onboarding', isNew: false, comingSoon: false },
+      { name: 'YouChat', description: 'Conversational search and multi-modal tasks.', icon: 'fas fa-comment-alt', url: 'https://you.com', isNew: false, comingSoon: false },
+      { name: 'Chatsonic', description: 'Real-time info, voice input, GPT-based.', icon: 'fas fa-comment-alt', url: 'https://writesonic.com/chat', isNew: false, comingSoon: false },
+      { name: 'Poe', description: 'Aggregates GPT-4, Claude, Gemini, etc., into one interface.', icon: 'fas fa-comment-alt', url: 'https://poe.com/login', isNew: false, comingSoon: false },
+      { name: 'Mistral Chat', description: 'Extremely fast and responsive using open LLMs.', icon: 'fas fa-comment-alt', url: 'https://chat.mistral.ai/chat', isNew: false, comingSoon: false, badge: 'New' },
+      { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },
+    ],
+  },
   {
     id: 'faceless-video',
     name: 'Faceless AI Video Tools',
@@ -14,12 +36,32 @@ const toolsData = [
       {
         name: 'vSUB',
         description: 'Create Reddit stories, fake chats, Minecraft videos, quizzes, riddles.',
-        url: 'https://example.com/vsub', // Placeholder
+        url: 'https://vsub.io', // Placeholder
         icon: 'fas fa-video',
         isNew: false,
-        comingSoon: true,
+        comingSoon: false,
         badge: 'Recommended',
       },
+    ],
+  },
+  {
+    id: 'writing-tools',
+    name: 'AI Writing Tools',
+    tools: [
+      { name: 'Rytr', description: 'AI writing assistant to create high-quality content in seconds.', url: 'https://rytr.me', icon: 'fas fa-pen', isNew: true, comingSoon: false, badge: 'Recommended' },
+      { name: 'WriteSonic', description: 'Best AI tool for writing blog posts, essays, copy, emails.', url: 'https://writesonic.com', icon: 'fas fa-pen', isNew: false, comingSoon: false },
+      { name: 'Copy AI', description: 'All-in-one AI tool for marketing and content creation.', url: 'https://www.copy.ai', icon: 'fas fa-pen', isNew: true, comingSoon: false },
+      { name: 'Beehiiv', description: 'Monetize your newsletter and grow subscribers.', url: 'https://www.beehiiv.com', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Undetectable AI', description: 'AI Detector and Humanizer for converting AI text to human tone.', url: 'https://undetectable.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false },
+      { name: 'Life Shack Inc', description: 'Job finder with AI resume tailoring and applications.', url: 'https://www.lifeshack.io', icon: 'fas fa-briefcase', isNew: false, comingSoon: false, badge: 'New!' },
+      { name: 'Argil', description: 'Create UGC ads and promotional content using realistic AI avatars.', url: 'https://www.argil.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false },
+      { name: 'Ranked AI', description: 'Best SEO tool, weekly blog content, optimization, backlinks, and leading SEO software.', url: 'https://ranked.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Jasper AI', description: 'Copywriting tool PRO for content and marketing.', url: 'https://jasper.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Tango', description: 'Automatically documents processes with screenshots and instructions.', url: 'https://www.tango.us', icon: 'fas fa-pen', isNew: false, comingSoon: false },
+      { name: 'Tldv', description: 'Transcribes and summarizes meetings with AI.', url: 'https://www.tldv.io', icon: 'fas fa-pen', isNew: false, comingSoon: false },
+      { name: 'Blaze AI', description: 'Generate content briefs, ads, and social posts with your brand voice.', url: 'https://www.blaze.ai', icon: 'fas fa-pen', isNew: true, comingSoon: false },
+      { name: 'Aithor', description: ' Ai eassy writter.', url: 'https://aithor.com', icon: 'fas fa-pen', isNew: true, comingSoon: false , badge : 'Recommended'},
+   
     ],
   },
   {
@@ -40,24 +82,6 @@ const toolsData = [
       { name: 'Pictory AI', description: 'Easy video creation for content marketers.', url: 'https://pictory.ai', icon: 'fas fa-video', isNew: false, comingSoon: false },
       { name: 'Fliki AI', description: 'Convert text to videos with AI voices.', url: 'https://fliki.ai', icon: 'fas fa-video', isNew: true, comingSoon: false },
       { name: 'Latte', description: 'Clip short-form content from long videos in a click.', url: 'https://www.latte.social.app', icon: 'fas fa-video', isNew: false, comingSoon: false },
-    ],
-  },
-  {
-    id: 'writing-tools',
-    name: 'AI Writing Tools',
-    tools: [
-      { name: 'Rytr', description: 'AI writing assistant to create high-quality content in seconds.', url: 'https://rytr.me', icon: 'fas fa-pen', isNew: true, comingSoon: false, badge: 'Recommended' },
-      { name: 'WriteSonic', description: 'Best AI tool for writing blog posts, essays, copy, emails.', url: 'https://writesonic.com', icon: 'fas fa-pen', isNew: false, comingSoon: false },
-      { name: 'Copy AI', description: 'All-in-one AI tool for marketing and content creation.', url: 'https://www.copy.ai', icon: 'fas fa-pen', isNew: true, comingSoon: false },
-      { name: 'Beehiiv', description: 'Monetize your newsletter and grow subscribers.', url: 'https://www.beehiiv.com', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge: 'Recommended' },
-      { name: 'Undetectable AI', description: 'AI Detector and Humanizer for converting AI text to human tone.', url: 'https://undetectable.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false },
-      { name: 'Life Shack Inc', description: 'Job finder with AI resume tailoring and applications.', url: 'https://www.lifeshack.io', icon: 'fas fa-briefcase', isNew: false, comingSoon: false, badge: 'New!' },
-      { name: 'Argil', description: 'Create UGC ads and promotional content using realistic AI avatars.', url: 'https://www.argil.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false },
-      { name: 'Ranked AI', description: 'Best SEO tool, weekly blog content, optimization, backlinks, and leading SEO software.', url: 'https://ranked.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge: 'Recommended' },
-      { name: 'Jasper AI', description: 'Copywriting tool PRO for content and marketing.', url: 'https://jasper.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge: 'Recommended' },
-      { name: 'Tango', description: 'Automatically documents processes with screenshots and instructions.', url: 'https://www.tango.us', icon: 'fas fa-pen', isNew: false, comingSoon: false },
-      { name: 'Tldv', description: 'Transcribes and summarizes meetings with AI.', url: 'https://www.tldv.io', icon: 'fas fa-pen', isNew: false, comingSoon: false },
-      { name: 'Blaze AI', description: 'Generate content briefs, ads, and social posts with your brand voice.', url: 'https://www.blaze.ai', icon: 'fas fa-pen', isNew: true, comingSoon: false },
     ],
   },
   {
@@ -119,6 +143,7 @@ const toolsData = [
       { name: 'Gumroad', description: 'Sell your digital products from anywhere in the world.', url: 'https://gumroad.com', icon: 'fas fa-globe', isNew: false, comingSoon: false },
       { name: '10Web', description: 'Create websites with AI in a few clicks.', url: 'https://10web.io', icon: 'fas fa-globe', isNew: false, comingSoon: false },
       { name: 'Durable', description: 'AI website builder.', url: 'https://durable.co', icon: 'fas fa-globe', isNew: false, comingSoon: false },
+      { name: 'Same.new', description: 'copy any website and make clone.', url: 'https://same.new', icon: 'fas fa-globe', isNew: false, comingSoon: false, badge: 'New'},
     ],
   },
   {
@@ -144,27 +169,6 @@ const toolsData = [
       { name: 'CoPilot', description: 'Create images from words with AI.', url: 'https://copilot.microsoft.com', icon: 'fas fa-palette', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'InstantArt AI', description: 'Free tool for text-to-image generation with AI.', url: 'https://instantart.io', icon: 'fas fa-palette', isNew: false, comingSoon: false },
       { name: 'Midjourney', description: 'Stunning AI art from text prompts.', icon: 'fas fa-palette', url: 'https://midjourney.com', isNew: false, comingSoon: false },
-    ],
-  },
-  {
-    id: 'chatbots',
-    name: 'ChatGPT Alternatives',
-    tools: [
-      {name: 'ChatGPT AI',description:"ChatGPT-4o is OpenAI’s fastest and smartest AI model yet.", url:'https://www.ChatGPT.com', icon: 'fas fa-comment-alt',isNew:false,comingSoon: false, badge: 'Recommended'},
-      { name: 'EasyPeasy AI', description: 'The fastest way to get work done with generative AI.', url: 'https://www.easypeasy.ai', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false },
-      { name: 'Perplexity AI', description: 'AI search engine that answers queries using natural language.', url: 'https://www.perplexity.ai', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false, badge: 'Recommended' },
-      { name: 'Cohesive', description: 'ChatGPT on steroids with better workflow tools.', url: 'https://www.cohesive.so', icon: 'fas fa-comment-alt', isNew: true, comingSoon: false },
-      { name: 'GPTGO', description: 'Google + GPT combo tool.', url: 'https://gptgo.ai', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false },
-      { name: 'AIPRM', description: 'Over 2,500 free ChatGPT prompts.', url: 'https://www.aiprm.com', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false },
-      { name: 'Grok', description: 'AI assistant by xAI, witty and truth-seeking.', icon: 'fas fa-comment-alt', url: 'https://x.ai/grok', isNew: true, comingSoon: false, badge: 'Recommended' },
-      { name: 'Claude', description: 'Conversational AI by Anthropic, safe and helpful.', icon: 'fas fa-comment-alt', url: 'https://claude.ai/new', isNew: false, comingSoon: false },
-      { name: 'Gemini (Bard)', description: 'Google’s most advanced AI, now branded Gemini, with Search integration.', icon: 'fas fa-comment-alt', url: 'https://gemini.google.com/app', isNew: false, comingSoon: false },
-      { name: 'Pi (HeyPi)', description: 'Emotional intelligence and supportive conversations.', icon: 'fas fa-comment-alt', url: 'https://pi.ai/onboarding', isNew: false, comingSoon: false },
-      { name: 'YouChat', description: 'Conversational search and multi-modal tasks.', icon: 'fas fa-comment-alt', url: 'https://you.com', isNew: false, comingSoon: false },
-      { name: 'Chatsonic', description: 'Real-time info, voice input, GPT-based.', icon: 'fas fa-comment-alt', url: 'https://writesonic.com/chat', isNew: false, comingSoon: false },
-      { name: 'Poe', description: 'Aggregates GPT-4, Claude, Gemini, etc., into one interface.', icon: 'fas fa-comment-alt', url: 'https://poe.com/login', isNew: false, comingSoon: false },
-      { name: 'Mistral Chat', description: 'Extremely fast and responsive using open LLMs.', icon: 'fas fa-comment-alt', url: 'https://chat.mistral.ai/chat', isNew: false, comingSoon: false, badge: 'New' },
-      { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },
     ],
   },
   {
@@ -199,6 +203,10 @@ const toolsData = [
       { name: 'Futurepedia', description: 'Directory of AI tools for various applications.', url: 'https://www.futurepedia.io', icon: 'fas fa-tools', isNew: false, comingSoon: false },
       { name: 'Taskade', description: 'AI-powered productivity and collaboration platform.', url: 'https://www.taskade.ai', icon: 'fas fa-tools', isNew: false, comingSoon: false },
       { name: 'Notion AI', description: 'Enhance your Notion workspace with AI writing and organization.', url: 'https://www.notion.so/product/ai', icon: 'fas fa-tools', isNew: true, comingSoon: false, badge: 'Recommended' },
+      { name: 'makeinfluencer.ai', description: 'makes an aiinfluencer using Ai', url: 'https://www.makeinfluencer.ai/#features', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' , badge: 'New'},
+      { name: 'cobalt.tools', description: 'download any videos from any platform', url: 'https://cobalt.tools', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
+      { name: 'pdf-change maker', description: 'Make changes to your pdf withsame fonts', url: 'https://www.pdfgear.com/edit-pdf/', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
+      { name: 'Text Behind image', description: 'Make text behind your image', url: 'https://textbehindimage.rexanwong.xyz/', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
     ],
   },
   {
