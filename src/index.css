@@ -2,6 +2,9 @@
 @tailwind utilities;
 
 body {
+  @apply bg-black text-white dark:bg-gray-900 dark:text-white;
+}
+b {
   @apply bg-white text-black dark:bg-gray-900 dark:text-white;
 }
 
