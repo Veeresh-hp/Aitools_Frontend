@@ -207,6 +207,7 @@ const toolsData = [
       { name: 'cobalt.tools', description: 'download any videos from any platform', url: 'https://cobalt.tools', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
       { name: 'pdf-change maker', description: 'Make changes to your pdf withsame fonts', url: 'https://www.pdfgear.com/edit-pdf/', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
       { name: 'Text Behind image', description: 'Make text behind your image', url: 'https://textbehindimage.rexanwong.xyz/', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
+      { name: 'Fakedetails', description: 'Create a Fakedetails as you want in any apps ', url: 'https://fakedetail.com/', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
     ],
   },
   {
@@ -218,7 +219,8 @@ const toolsData = [
       { name: 'Make', description: 'Visual automation platform for integrating apps and workflows.', url: 'https://www.make.com/en', icon: 'fas fa-cog', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'Airtable', description: 'Organize data with AI-powered spreadsheets and automation.', url: 'https://www.airtable.com', icon: 'fas fa-cog', isNew: false, comingSoon: false },
       { name: 'Bubble', description: 'Build web apps with no-code and AI assistance.', url: 'https://bubble.io', icon: 'fas fa-cog', isNew: true, comingSoon: false },
-    ],
+      { name: 'Mindluster.com', description: 'find any course you want to learn ', url: 'https://www.mindluster.com/', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
+     ],
   },
 ];
 

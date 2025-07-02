@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
-import Logo from '../assets/logo.png'; // Logo import
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faTimes, faMoon, faSun, faRocket, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import Logo from '../assets/logo.png';
 import './Header.css';
 import PageWrapper from './PageWrapper';
 
@@ -114,21 +116,33 @@ const Header = () => {
     { name: 'Utility Tools', id: 'utility-tools' },
   ];
 
-  const handleCategoryClick = (id) => {
+  const scrollToSection = (id) => {
+    console.log(`Attempting to scroll to section: ${id}`);
+    const el = document.querySelector(`[data-category="${id}"]`);
+    if (el) {
+      console.log(`Found element for ${id}:`, el);
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.error(`Section with data-category="${id}" not found`);
+      // Store in sessionStorage to retry after navigation
+      sessionStorage.setItem('scrollToCategory', id);
+    }
+  };
+
+  const handleCategoryClick = (e, id) => {
+    e.preventDefault();
+    console.log(`handleCategoryClick called with id: ${id}, current path: ${location.pathname}`);
     addToHistory(`Category: ${id}`, `#${id}`);
     if (location.pathname !== '/') {
-      history.push('/');
-      setTimeout(() => scrollToSection(id), 100);
+      console.log(`Navigating to /#${id}`);
+      history.push(`/#${id}`);
+      setTimeout(() => scrollToSection(id), 500); // Increased delay for DOM rendering
     } else {
+      console.log(`Already on homepage, scrolling to ${id}`);
       scrollToSection(id);
     }
     setIsDropdownOpen(false);
     setIsMobileMenuOpen(false);
-  };
-
-  const scrollToSection = (id) => {
-    const el = document.querySelector(`[data-category="${id}"]`);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleBackToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -172,40 +186,68 @@ const Header = () => {
             <button 
               onClick={() => {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
-                setIsDropdownOpen(false); // Close dropdown when toggling mobile menu
+                setIsDropdownOpen(false);
               }} 
-              className="hover:text-blue-600 dark:hover:text-blue-400"
+              className="text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
             >
-              <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl spin-on-hover`}></i>
+              <FontAwesomeIcon icon={isMobileMenuOpen ? faTimes : faBars} className="text-xl spin-on-hover" />
             </button>
           </div>
 
           {/* Desktop Nav */}
           <ul className="hidden sm:flex items-center space-x-6 text-sm font-semibold">
-            {[['/', '🏠', 'Home'], ['#chatbots', '🤖', 'Chatbots'], ['#image-generators', '🖼️', 'Images'], ['#music-generators', '🎵', 'Music'], ['#data-analysis', '📊', 'Data'], ['#ai-diagrams', '📈', 'Diagrams'], ['#writing-tools', '✍️', 'Text'], ['#video-generators', '🎬', 'Video']].map(([link, icon, label]) => (
+            {[
+              ['/', '🏠', 'Home'],
+              ['#chatbots', '🤖', 'Chatbots'],
+              ['#image-generators', '🖼️', 'Images'],
+              ['#music-generators', '🎵', 'Music'],
+              ['#data-analysis', '📊', 'Data'],
+              ['#ai-diagrams', '📈', 'Diagrams'],
+              ['#writing-tools', '✍️', 'Text'],
+              ['#video-generators', '🎬', 'Video']
+            ].map(([link, icon, label]) => (
               <li key={link}>
                 {link.startsWith('#') ? (
-                  <button onClick={() => handleCategoryClick(link.slice(1))} className="nav-item hover:text-blue-600 dark:hover:text-blue-400">
+                  <button 
+                    onClick={(e) => handleCategoryClick(e, link.slice(1))} 
+                    className="nav-item text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+                  >
                     <span className="spin-on-hover inline-block">{icon}</span> {label}
                   </button>
                 ) : (
-                  <Link to={link} onClick={() => addToHistory(label, link)} className="nav-item hover:text-blue-600 dark:hover:text-blue-400">
+                  <Link 
+                    to={link} 
+                    onClick={() => {
+                      addToHistory(label, link);
+                      window.scrollTo({ top: 0 });
+                    }} 
+                    className="nav-item text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+                  >
                     <span className="spin-on-hover inline-block">{icon}</span> {label}
                   </Link>
                 )}
               </li>
             ))}
-            <li><Link to="/about" onClick={() => addToHistory('About', '/about')} className="nav-item hover:text-blue-600 dark:hover:text-blue-400"><span className="spin-on-hover inline-block">ℹ️</span> About</Link></li>
-            <li><Link to="/contact" onClick={() => addToHistory('Contact', '/contact')} className="nav-item hover:text-blue-600 dark:hover:text-blue-400"><span className="spin-on-hover inline-block">📞</span> Contact</Link></li>
+            <li>
+              <Link to="/about" onClick={() => addToHistory('About', '/about')} className="nav-item text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                <span className="spin-on-hover inline-block">ℹ️</span> About
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" onClick={() => addToHistory('Contact', '/contact')} className="nav-item text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                <span className="spin-on-hover inline-block">📞</span> Contact
+              </Link>
+            </li>
             <li className="relative" ref={dropdownRef}>
               <button
                 ref={buttonRef}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 onMouseEnter={cancelCloseDropdown}
                 onMouseLeave={closeDropdownWithDelay}
-                className="nav-item flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
+                className="nav-item flex items-center gap-1 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
               >
-                <span className="spin-on-hover inline-block">🧰</span> All Tools <i className="fas fa-caret-down text-[10px] spin-on-hover"></i>
+                <span className="spin-on-hover inline-block">🧰</span> All Tools 
+                <FontAwesomeIcon icon={faCaretDown} className="text-[10px] spin-on-hover" />
               </button>
               {isDropdownOpen && (
                 <ul
@@ -225,7 +267,7 @@ const Header = () => {
                   {categories.filter(cat => cat.name.toLowerCase().includes(searchTerm.toLowerCase())).map(cat => (
                     <li key={cat.id}>
                       <button
-                        onClick={() => handleCategoryClick(cat.id)}
+                        onClick={(e) => handleCategoryClick(e, cat.id)}
                         className="block w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded"
                       >
                         {cat.name}
@@ -239,8 +281,12 @@ const Header = () => {
 
           {/* Right Side Icons */}
           <div className="hidden sm:flex items-center space-x-4 text-xs font-semibold">
-            <button onClick={toggleDarkMode} className="text-yellow-400 dark:text-gray-200 hover:scale-110 transition-transform duration-200" title="Toggle Dark Mode">
-              <i className={`fas ${isDarkMode ? 'fa-moon' : 'fa-sun'} spin-on-hover`}></i>
+            <button 
+              onClick={toggleDarkMode} 
+              className="text-yellow-400 dark:text-gray-200 hover:scale-110 transition-transform duration-200" 
+              title="Toggle Dark Mode"
+            >
+              <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} className="spin-on-hover" />
             </button>
             {isLoggedIn ? (
               <div className="relative" ref={accountRef}>
@@ -251,7 +297,7 @@ const Header = () => {
                   onMouseLeave={closeAccountDropdownWithDelay}
                   className="nav-item flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
                 >
-                  Account <i className="fas fa-caret-down text-[10px] spin-on-hover" />
+                  Account <FontAwesomeIcon icon={faCaretDown} className="text-[10px] spin-on-hover" />
                 </button>
                 {isAccountDropdownOpen && (
                   <ul
@@ -259,35 +305,59 @@ const Header = () => {
                     onMouseEnter={cancelCloseAccountDropdown}
                     onMouseLeave={closeAccountDropdownWithDelay}
                   >
-                    <li><Link to="/history" className="block px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"><span className="spin-on-hover inline-block">📜</span> History</Link></li>
-                    <li><button onClick={handleLogout} className="block w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"><span className="spin-on-hover inline-block">🚪</span> Sign Out</button></li>
+                    <li>
+                      <Link to="/history" className="block px-3 py-2 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <span className="spin-on-hover inline-block">📜</span> History
+                      </Link>
+                    </li>
+                    <li>
+                      <button 
+                        onClick={handleLogout} 
+                        className="block w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <span className="spin-on-hover inline-block">🚪</span> Sign Out
+                      </button>
+                    </li>
                   </ul>
                 )}
               </div>
             ) : (
               <>
-                <Link to="/login" className="hover:text-blue-600 dark:hover:text-blue-400"><span className="spin-on-hover inline-block">🔐</span> Login</Link>
-                <Link to="/signup" className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md flex items-center"><span className="spin-on-hover inline-block">📝</span> Sign up</Link>
+                <Link to="/login" className="nav-item flex items-center gap-1 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                  <span className="spin-on-hover inline-block">🔐</span> Login
+                </Link>
+                <Link to="/signup" className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md flex items-center">
+                  <span className="spin-on-hover inline-block">📝</span> Sign up
+                </Link>
               </>
             )}
           </div>
         </nav>
       </header>
 
-      {/* 🔻 Mobile Drawer with Overlay */}
+      {/* Mobile Drawer with Overlay */}
       {isMobileMenuOpen && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40" onClick={() => setIsMobileMenuOpen(false)} />
-          <div
-            ref={mobileMenuRef}
-            className="fixed top-0 left-0 h-full w-[75%] max-w-xs bg-white dark:bg-gray-900 shadow-lg z-50 transform transition-transform duration-300 ease-in-out translate-x-0"
-          >
-            <ul className="flex flex-col px-4 py-6 space-y-4 text-sm font-medium">
-              {[['/', '🏠', 'Home'], ['#chatbots', '🤖', 'Chatbots'], ['#image-generators', '🖼️', 'Images'], ['#music-generators', '🎵', 'Music'], ['#data-analysis', '📊', 'Data'], ['#ai-diagrams', '📈', 'Diagrams'], ['#writing-tools', '✍️', 'Text'], ['#video-generators', '🎬', 'Video']].map(([link, icon, label]) => (
+         <div
+  ref={mobileMenuRef}
+  className="fixed top-0 left-0 h-full w-[75%] max-w-xs bg-white dark:bg-gray-900 shadow-lg z-50 transform transition-transform duration-300 ease-in-out translate-x-0 overflow-y-auto max-h-screen invisible-scrollbar"
+>
+            <ul className="flex flex-col px-4 py-6 space-y-4 text-sm font-medium pt-20 pb-10">
+              {[
+                ['/', '🏠', 'Home'],
+                ['#chatbots', '🤖', 'Chatbots'],
+                ['#image-generators', '🖼️', 'Images'],
+                ['#music-generators', '🎵', 'Music'],
+                ['#data-analysis', '📊', 'Data'],
+                ['#ai-diagrams', '📈', 'Diagrams'],
+                ['#writing-tools', '✍️', 'Text'],
+                ['#video-generators', '🎬', 'Video']
+              ].map(([link, icon, label]) => (
                 <li key={label}>
                   {link.startsWith('#') ? (
                     <button
-                      onClick={() => handleCategoryClick(link.slice(1))}
+                      onClick={(e) => handleCategoryClick(e, link.slice(1))}
                       className="w-full text-left flex items-center gap-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       <span className="spin-on-hover inline-block">{icon}</span>
@@ -308,40 +378,78 @@ const Header = () => {
                   )}
                 </li>
               ))}
-
-              <li>
-                <Link to="/about" onClick={() => { addToHistory('About', '/about'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400">
-                  <span className="spin-on-hover inline-block">ℹ️</span> About
+                            <li>
+                <Link 
+                  to="/about" 
+                  onClick={() => { 
+                    addToHistory('About', '/about'); 
+                    setIsMobileMenuOpen(false); 
+                  }} 
+                  className="flex items-center gap-2 p-2 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                >
+                  <span className="spin-on-hover inline-block">ℹ️</span>
+                  <span className="font-medium">About</span>
                 </Link>
               </li>
-              <li>
-                <Link to="/contact" onClick={() => { addToHistory('Contact', '/contact'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400">
-                  <span className="spin-on-hover inline-block">📞</span> Contact
+                            <li>
+                <Link 
+                  to="/contact" 
+                  onClick={() => { 
+                    addToHistory('Contact', '/contact'); 
+                    setIsMobileMenuOpen(false); 
+                  }} 
+                  className="flex items-center gap-2 p-2 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                >
+                  <span className="spin-on-hover inline-block">📞</span>
+                  <span className="font-medium">Contact</span>
                 </Link>
               </li>
-
               {isLoggedIn ? (
                 <>
                   <li>
-                    <Link to="/history" onClick={() => { addToHistory('History', '/history'); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400">
-                      <span className="spin-on-hover inline-block">📜</span> History
-                    </Link>
-                  </li>
-                  <li>
-                    <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 w-full text-left hover:text-blue-600 dark:hover:text-blue-400">
-                      <span className="spin-on-hover inline-block">🚪</span> Sign Out
-                    </button>
-                  </li>
+                <Link 
+                  to="/history" 
+                  onClick={() => { 
+                    addToHistory('History', '/history'); 
+                    setIsMobileMenuOpen(false); 
+                  }} 
+                  className="flex items-center gap-2 p-2 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                >
+                  <span className="text-lg spin-on-hover">📜</span>
+                  <span className="font-medium">History</span>
+                </Link>
+              </li>
+              <li>
+                <button 
+                  onClick={() => { 
+                    handleLogout(); 
+                    setIsMobileMenuOpen(false); 
+                  }} 
+                  className="flex items-center gap-2 w-full text-left p-2 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                >
+                  <span className="text-lg spin-on-hover">🚪</span>
+                  <span className="font-medium">Sign Out</span>
+                </button>
+              </li>
                 </>
               ) : (
                 <>
                   <li>
-                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400">
-                      <span className="spin-on-hover inline-block">🔐</span> Login
-                    </Link>
-                  </li>
+                <Link 
+                  to="/login" 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className="flex items-center gap-2 p-2 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                >
+                  <span className="spin-on-hover inline-block">🔐</span>
+                  <span className="font-medium">Login</span>
+                </Link>
+              </li>
                   <li>
-                    <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md flex items-center justify-center">
+                    <Link 
+                      to="/signup" 
+                      onClick={() => setIsMobileMenuOpen(false)} 
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md flex items-center justify-center"
+                    >
                       <span className="spin-on-hover inline-block">📝</span> Sign up
                     </Link>
                   </li>
@@ -359,7 +467,7 @@ const Header = () => {
           className="fixed bottom-6 right-6 bg-red-600 text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-all duration-200 hover:scale-110 animate-bounce z-50"
           title="Back to Top 🚀"
         >
-          <i className="fas fa-rocket text-lg spin-on-hover"></i>
+          <FontAwesomeIcon icon={faRocket} className="text-lg spin-on-hover" />
         </button>
       )}
     </PageWrapper>

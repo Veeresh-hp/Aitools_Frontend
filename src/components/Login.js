@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
+import Particles from 'react-tsparticles';
+import { loadSlim } from 'tsparticles-slim';
 
 const Login = () => {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
@@ -69,19 +71,57 @@ const Login = () => {
     }
   };
 
+  const particlesInit = useCallback(async (engine) => {
+    await loadSlim(engine);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f7f6fb] to-[#f0eff7] flex items-center justify-center p-4">
-      <div className="w-full max-w-md sm:max-w-lg px-4 sm:px-6 bg-white rounded-lg shadow-lg p-6 sm:p-8">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#f7f6fb] to-[#f0eff7] dark:from-gray-800 dark:to-black flex items-center justify-center p-4">
+      {/* Animated Background Particles */}
+      <Particles
+        id="tsparticles-login"
+        init={particlesInit}
+        className="absolute inset-0 z-0"
+        options={{
+          background: { color: { value: 'transparent' } },
+          fpsLimit: 60,
+          particles: {
+            number: { value: 40, density: { enable: true, area: 800 } },
+            color: { value: ['#f43f5e', '#3b82f6', '#22c55e'] },
+            shape: {
+              type: ['star', 'polygon'],
+              polygon: { nb_sides: 6 },
+            },
+            opacity: { value: 0.15 },
+            size: {
+              value: { min: 10, max: 20 },
+              animation: { enable: true, speed: 2, minimumValue: 5, sync: false },
+            },
+            move: {
+              enable: true,
+              speed: 1,
+              direction: 'none',
+              random: true,
+              straight: false,
+              outModes: { default: 'bounce' },
+            },
+          },
+          detectRetina: true,
+        }}
+      />
+
+      {/* Login Card */}
+      <div className="relative z-10 w-full max-w-md sm:max-w-lg px-4 sm:px-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 sm:p-8">
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <span className="font-black text-xl sm:text-2xl text-gray-900">AI</span>
+            <span className="font-black text-xl sm:text-2xl text-gray-900 dark:text-white">AI</span>
             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-red-600 rounded-full flex items-center justify-center">
               <i className="fas fa-brain text-white text-xs sm:text-sm"></i>
             </div>
-            <span className="font-black text-xl sm:text-2xl text-gray-900">TOOLS</span>
+            <span className="font-black text-xl sm:text-2xl text-gray-900 dark:text-white">TOOLS</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Welcome Back</h2>
-          <p className="text-gray-600 text-xs sm:text-sm mt-2">Sign in to access your AI tools</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h2>
+          <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm mt-2">Sign in to access your AI tools</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
@@ -91,27 +131,28 @@ const Login = () => {
             </div>
           )}
 
+          {/* Identifier */}
           <div>
-            <label htmlFor="identifier" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">
+            <label htmlFor="identifier" className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
               Username or Email
-              </label>
-              <input
+            </label>
+            <input
               type="text"
               id="identifier"
               name="identifier"
               value={formData.identifier}
               onChange={handleChange}
-              className={`w-full px-3 py-3 border rounded-md text-sm sm:text-base text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.identifier ? 'border-red-300 bg-red-50' : 'border-gray-300'
+              className={`w-full px-3 py-3 border rounded-md text-sm sm:text-base text-gray-900 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.identifier ? 'border-red-300 bg-red-50' : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="Enter your username or email"
             />
-
             {errors.identifier && <p className="text-red-600 text-xs mt-1">{errors.identifier}</p>}
           </div>
 
+          {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">
+            <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
               Password
             </label>
             <div className="relative">
@@ -121,26 +162,26 @@ const Login = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                 className={`w-full px-3 py-3 pr-10 border rounded-md text-sm sm:text-base text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                 errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                 }`}
+                className={`w-full px-3 py-3 pr-10 border rounded-md text-sm sm:text-base text-gray-900 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300 dark:border-gray-600'
+                }`}
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900 focus:outline-none"
-                aria-label="Toggle password visibility"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900"
               >
-                <i className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                <i className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`} />
               </button>
             </div>
             {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
           </div>
 
+          {/* Options */}
           <div className="flex flex-col sm:flex-row items-center justify-between mt-2">
-            <label className="flex items-center mb-2 sm:mb-0 text-xs sm:text-sm text-gray-600">
-              <input type="checkbox" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2" />
+            <label className="flex items-center mb-2 sm:mb-0 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+              <input type="checkbox" className="h-4 w-4 text-blue-600 border-gray-300 rounded mr-2" />
               Remember me
             </label>
             <button
@@ -148,10 +189,11 @@ const Login = () => {
               onClick={() => setShowResetModal(true)}
               className="text-xs sm:text-sm text-blue-600 hover:underline"
             >
-              Forgot password? <span aria-hidden="true">😅</span>
+              Forgot password? 😅
             </button>
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={isLoading}
@@ -159,7 +201,7 @@ const Login = () => {
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <i className="fas fa-spinner fa-spin mr-2"></i>
+                <i className="fas fa-spinner fa-spin mr-2" />
                 Signing in...
               </div>
             ) : (
@@ -167,15 +209,17 @@ const Login = () => {
             )}
           </button>
         </form>
+
+        {/* Password Reset Modal */}
         {showResetModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:px-4 backdrop-blur-sm">
             <div className="bg-white dark:bg-gray-900 rounded-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-sm space-y-4 shadow-2xl transition-all duration-300">
               <div className="flex justify-between items-center">
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                  Reset Password <span aria-hidden="true">🚀</span>
+                  Reset Password 🚀
                 </h3>
                 <button onClick={() => setShowResetModal(false)} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                  <i className="fas fa-times"></i>
+                  <i className="fas fa-times" />
                 </button>
               </div>
               <form onSubmit={handleResetSubmit} className="space-y-4">
@@ -198,16 +242,16 @@ const Login = () => {
                   type="submit"
                   className="w-full bg-blue-600 text-white text-xs sm:text-sm font-semibold py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  Send Reset Link <span aria-hidden="true">🪄</span>
+                  Send Reset Link 🪄
                 </button>
               </form>
             </div>
           </div>
         )}
 
-
+        {/* Signup Link */}
         <div className="mt-4 sm:mt-6 text-center">
-          <p className="text-xs sm:text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
             Don't have an account?{' '}
             <Link to="/signup" className="text-blue-600 hover:underline font-semibold">
               Sign up here

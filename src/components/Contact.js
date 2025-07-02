@@ -2,20 +2,31 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import Particles from 'react-tsparticles';
+import { loadSlim } from 'tsparticles-slim';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const launchConfetti = () => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!form.name || !form.email || !form.message) {
       toast.error('Please fill in all fields');
       return;
@@ -23,13 +34,10 @@ const Contact = () => {
 
     try {
       setIsLoading(true);
+      setShowSuccess(false);
 
-     const apiUrl =
-  (process.env.REACT_APP_API_URL?.trim() || 'http://localhost:5000') +
-  '/api/contact';
-
-
-      console.log('📬 Sending to:', apiUrl); // Debug log
+      const apiUrl =
+        (process.env.REACT_APP_API_URL?.trim() || 'http://localhost:5000') + '/api/contact';
 
       const res = await axios.post(apiUrl, form, {
         headers: { 'Content-Type': 'application/json' }
@@ -37,128 +45,141 @@ const Contact = () => {
 
       toast.success(res.data.message || 'Message sent!');
       setForm({ name: '', email: '', message: '' });
+      setShowSuccess(true);
+      launchConfetti();
+      setTimeout(() => setShowSuccess(false), 5000);
     } catch (error) {
-      console.error('❌ API Error:', error); // Debug log
-      toast.error(
-        error.response?.data?.error ||
-          error.message ||
-          'Server error. Please try again later.'
-      );
+      toast.error(error.response?.data?.error || 'Server error');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const particlesInit = async (main) => {
+    await loadSlim(main);
+  };
+
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="px-4 sm:px-6 md:px-12 lg:px-16 py-14 max-w-4xl mx-auto"
-    >
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-        Contact Us 📬
-      </h1>
+    <div className="relative overflow-hidden min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-emerald-100 dark:from-gray-800 dark:via-gray-900 dark:to-black">
+      {/* Background Particles */}
+      <Particles
+        id="tsparticles-contact"
+        init={particlesInit}
+        className="absolute inset-0 z-0"
+        options={{
+          background: { color: { value: 'transparent' } },
+          fpsLimit: 60,
+          particles: {
+            number: { value: 30, density: { enable: true, area: 800 } },
+            color: { value: ['#ec4899', '#3b82f6', '#10b981'] },
+            shape: { type: 'circle' },
+            opacity: { value: 0.2 },
+            size: {
+              value: { min: 20, max: 40 },
+              animation: { enable: true, speed: 2, minimumValue: 10 },
+            },
+            move: {
+              enable: true,
+              speed: 1,
+              random: true,
+              direction: 'none',
+              outModes: { default: 'bounce' },
+            },
+          },
+          detectRetina: true,
+        }}
+      />
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-md shadow-sm border border-gray-200 dark:border-gray-700">
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Got a question, suggestion, or just wanna chat about AI? We’re all
-          ears... or rather, all pixels! 😎
-        </p>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Drop us a line at{' '}
-          <a
-            href="mailto:aitoolshub2@gmail.com"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            support@aitoolshub.com
-          </a>{' '}
-          and we’ll get back to you faster than an AI can generate a meme! 🚀
-        </p>
+      <motion.section
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 px-4 sm:px-6 md:px-12 lg:px-16 py-14 max-w-4xl mx-auto"
+      >
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+          Contact Us 📬
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Your Name"
-              required
-            />
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300">
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            Got a question or idea? Let’s talk!
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+            {['name', 'email', 'message'].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
+                  {field}
+                </label>
+                {isLoading ? (
+                  <div className="h-10 rounded-md shimmer bg-gray-200 dark:bg-gray-700 w-full mt-1" />
+                ) : field === 'message' ? (
+                  <textarea
+                    name="message"
+                    rows="4"
+                    value={form.message}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Your message..."
+                    required
+                  />
+                ) : (
+                  <input
+                    type={field === 'email' ? 'email' : 'text'}
+                    name={field}
+                    value={form[field]}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder={`Your ${field}`}
+                    required
+                  />
+                )}
+              </div>
+            ))}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md text-sm hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {isLoading ? (
+                <i className="fas fa-spinner fa-spin" />
+              ) : showSuccess ? (
+                <i className="fas fa-paper-plane animate-float" />
+              ) : (
+                <i className="fas fa-envelope" />
+              )}
+              {isLoading ? 'Sending...' : showSuccess ? 'Sent!' : 'Send Message'}
+            </button>
+          </form>
+
+          {/* Social Links */}
+          <div className="mt-8">
+            <h3 className="text-gray-700 dark:text-gray-300 mb-2 font-semibold">Follow us:</h3>
+            <ul className="flex gap-4">
+              <li>
+                <a
+                  href="#"
+                  className="text-blue-500 hover:text-blue-700 text-sm flex items-center gap-1"
+                >
+                  <i className="fab fa-twitter" /> Twitter
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-800 dark:text-white hover:text-black text-sm flex items-center gap-1"
+                >
+                  <i className="fab fa-github" /> GitHub
+                </a>
+              </li>
+            </ul>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="you@example.com"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Message
-            </label>
-            <textarea
-              name="message"
-              value={form.message}
-              onChange={handleChange}
-              rows="4"
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Your message..."
-              required
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            className="bg-blue-600 text-white py-2 px-4 rounded-md text-sm hover:bg-blue-700 transition disabled:opacity-50"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Sending...' : 'Send Message'}
-          </button>
-        </form>
-
-        {/* Social Links */}
-        <div className="mt-8">
-          <h3 className="text-gray-700 dark:text-gray-300 mb-2 font-semibold">
-            Follow us:
-          </h3>
-          <ul className="flex gap-4">
-            <li>
-              <a
-                href="#"
-                className="text-blue-500 hover:text-blue-700 text-sm flex items-center gap-1"
-              >
-                <i className="fab fa-twitter"></i> Twitter
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="text-gray-800 dark:text-white hover:text-black text-sm flex items-center gap-1"
-              >
-                <i className="fab fa-github"></i> GitHub
-              </a>
-            </li>
-          </ul>
         </div>
-      </div>
 
-      <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
-    </motion.section>
+        <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
+      </motion.section>
+    </div>
   );
 };
 
