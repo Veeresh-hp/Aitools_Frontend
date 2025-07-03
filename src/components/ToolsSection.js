@@ -63,6 +63,7 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
       'gaming-tools': 'text-fuchsia-600',
       'short-clippers': 'text-rose-500',
       'faceless-video': 'text-zinc-600',
+      'portfolio-tools': 'text-amber-600',
     };
     return colorMap[categoryId] || 'text-gray-500 dark:text-gray-400';
   };

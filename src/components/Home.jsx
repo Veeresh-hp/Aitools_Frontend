@@ -3,7 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { m, LazyMotion, domAnimation, LayoutGroup } from 'framer-motion';
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaSearch } from 'react-icons/fa';
+import Fuse from 'fuse.js';
 
 const getCategoryIcon = (categoryId) => {
   const iconMap = {
@@ -22,6 +23,7 @@ const getCategoryIcon = (categoryId) => {
     'gaming-tools': 'fa-gamepad',
     'short-clippers': 'fa-cut',
     'faceless-video': 'fa-user-secret',
+    'portfolio-tools': 'fa-briefcase',
   };
   return iconMap[categoryId] || 'fa-box';
 };
@@ -43,34 +45,40 @@ const getColorClass = (categoryId) => {
     'gaming-tools': 'text-fuchsia-600',
     'short-clippers': 'text-rose-500',
     'faceless-video': 'text-zinc-600',
+    'portfolio-tools': 'text-amber-600',
   };
   return colorMap[categoryId] || 'text-gray-500 dark:text-gray-400';
 };
 
-const filterButtons = [
-  { name: 'All', id: 'all' },
-  { name: 'Faceless Video', id: 'faceless-video' },
-  { name: 'Video Generators', id: 'video-generators' },
-  { name: 'Writing Tools', id: 'writing-tools' },
-  { name: 'Presentation Tools', id: 'presentation-tools' },
-  { name: 'Short Clippers', id: 'short-clippers' },
-  { name: 'Marketing Tools', id: 'marketing-tools' },
-  { name: 'Voice Tools', id: 'voice-tools' },
-  { name: 'Website Builders', id: 'website-builders' },
-  { name: 'Image Generators', id: 'image-generators' },
-  { name: 'Chatbots', id: 'chatbots' },
-  { name: 'AI Music Generators', id: 'music-generators' },
-  { name: 'AI Data Analysis Tools', id: 'data-analysis' },
-  { name: 'AI Gaming Tools', id: 'gaming-tools' },
-  { name: 'UML, ER, Use Case Diagrams', id: 'ai-diagrams' },
-  { name: 'Other Tools', id: 'other-tools' },
-  { name: 'Utility Tools', id: 'utility-tools' },
-];
-
 const Home = ({ openModal }) => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [isHovered, setIsHovered] = useState(false);
+  const [displayedPlaceholder, setDisplayedPlaceholder] = useState('');
+
+  useEffect(() => {
+  const fullText = 'Search tools...';
+  let currentIndex = 0;
+
+  const interval = setInterval(() => {
+    setDisplayedPlaceholder((prev) => {
+      if (currentIndex < fullText.length) {
+        const next = prev + fullText[currentIndex];
+        currentIndex++;
+        return next;
+      } else {
+        clearInterval(interval);
+        return prev;
+      }
+    });
+  }, 100); // Typing speed
+
+  return () => clearInterval(interval);
+}, []);
+
 
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   const rawUsername = localStorage.getItem('username');
@@ -87,10 +95,35 @@ const Home = ({ openModal }) => {
   const getInitial = (name) => (name ? name.charAt(0).toUpperCase() : 'G');
   const displayName = formatName(username);
 
-  const handleSearch = () => setActiveFilter("all");
+  const toolList = toolsData.flatMap(category =>
+    category.tools.map(tool => ({ name: tool.name, category: category.id }))
+  );
+
+  const fuse = new Fuse(toolList, {
+    keys: ['name'],
+    threshold: 0.3,
+  });
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (value.trim() !== '') {
+      const results = fuse.search(value).map(r => r.item);
+      setSuggestions(results.slice(0, 5));
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSearch = () => {
+    setActiveFilter('all');
+    setSuggestions([]);
+  };
+
   const handleFilter = (category) => {
     setActiveFilter(category);
     setSearchQuery('');
+    setSuggestions([]);
   };
 
   const filteredTools = toolsData
@@ -128,13 +161,15 @@ const Home = ({ openModal }) => {
   return (
     <LazyMotion features={domAnimation}>
       <div className="relative overflow-hidden bg-gradient-to-br from-pink-100 via-blue-100 to-emerald-100 dark:from-gray-800 dark:via-gray-900 dark:to-black">
+        {/* Gradient blobs and overlays */}
         <div className="absolute -top-10 -left-10 w-72 h-72 bg-pink-300 opacity-20 rounded-full blur-3xl z-0 animate-pulse" />
         <div className="absolute top-20 -right-20 w-96 h-96 bg-blue-300 opacity-20 rounded-full blur-3xl z-0 animate-pulse delay-1000" />
         <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-emerald-300 opacity-20 rounded-full blur-3xl z-0 animate-pulse delay-2000" />
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/0 dark:from-white/5 dark:to-sky-700/5 backdrop-blur-sm pointer-events-none z-0" />
 
         <div className="relative z-10">
-          <section className="relative z-10 px-4 sm:px-6 md:px-10 lg:px-16 py-20 text-center">
+          {/* HERO SECTION */}
+          <section className="px-4 sm:px-6 md:px-10 lg:px-16 py-20 text-center">
             <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight drop-shadow-md">
               Welcome to <span className="text-red-600">AI Tools Hub</span>
             </h1>
@@ -159,48 +194,122 @@ const Home = ({ openModal }) => {
             </button>
           </section>
 
+          {/* TOOLS SECTION */}
           <section id="tools" className="relative z-10 px-4 sm:px-6 py-10">
             <h2 className="text-4xl font-bold mb-6 text-center text-gray-900 dark:text-white">Explore AI Tools</h2>
-            <m.div className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-2 sm:gap-0">
-              <div className="relative w-full sm:w-72">
-                <input
-                  type="text"
-                  placeholder="Search tools..."
-                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
-                />
-                {searchQuery && (
-                  <FaTimes
-                    className="absolute top-3 right-3 text-gray-500 cursor-pointer hover:text-red-500"
-                    onClick={() => setSearchQuery('')}
-                  />
-                )}
-              </div>
-              <m.button
-                className="mt-2 sm:mt-0 sm:ml-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                onClick={handleSearch}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Search
-              </m.button>
-            </m.div>
 
+            {/* 🔍 Search Input */}
+            <m.div className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-2 sm:gap-0 relative">
+  <div
+  className={`glowing-border relative transition-all duration-300 ease-in-out ${
+    isSearchFocused || isHovered || searchQuery.length > 0
+      ? 'w-full sm:w-[28rem]'
+      : 'w-full sm:w-[18rem]'
+  }`}
+  onMouseEnter={() => setIsHovered(true)}
+  onMouseLeave={() => setIsHovered(false)}
+>
+    <FaSearch className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
+    <input
+      type="text"
+      id="search"
+      className={`w-full pl-10 pr-10 py-2 text-sm border rounded-md bg-white dark:bg-gray-800
+        text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300
+        ${isSearchFocused ? 'ring-2 ring-blue-500 shadow-lg' : 'border-gray-300 dark:border-gray-700'}
+      `}
+      value={searchQuery}
+      onFocus={() => setIsSearchFocused(true)}
+      onBlur={() => {
+        setTimeout(() => {
+          // Only collapse if not hovered AND input is empty
+          if (!isHovered && searchQuery.trim() === '') {
+            setIsSearchFocused(false);
+          }
+        }, 150);
+      }}
+      onChange={handleInputChange}
+      onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
+    />
+    <label
+      htmlFor="search"
+      className={`absolute left-10 text-gray-500 dark:text-gray-400 transition-all duration-200 pointer-events-none
+        ${isSearchFocused || searchQuery ? 'top-[-0.6rem] text-xs bg-white dark:bg-gray-800 px-1' : 'top-2.5 text-sm'}
+      `}
+    >
+      Search tools...
+    </label>
+    {searchQuery && (
+      <FaTimes
+      className="absolute right-3 top-3 text-gray-500 cursor-pointer hover:text-red-500 z-10"
+        onClick={() => {
+          setSearchQuery('');
+          setSuggestions([]);
+        }}
+      />
+    )}
+  </div>
+
+  <m.button
+    className="mt-2 sm:mt-0 sm:ml-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700"
+    onClick={handleSearch}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    Search
+  </m.button>
+
+  {isSearchFocused && suggestions.length > 0 && (
+    <ul className="absolute top-full mt-1 w-full sm:w-[28rem] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-md text-sm z-20">
+      {suggestions.map((s, index) => (
+        <li
+          key={index}
+          className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-white"
+          onMouseDown={() => {
+            setSearchQuery(s.name);
+            setActiveFilter(s.category);
+            setSuggestions([]);
+          }}
+        >
+          {s.name}
+        </li>
+      ))}
+    </ul>
+  )}
+</m.div>
+
+
+            {/* FILTER BUTTONS */}
             <m.div className="flex flex-wrap justify-center gap-2 mb-8">
-              {filterButtons.map((btn) => (
+              {[
+                'all',
+                'faceless-video',
+                'video-generators',
+                'writing-tools',
+                'presentation-tools',
+                'short-clippers',
+                'marketing-tools',
+                'voice-tools',
+                'website-builders',
+                'image-generators',
+                'chatbots',
+                'music-generators',
+                'data-analysis',
+                'gaming-tools',
+                'ai-diagrams',
+                'utility-tools',
+                'portfolio-tools',
+              ].map((id) => (
                 <m.button
-                  key={btn.id}
-                  onClick={() => handleFilter(btn.id)}
+                  key={id}
+                  onClick={() => handleFilter(id)}
                   whileTap={{ scale: 0.95 }}
                   className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
-                    activeFilter === btn.id
+                    activeFilter === id
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
-                  {btn.name}
+                  {id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                 </m.button>
               ))}
             </m.div>
@@ -211,6 +320,7 @@ const Home = ({ openModal }) => {
               </div>
             )}
 
+            {/* TOOLS GRID */}
             <LayoutGroup>
               {filteredTools.map((category) => (
                 <m.div key={category.id} layout className="mb-10" data-category={category.id}>

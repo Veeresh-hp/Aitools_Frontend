@@ -114,6 +114,8 @@ const Header = () => {
     { name: 'AI Gaming Tools', id: 'gaming-tools' },
     { name: 'Other AI Tools', id: 'other-tools' },
     { name: 'Utility Tools', id: 'utility-tools' },
+    { name: 'Portfolio Tools', id: 'Portfolio' },
+
   ];
 
   const scrollToSection = (id) => {

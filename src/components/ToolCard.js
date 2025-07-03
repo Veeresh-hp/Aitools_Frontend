@@ -80,6 +80,7 @@ const ToolCard = ({ tool, openModal }) => {
       'gaming-tools': 'from-fuchsia-100 via-pink-100 to-purple-200',
       'short-clippers': 'from-rose-100 via-red-100 to-orange-100',
       'faceless-video': 'from-zinc-100 via-gray-100 to-slate-200',
+      'portfolio-tools': 'from-amber-100 via-yellow-100 to-orange-200',
     };
     return gradients[tool.category] || 'from-white via-blue-50 to-sky-100';
   };
@@ -136,7 +137,7 @@ const ToolCard = ({ tool, openModal }) => {
 
         {tool.comingSoon && (
           <span className="absolute top-2 right-2 text-[10px] font-semibold text-yellow-800 bg-yellow-400 px-2 py-1 rounded shadow-sm select-none">
-            Coming Soon
+            /*Coming soon */
           </span>
         )}
 

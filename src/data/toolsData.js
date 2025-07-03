@@ -188,6 +188,22 @@ const toolsData = [
     ],
   },
   {
+    id:'Portfolio',
+    name:'Ai Portfolio',
+    tools:[
+      { name: 'Macaly', description: 'AI for personal productivity and planning. 📅', icon: 'fas fa-calendar-alt', url: 'https://macaly.ai', isNew: true, comingSoon: false, badge: 'New'  },
+      { name: 'Bolt.new', description: 'AI to launch and test startup ideas fast. ⚡', icon: 'fas fa-rocket', url: 'https://bolt.new', isNew: true, comingSoon: false, badge: 'New', badge :'Recommended' },
+      { name: 'Lovable', description: 'AI for branding, naming, and storytelling. 💖', icon: 'fas fa-heart', url: 'https://lovable.so', isNew: true, comingSoon: false, badge: 'New',badge :'Recommended'  },
+      { name: 'Contra', description: 'AI-powered platform for independent creatives. 🧑‍🎨', icon: 'fas fa-briefcase', url: 'https://contra.com', isNew: true, comingSoon: false, badge: 'New'  },
+      { name: 'Framer', description: 'AI-powered site builder for designers. 🖌️', icon: 'fas fa-laptop-code', url: 'https://framer.com', isNew: false, comingSoon: false, badge: 'New'  },
+      { name: 'Goodbrief.io', description: 'AI-generated design briefs for practice. ✍️', icon: 'fas fa-lightbulb', url: 'https://goodbrief.io', isNew: false, comingSoon: false, badge: 'New'  },
+      { name: 'Cofolios', description: 'AI-assisted portfolio builder for designers. 🎨', icon: 'fas fa-folder-open', url: 'https://cofolios.com', isNew: true, comingSoon: false, badge: 'New'  },
+      { name: 'Oddo', description: 'AI-powered tool to remix and generate visual assets. 🌀', icon: 'fas fa-magic', url: 'https://oddo.ai', isNew: true, comingSoon: false, badge: 'New'  },
+      { name: 'Awwwards', description: 'Showcase of the best web design & innovation. 🏆', icon: 'fas fa-award', url: 'https://awwwards.com', isNew: false, comingSoon: false, badge: 'New'  },
+
+    ],
+  },
+  {
     id: 'gaming-tools',
     name: 'AI Gaming Tools',
     tools: [
