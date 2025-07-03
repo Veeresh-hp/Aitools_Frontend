@@ -22,6 +22,8 @@ const getCategoryIcon = (categoryId) => {
     'gaming-tools': 'fa-gamepad',
     'short-clippers': 'fa-cut',
     'faceless-video': 'fa-user-secret',
+    'Portfolio': 'fa-briefcase',
+
   };
   return iconMap[categoryId] || 'fa-box';
 };
@@ -43,6 +45,8 @@ const getColorClass = (categoryId) => {
     'gaming-tools': 'text-fuchsia-600',
     'short-clippers': 'text-rose-500',
     'faceless-video': 'text-zinc-600',
+    'Portfolio': 'text-amber-600',
+    
   };
   return colorMap[categoryId] || 'text-gray-500 dark:text-gray-400';
 };
@@ -104,6 +108,7 @@ const Hero = ({ openModal }) => {
     { name: 'UML, ER, Use Case Diagrams', id: 'ai-diagrams' },
     { name: 'Other Tools', id: 'other-tools' },
     { name: 'Utility Tools', id: 'utility-tools' },
+    { name: 'Ai Portfolio', id: 'Portfolio' },
   ];
 
   return (

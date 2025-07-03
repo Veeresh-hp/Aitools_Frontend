@@ -23,7 +23,7 @@ const getCategoryIcon = (categoryId) => {
     'gaming-tools': 'fa-gamepad',
     'short-clippers': 'fa-cut',
     'faceless-video': 'fa-user-secret',
-    'portfolio-tools': 'fa-briefcase',
+    'Portfolio': 'fa-briefcase',
   };
   return iconMap[categoryId] || 'fa-box';
 };
@@ -45,7 +45,7 @@ const getColorClass = (categoryId) => {
     'gaming-tools': 'text-fuchsia-600',
     'short-clippers': 'text-rose-500',
     'faceless-video': 'text-zinc-600',
-    'portfolio-tools': 'text-amber-600',
+    'Portfolio': 'text-amber-600',
   };
   return colorMap[categoryId] || 'text-gray-500 dark:text-gray-400';
 };
@@ -60,24 +60,26 @@ const Home = ({ openModal }) => {
   const [displayedPlaceholder, setDisplayedPlaceholder] = useState('');
 
   useEffect(() => {
-  const fullText = 'Search tools...';
-  let currentIndex = 0;
-
-  const interval = setInterval(() => {
-    setDisplayedPlaceholder((prev) => {
-      if (currentIndex < fullText.length) {
-        const next = prev + fullText[currentIndex];
-        currentIndex++;
-        return next;
-      } else {
-        clearInterval(interval);
-        return prev;
-      }
-    });
-  }, 100); // Typing speed
-
-  return () => clearInterval(interval);
+  if (window.innerWidth < 480) setDisplayedPlaceholder('Search tools...');
+  else {
+    const fullText = 'Search tools...';
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      setDisplayedPlaceholder((prev) => {
+        if (currentIndex < fullText.length) {
+          const next = prev + fullText[currentIndex];
+          currentIndex++;
+          return next;
+        } else {
+          clearInterval(interval);
+          return prev;
+        }
+      });
+    }, 100);
+    return () => clearInterval(interval);
+  }
 }, []);
+
 
 
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -199,21 +201,21 @@ const Home = ({ openModal }) => {
             <h2 className="text-4xl font-bold mb-6 text-center text-gray-900 dark:text-white">Explore AI Tools</h2>
 
             {/* 🔍 Search Input */}
-            <m.div className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-2 sm:gap-0 relative">
+          <m.div className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-2 sm:gap-0 relative w-full sm:w-auto">
   <div
-  className={`glowing-border relative transition-all duration-300 ease-in-out ${
-    isSearchFocused || isHovered || searchQuery.length > 0
-      ? 'w-full sm:w-[28rem]'
-      : 'w-full sm:w-[18rem]'
-  }`}
-  onMouseEnter={() => setIsHovered(true)}
-  onMouseLeave={() => setIsHovered(false)}
->
+    className={`glowing-border relative transition-all duration-300 ease-in-out rounded-full w-full ${
+      isSearchFocused || isHovered || searchQuery.length > 0
+        ? 'sm:w-[28rem] border-2 border-transparent ring-2 ring-blue-500 shadow-lg'
+        : 'sm:w-[18rem] border-2 border-transparent'
+    }`}
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
+  >
     <FaSearch className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
     <input
       type="text"
       id="search"
-      className={`w-full pl-10 pr-10 py-2 text-sm border rounded-md bg-white dark:bg-gray-800
+      className={`w-full pl-10 pr-10 py-2 text-sm border rounded-full bg-white dark:bg-gray-800
         text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300
         ${isSearchFocused ? 'ring-2 ring-blue-500 shadow-lg' : 'border-gray-300 dark:border-gray-700'}
       `}
@@ -221,7 +223,6 @@ const Home = ({ openModal }) => {
       onFocus={() => setIsSearchFocused(true)}
       onBlur={() => {
         setTimeout(() => {
-          // Only collapse if not hovered AND input is empty
           if (!isHovered && searchQuery.trim() === '') {
             setIsSearchFocused(false);
           }
@@ -240,7 +241,7 @@ const Home = ({ openModal }) => {
     </label>
     {searchQuery && (
       <FaTimes
-      className="absolute right-3 top-3 text-gray-500 cursor-pointer hover:text-red-500 z-10"
+        className="absolute right-3 top-3 text-gray-500 cursor-pointer hover:text-red-500 z-10"
         onClick={() => {
           setSearchQuery('');
           setSuggestions([]);
@@ -249,8 +250,20 @@ const Home = ({ openModal }) => {
     )}
   </div>
 
+  <style jsx>{`
+    .glowing-border {
+      box-shadow: 0 0 5px rgba(58, 134, 255, 0.5), 0 0 10px rgba(58, 134, 255, 0.3);
+      transition: box-shadow 0.3s ease-in-out;
+      border-radius: 9999px;
+    }
+
+    .glowing-border:hover {
+      box-shadow: 0 0 10px rgba(58, 134, 255, 0.7), 0 0 20px rgba(58, 134, 255, 0.5);
+    }
+  `}</style>
+
   <m.button
-    className="mt-2 sm:mt-0 sm:ml-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700"
+    className="mt-2 sm:mt-0 sm:ml-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700"
     onClick={handleSearch}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
@@ -259,7 +272,7 @@ const Home = ({ openModal }) => {
   </m.button>
 
   {isSearchFocused && suggestions.length > 0 && (
-    <ul className="absolute top-full mt-1 w-full sm:w-[28rem] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-md text-sm z-20">
+    <ul className="absolute top-full mt-1 w-full sm:w-[28rem] max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-md text-sm z-20 overflow-hidden">
       {suggestions.map((s, index) => (
         <li
           key={index}
@@ -276,8 +289,6 @@ const Home = ({ openModal }) => {
     </ul>
   )}
 </m.div>
-
-
             {/* FILTER BUTTONS */}
             <m.div className="flex flex-wrap justify-center gap-2 mb-8">
               {[
@@ -297,7 +308,7 @@ const Home = ({ openModal }) => {
                 'gaming-tools',
                 'ai-diagrams',
                 'utility-tools',
-                'portfolio-tools',
+                'Portfolio',
               ].map((id) => (
                 <m.button
                   key={id}
