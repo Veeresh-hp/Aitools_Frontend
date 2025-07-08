@@ -282,3 +282,57 @@ html {
     transform: rotate(360deg);
   }
 }
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Custom Property for rotation */
+@property --angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.rotating-border {
+  position: relative;
+  z-index: 1;
+}
+
+.rotating-border-overlay {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle), red, orange, yellow, green, blue, indigo, violet, red);
+  z-index: 0;
+  animation: spin 4s linear infinite;
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 2px;
+}
+
+/* Animation for rotating conic border */
+@keyframes spin {
+  to {
+    --angle: 360deg;
+  }
+}
