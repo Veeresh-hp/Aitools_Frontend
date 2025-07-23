@@ -1,3 +1,4 @@
+/* App.css */
 /* Active Filter Button */
 .filter-btn.active {
   background-color: #3b82f6;
@@ -56,20 +57,9 @@ nav button:hover {
   animation: fadeIn 0.3s ease-out;
 }
 
-body {
-  background-color: white;
-}
-
-/* Optional global dark mode styles */
-body.dark {
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-.dark {
-  background-color: #121212 !important;
-  color: #e0e0e0 !important;
-}
+/* REMOVED: body { background-color: white; } */
+/* REMOVED: body.dark { background-color: #121212; color: #e0e0e0; } */
+/* REMOVED: .dark { background-color: #121212 !important; color: #e0e0e0 !important; } */
 
 
 @layer utilities {

@@ -18,9 +18,24 @@ const toolsData = [
       { name: 'Chatsonic', description: 'Real-time info, voice input, GPT-based.', icon: 'fas fa-comment-alt', url: 'https://writesonic.com/chat', isNew: false, comingSoon: false },
       { name: 'Poe', description: 'Aggregates GPT-4, Claude, Gemini, etc., into one interface.', icon: 'fas fa-comment-alt', url: 'https://poe.com/login', isNew: false, comingSoon: false },
       { name: 'Mistral Chat', description: 'Extremely fast and responsive using open LLMs.', icon: 'fas fa-comment-alt', url: 'https://chat.mistral.ai/chat', isNew: false, comingSoon: false, badge: 'New' },
-      { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },
-    ],
+      { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },  
+      { name: 'Kiro',description: 'Fast, keyboard-first AI assistant tailored for developers. Works locally with your code, privacy-first, no sign-up needed.',icon: 'fas fa-code', /* or 'fas fa-code' if you prefer a code-related icon'*/ url: 'https://kiro.dev',isNew: true,comingSoon: false,badge: 'New'},
+      {name: 'Kimi',description: 'Powerful, open‑source AI assistant built on Moonshot AI’s K2 model—supports code, deep reasoning, multimodal understanding & large-context workflows.',icon: 'fas fa-robot',url: 'https://www.kimi.com',isNew: true,comingSoon: false,badge:'New'},
+      {name: 'ChatGPT Free AI',description: 'Free ChatGPT alternative with no login required. Access powerful GPT-4-like chat experience in your browser anytime.',icon: 'fas fa-comments',url: 'https://chatgptfree.ai/chat/',isNew: true,comingSoon: false,badge: 'Free'}
+      // { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },  
+      ],
   },
+  {
+  id: 'text-humanizer-ai',
+  name: 'Text Humanizer AI Tools',
+  tools: [
+    {name: 'Humanize AI Text',description: 'Convert robotic or AI-generated content into natural, human-like text that sounds authentic and engaging.',url: 'https://www.humanizeaitext.org',icon: 'fas fa-user-edit',isNew: true,comingSoon: false,badge:'New'},
+    {name: 'Hume.ai',description: 'Empathy-driven AI that enhances your text by adding emotional intelligence and human tone.',url: 'https://www.hume.ai',icon: 'fas fa-heart',isNew: true,comingSoon: false,badge:'New'},
+    {name: 'Quillbot Humanizer',description: 'Refines and rewrites AI-generated text to sound more natural using advanced paraphrasing models.',url: 'https://quillbot.com',icon: 'fas fa-pen-nib',comingSoon: false,badge:'New'},
+    {name: 'BypassGPT',description: 'Humanize AI-generated content to bypass detection tools while keeping the meaning intact and natural-sounding.',url: 'https://www.bypassgpt.ai/',icon: 'fas fa-user-secret',isNew: true,comingSoon: false,badge:'New' },
+    {name: 'HIX Bypass AI',description: 'Make AI-generated text undetectable by AI detectors using advanced rewriting and humanizing techniques.',url: 'https://bypass.hix.ai/humanize-ai',icon: 'fas fa-user-edit',isNew: true,comingSoon: false,badge:'New' },
+  ]
+},
   {
     id: 'faceless-video',
     name: 'Faceless AI Video Tools',

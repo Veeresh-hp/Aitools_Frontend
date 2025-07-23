@@ -1,12 +1,51 @@
+/* index.css */
 @import "tailwindcss/preflight";
 @tailwind utilities;
 
-body {
-  @apply bg-black text-white dark:bg-gray-900 dark:text-white;
+
+
+@layer utilities {
+  @keyframes smokeRise {
+    0% {
+      opacity: 0.3;
+      transform: translateY(0) scaleY(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: translateY(-0.5rem) scaleY(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-1.2rem) scaleY(1.4);
+    }
+  }
+
+  .animate-smoke {
+    animation: smokeRise 1.5s ease-out infinite;
+  }
 }
+
+/*
+  Removed:
+  body {
+    @apply bg-black text-white dark:bg-gray-900 dark:text-white;
+  }
+  We will let the root div in App.js handle the main background and text colors.
+*/
+body {
+  /* Ensure body doesn't have a conflicting background or text color */
+  /* You can set it to transparent or a very light/dark base if needed,
+     but the App.js root div should handle the main theme colors. */
+  margin: 0; /* Important for full-width/height layouts */
+  padding: 0; /* Important for full-width/height layouts */
+}
+
+
+/* Removed:
 b {
   @apply bg-white text-black dark:bg-gray-900 dark:text-white;
 }
+*/
 
 html {
   scroll-behavior: smooth;
@@ -319,11 +358,11 @@ html {
   background: conic-gradient(from var(--angle), red, orange, yellow, green, blue, indigo, violet, red);
   z-index: 0;
   animation: spin 4s linear infinite;
-  mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   -webkit-mask:
-    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
   -webkit-mask-composite: xor;
@@ -335,4 +374,13 @@ html {
   to {
     --angle: 360deg;
   }
+}
+
+/* Hide scrollbars but still allow scrolling */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }

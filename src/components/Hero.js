@@ -23,7 +23,7 @@ const getCategoryIcon = (categoryId) => {
     'short-clippers': 'fa-cut',
     'faceless-video': 'fa-user-secret',
     'Portfolio': 'fa-briefcase',
-
+    'text-humanizer-ai': 'text-purple-600',
   };
   return iconMap[categoryId] || 'fa-box';
 };
@@ -46,7 +46,7 @@ const getColorClass = (categoryId) => {
     'short-clippers': 'text-rose-500',
     'faceless-video': 'text-zinc-600',
     'Portfolio': 'text-amber-600',
-    
+    'text-humanizer-ai': 'text-purple-600',    
   };
   return colorMap[categoryId] || 'text-gray-500 dark:text-gray-400';
 };
@@ -109,6 +109,7 @@ const Hero = ({ openModal }) => {
     { name: 'Other Tools', id: 'other-tools' },
     { name: 'Utility Tools', id: 'utility-tools' },
     { name: 'Ai Portfolio', id: 'Portfolio' },
+    { name : 'Text Humanizer AI Tools', id : 'text-humanizer-ai'},
   ];
 
   return (

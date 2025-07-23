@@ -81,6 +81,7 @@ const ToolCard = ({ tool, openModal }) => {
       'short-clippers': 'from-rose-100 via-red-100 to-orange-100',
       'faceless-video': 'from-zinc-100 via-gray-100 to-slate-200',
       'portfolio-tools': 'from-amber-100 via-yellow-100 to-orange-200',
+      'text-humanizer-ai': 'from-indigo-100 via-purple-100 to-pink-200',
     };
     return gradients[tool.category] || 'from-white via-blue-50 to-sky-100';
   };

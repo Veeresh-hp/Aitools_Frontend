@@ -43,7 +43,7 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
       'short-clippers': 'fa-cut',
       'faceless-video': 'fa-user-secret',
       'Portfolio': 'fa-briefcase',
-
+      'text-humanizer-ai': 'text-purple-600',
     };
     return iconMap[categoryId] || 'fa-box';
   };
@@ -66,6 +66,7 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
       'short-clippers': 'text-rose-500',
       'faceless-video': 'text-zinc-600',
       'Portfolio': 'text-amber-600',
+      'text-humanizer-ai': 'text-purple-600',
     };
     return colorMap[categoryId] || 'text-gray-500 dark:text-gray-400';
   };

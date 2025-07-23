@@ -497,6 +497,7 @@ const Home = ({ openModal }) => {
               'ai-diagrams',
               'utility-tools',
               'Portfolio',
+              'text-humanizer-ai'            
             ].map((id) => (
               <m.button
                 key={id}
