@@ -159,7 +159,7 @@ const Hero = ({ openModal }) => {
             className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-2 sm:gap-0"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.3 }}  // Reduced from 0.4
           >
             <div className="relative w-full sm:w-72">
               <input
@@ -192,7 +192,7 @@ const Hero = ({ openModal }) => {
             className="flex flex-wrap justify-center gap-2 mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
+            transition={{ duration: 0.3 }}  // Removed delay
           >
             {filterButtons.map((btn) => (
               <m.button
@@ -226,7 +226,7 @@ const Hero = ({ openModal }) => {
                   className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.3 }}  // Reduced from 0.5
                 >
                   <div className="flex items-center gap-2 mb-4">
                     <i className={`fas ${getCategoryIcon(category.id)} text-lg ${getColorClass(category.id)}`} />

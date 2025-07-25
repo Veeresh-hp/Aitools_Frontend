@@ -14,8 +14,8 @@ const ToolCard = ({ tool, openModal }) => {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateAmountX = -(y - centerY) / 15;
-    const rotateAmountY = (x - centerX) / 15;
+    const rotateAmountX = -(y - centerY) / 20;
+    const rotateAmountY = (x - centerX) / 20;
 
     rotateX.set(rotateAmountX);
     rotateY.set(rotateAmountY);
@@ -26,22 +26,21 @@ const ToolCard = ({ tool, openModal }) => {
     rotateY.set(0);
   };
 
- const handleClick = (e) => {
-  if (tool.comingSoon) return;
+  const handleClick = (e) => {
+    if (tool.comingSoon) return;
 
-  const ripple = document.createElement('span');
-  ripple.className = 'ripple';
-  ripple.style.left = `${e.nativeEvent.offsetX}px`;
-  ripple.style.top = `${e.nativeEvent.offsetY}px`;
-  cardRef.current.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 600);
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.left = `${e.nativeEvent.offsetX}px`;
+    ripple.style.top = `${e.nativeEvent.offsetY}px`;
+    cardRef.current.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
 
-// ✅ Safe check before calling
-  if (typeof openModal === 'function') {
-    openModal(tool);
-  } else {
-    console.warn("openModal is not a function", openModal);
-  }
+    if (typeof openModal === 'function') {
+      openModal(tool);
+    } else {
+      console.warn("openModal is not a function", openModal);
+    }
   };
 
   const handleGetToolClick = (e) => {
@@ -65,40 +64,63 @@ const ToolCard = ({ tool, openModal }) => {
 
   const getCategoryGradient = (category) => {
     const gradients = {
-      chatbots: 'from-violet-100 via-indigo-100 to-indigo-200',
-      'image-generators': 'from-rose-100 via-pink-100 to-pink-200',
-      'music-generators': 'from-green-100 via-teal-100 to-teal-200',
-      'data-analysis': 'from-teal-100 via-cyan-100 to-sky-200',
-      'ai-diagrams': 'from-indigo-100 via-purple-100 to-purple-200',
-      'writing-tools': 'from-blue-100 via-sky-100 to-blue-200',
-      'video-generators': 'from-red-100 via-rose-100 to-orange-200',
-      'utility-tools': 'from-gray-100 via-slate-100 to-zinc-200',
-      'marketing-tools': 'from-orange-100 via-yellow-100 to-amber-200',
-      'voice-tools': 'from-yellow-100 via-amber-100 to-orange-200',
-      'presentation-tools': 'from-cyan-100 via-sky-100 to-indigo-200',
-      'website-builders': 'from-emerald-100 via-green-100 to-lime-200',
-      'gaming-tools': 'from-fuchsia-100 via-pink-100 to-purple-200',
-      'short-clippers': 'from-rose-100 via-red-100 to-orange-100',
-      'faceless-video': 'from-zinc-100 via-gray-100 to-slate-200',
-      'portfolio-tools': 'from-amber-100 via-yellow-100 to-orange-200',
-      'text-humanizer-ai': 'from-indigo-100 via-purple-100 to-pink-200',
+      chatbots: 'from-violet-600/20 via-indigo-600/20 to-purple-600/20',
+      'image-generators': 'from-rose-600/20 via-pink-600/20 to-fuchsia-600/20',
+      'music-generators': 'from-green-600/20 via-teal-600/20 to-emerald-600/20',
+      'data-analysis': 'from-teal-600/20 via-cyan-600/20 to-sky-600/20',
+      'ai-diagrams': 'from-indigo-600/20 via-purple-600/20 to-violet-600/20',
+      'writing-tools': 'from-blue-600/20 via-sky-600/20 to-cyan-600/20',
+      'video-generators': 'from-red-600/20 via-rose-600/20 to-orange-600/20',
+      'utility-tools': 'from-gray-600/20 via-slate-600/20 to-zinc-600/20',
+      'marketing-tools': 'from-orange-600/20 via-yellow-600/20 to-amber-600/20',
+      'voice-tools': 'from-yellow-600/20 via-amber-600/20 to-orange-600/20',
+      'presentation-tools': 'from-cyan-600/20 via-sky-600/20 to-indigo-600/20',
+      'website-builders': 'from-emerald-600/20 via-green-600/20 to-lime-600/20',
+      'gaming-tools': 'from-fuchsia-600/20 via-pink-600/20 to-purple-600/20',
+      'short-clippers': 'from-rose-600/20 via-red-600/20 to-orange-600/20',
+      'faceless-video': 'from-zinc-600/20 via-gray-600/20 to-slate-600/20',
+      'portfolio-tools': 'from-amber-600/20 via-yellow-600/20 to-orange-600/20',
+      'text-humanizer-ai': 'from-indigo-600/20 via-purple-600/20 to-pink-600/20',
     };
-    return gradients[tool.category] || 'from-white via-blue-50 to-sky-100';
+    return gradients[tool.category] || 'from-blue-600/20 via-purple-600/20 to-indigo-600/20';
   };
 
   const getBadgeClass = (badge) => {
     switch (badge) {
       case 'Recommended':
-        return 'text-yellow-400 border-yellow-400 bg-yellow-100 dark:bg-yellow-900 shadow-md shadow-yellow-300/30 animate-[shimmer_1.5s_linear_infinite] bg-[length:200%_auto] bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-100';
+        return 'text-yellow-300 border-yellow-400/50 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm shadow-lg shadow-yellow-500/20 animate-pulse';
       case 'New':
-        return 'text-green-400 border-green-400 bg-green-100 dark:bg-green-900';
+        return 'text-green-300 border-green-400/50 bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm';
       case 'Free':
-        return 'text-emerald-500 border-emerald-500 bg-emerald-50 dark:bg-emerald-900';
+        return 'text-emerald-300 border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-sm';
       case 'Trending':
-        return 'text-red-500 border-red-500 bg-red-100 dark:bg-red-900 shadow shadow-red-400/30';
+        return 'text-red-300 border-red-400/50 bg-gradient-to-r from-red-500/20 to-pink-500/20 backdrop-blur-sm shadow-lg shadow-red-500/20';
       default:
-        return 'text-blue-400 border-blue-400 bg-blue-100 dark:bg-blue-900';
+        return 'text-blue-300 border-blue-400/50 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-sm';
     }
+  };
+
+  const getIconColor = (category) => {
+    const colors = {
+      chatbots: 'text-violet-400',
+      'image-generators': 'text-pink-400',
+      'music-generators': 'text-green-400',
+      'data-analysis': 'text-teal-400',
+      'ai-diagrams': 'text-indigo-400',
+      'writing-tools': 'text-blue-400',
+      'video-generators': 'text-red-400',
+      'utility-tools': 'text-gray-400',
+      'marketing-tools': 'text-orange-400',
+      'voice-tools': 'text-yellow-400',
+      'presentation-tools': 'text-cyan-400',
+      'website-builders': 'text-emerald-400',
+      'gaming-tools': 'text-fuchsia-400',
+      'short-clippers': 'text-rose-400',
+      'faceless-video': 'text-zinc-400',
+      'portfolio-tools': 'text-amber-400',
+      'text-humanizer-ai': 'text-purple-400',
+    };
+    return colors[tool.category] || 'text-blue-400';
   };
 
   return (
@@ -116,103 +138,146 @@ const ToolCard = ({ tool, openModal }) => {
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
-  if ((e.key === 'Enter' || e.key === ' ') && !tool.comingSoon && typeof openModal === 'function') {
-    openModal(tool);
-  }
-}}
+          if ((e.key === 'Enter' || e.key === ' ') && !tool.comingSoon && typeof openModal === 'function') {
+            openModal(tool);
+          }
+        }}
         aria-disabled={tool.comingSoon}
         aria-label={`${tool.name} tool card${tool.comingSoon ? ', coming soon' : ''}`}
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        whileHover={!tool.comingSoon ? { scale: 1.03 } : {}}
+        whileHover={!tool.comingSoon ? { 
+          scale: 1.05, 
+          y: -5,
+          transition: { duration: 0.3, ease: "easeOut" }
+        } : {}}
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className={`
-          relative overflow-hidden rounded-xl p-4 flex flex-col gap-2
-          bg-gradient-to-tr ${getCategoryGradient(tool.category)} dark:from-gray-700 dark:via-gray-800 dark:to-gray-900
-          text-gray-900 dark:text-white shadow-md hover:shadow-lg hover:shadow-blue-200 dark:hover:shadow-sky-700/30
-          transition-all duration-150 ease-out
-          ${!tool.comingSoon ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}
+          group relative overflow-hidden rounded-2xl p-6 flex flex-col gap-4 h-full
+          bg-gradient-to-br ${getCategoryGradient(tool.category)} 
+          backdrop-blur-xl border border-white/10
+          text-white shadow-lg hover:shadow-2xl hover:shadow-blue-500/10
+          transition-all duration-300 ease-out
+          ${!tool.comingSoon ? 'cursor-pointer hover:border-white/20' : 'cursor-not-allowed opacity-60'}
         `}
       >
-        <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-transparent to-white/10 dark:to-sky-700/5" />
+        {/* Animated background overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Subtle animated border */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/0 via-purple-500/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" 
+             style={{ background: 'linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent)' }} />
 
         {tool.comingSoon && (
-          <span className="absolute top-2 right-2 text-[10px] font-semibold text-yellow-800 bg-yellow-400 px-2 py-1 rounded shadow-sm select-none">
-            /*Coming soon */
-          </span>
+          <m.span 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute top-3 right-3 text-xs font-semibold text-yellow-300 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-400/30 px-3 py-1 rounded-full shadow-lg z-20"
+          >
+            Coming Soon
+          </m.span>
         )}
 
         <style>{`
           .ripple {
             position: absolute;
-            width: 80px;
-            height: 80px;
-            background: rgba(0, 255, 255, 0.3);
-            border-radius: 9999px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%);
             animation: ripple-animation 0.6s ease-out;
-            z-index: 0;
+            z-index: 10;
           }
 
           @keyframes ripple-animation {
             from { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-            to { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(3); opacity: 0; }
           }
 
-          @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
           }
 
-          @keyframes pulseIcon {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
+          @keyframes glow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+          }
+
+          .icon-hover {
+            transition: all 0.3s ease;
+          }
+
+          .group:hover .icon-hover {
+            animation: float 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px currentColor);
           }
         `}</style>
 
-        <div className="relative z-10">
-          <div className="tooltip group w-max" aria-label={tool.name}>
-            <i className={`${tool.icon} text-lg text-blue-500 group-hover:animate-[pulseIcon_1s_infinite]`} />
-            <span className="tooltip-text group-hover:opacity-100">{tool.name}</span>
+        {/* Icon and Title Section */}
+        <div className="relative z-10 flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300">
+              <i className={`${tool.icon} text-xl ${getIconColor(tool.category)} icon-hover`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-lg text-white truncate group-hover:text-blue-200 transition-colors duration-300">
+                {tool.name}
+              </h3>
+              {tool.badge && (
+                <m.span 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className={`inline-block text-xs font-medium border rounded-full px-2 py-1 mt-1 ${getBadgeClass(tool.badge)}`}
+                >
+                  {tool.badge}
+                </m.span>
+              )}
+            </div>
           </div>
         </div>
 
-        <h3 className="font-semibold text-sm flex items-center gap-2 z-10">
-          {tool.badge && (
-            <span className={`text-[10px] font-semibold border rounded px-1 py-[1px] select-none ${getBadgeClass(tool.badge)}`}>
-              {tool.badge}
-            </span>
-          )}
-        </h3>
-
-        <p className="text-xs text-gray-600 dark:text-gray-300 leading-tight z-10">
+        {/* Description */}
+        <p className="text-sm text-gray-300 leading-relaxed flex-1 group-hover:text-gray-200 transition-colors duration-300">
           {tool.description}
         </p>
 
-        {!tool.comingSoon ? (
-          <a
-            href={tool.url || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`text-xs z-10 mt-auto text-blue-500 hover:underline hover:scale-105 transition-transform duration-200 relative group`}
-            onClick={handleGetToolClick}
-          >
-            Get Tool
-            <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] text-white bg-black rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              Visit external link
-            </span>
-          </a>
-        ) : (
-          <button
-            disabled
-            className="text-xs z-10 text-gray-500 mt-auto cursor-not-allowed"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Get Tool
-          </button>
-        )}
+        {/* Action Button */}
+        <div className="relative z-10 mt-auto pt-2">
+          {!tool.comingSoon ? (
+            <m.a
+              href={tool.url || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleGetToolClick}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="group/btn relative inline-flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300 overflow-hidden"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Get Tool
+                <svg className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+            </m.a>
+          ) : (
+            <button
+              disabled
+              className="w-full px-4 py-3 text-sm font-medium text-gray-500 bg-gray-800/50 rounded-xl cursor-not-allowed border border-gray-700/50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Coming Soon
+            </button>
+          )}
+        </div>
+
+        {/* Hover glow effect */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       </m.article>
     </LazyMotion>
   );

@@ -12,7 +12,7 @@ const toolsData = [
       { name: 'AIPRM', description: 'Over 2,500 free ChatGPT prompts.', url: 'https://www.aiprm.com', icon: 'fas fa-comment-alt', isNew: false, comingSoon: false },
       { name: 'Grok', description: 'AI assistant by xAI, witty and truth-seeking.', icon: 'fas fa-comment-alt', url: 'https://x.ai/grok', isNew: true, comingSoon: false, badge: 'Recommended' },
       { name: 'Claude', description: 'Conversational AI by Anthropic, safe and helpful.', icon: 'fas fa-comment-alt', url: 'https://claude.ai/new', isNew: false, comingSoon: false },
-      { name: 'Gemini (Bard)', description: 'Google’s most advanced AI, now branded Gemini, with Search integration.', icon: 'fas fa-comment-alt', url: 'https://gemini.google.com/app', isNew: false, comingSoon: false },
+      { name: 'Gemini (Bard)', description: 'Google’s most advanced AI, now branded Gemini, with Search integration.', icon: 'fas fa-comment-alt', url: 'https://gemini.google.com/', isNew: false, comingSoon: false },
       { name: 'Pi (HeyPi)', description: 'Emotional intelligence and supportive conversations.', icon: 'fas fa-comment-alt', url: 'https://pi.ai/onboarding', isNew: false, comingSoon: false },
       { name: 'YouChat', description: 'Conversational search and multi-modal tasks.', icon: 'fas fa-comment-alt', url: 'https://you.com', isNew: false, comingSoon: false },
       { name: 'Chatsonic', description: 'Real-time info, voice input, GPT-based.', icon: 'fas fa-comment-alt', url: 'https://writesonic.com/chat', isNew: false, comingSoon: false },
@@ -21,8 +21,9 @@ const toolsData = [
       { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },  
       { name: 'Kiro',description: 'Fast, keyboard-first AI assistant tailored for developers. Works locally with your code, privacy-first, no sign-up needed.',icon: 'fas fa-code', /* or 'fas fa-code' if you prefer a code-related icon'*/ url: 'https://kiro.dev',isNew: true,comingSoon: false,badge: 'New'},
       {name: 'Kimi',description: 'Powerful, open‑source AI assistant built on Moonshot AI’s K2 model—supports code, deep reasoning, multimodal understanding & large-context workflows.',icon: 'fas fa-robot',url: 'https://www.kimi.com',isNew: true,comingSoon: false,badge:'New'},
-      {name: 'ChatGPT Free AI',description: 'Free ChatGPT alternative with no login required. Access powerful GPT-4-like chat experience in your browser anytime.',icon: 'fas fa-comments',url: 'https://chatgptfree.ai/chat/',isNew: true,comingSoon: false,badge: 'Free'}
-      // { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },  
+      {name: 'ChatGPT Free AI',description: 'Free ChatGPT alternative with no login required. Access powerful GPT-4-like chat experience in your browser anytime.',icon: 'fas fa-comments',url: 'https://chatgptfree.ai/chat/',isNew: true,comingSoon: false,badge: 'Free'},
+      {name: 'Minimax Chat',description: 'AI chatbot by Minimax for Chinese users. Offers natural and fluent conversational experience powered by large language models.',icon: 'fas fa-robot',url: 'https://chat.minimax.io/',isNew: true      ,comingSoon: false,badge:'new'}
+    // { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },  
       ],
   },
   {
@@ -96,7 +97,8 @@ const toolsData = [
       { name: 'Crayo', description: 'AI-generated music.', url: 'https://www.crayo.ai', icon: 'fas fa-music', isNew: true, comingSoon: false },
       { name: 'Pictory AI', description: 'Easy video creation for content marketers.', url: 'https://pictory.ai', icon: 'fas fa-video', isNew: false, comingSoon: false },
       { name: 'Fliki AI', description: 'Convert text to videos with AI voices.', url: 'https://fliki.ai', icon: 'fas fa-video', isNew: true, comingSoon: false },
-      { name: 'Latte', description: 'Clip short-form content from long videos in a click.', url: 'https://www.latte.social.app', icon: 'fas fa-video', isNew: false, comingSoon: false },
+      { name: 'Latte', description: 'Clip short-form content from long videos in a click.', url: 'https://www.latte.social.app', icon: 'fas fa-video', isNew: false, comingSoon: false },,
+      {name: 'Zencoder',description: 'Cloud-based video transcoding service to convert videos into multiple formats for web, mobile, and TV playback.',url: 'https://zencoder.com/',icon: 'fas fa-cloud-upload-alt',isNew:true,comingSoon: false, badge :true }
     ],
   },
   {

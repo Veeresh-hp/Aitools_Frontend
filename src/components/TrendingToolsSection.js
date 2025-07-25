@@ -272,11 +272,11 @@ const TrendingToolsSection = () => {
   return (
     <div className="relative py-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {/* Section Header - NO DELAYS */}
         <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.3 }}  
           viewport={{ once: true }}
           className="text-center mb-12"
         >
@@ -375,7 +375,7 @@ const TrendingToolsSection = () => {
                 className="min-w-[320px] flex-shrink-0"
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.3, delay: 0 }} 
                 viewport={{ once: true }}
                 onMouseEnter={() => setActiveCard(tool.id)}
                 onMouseLeave={() => setActiveCard(null)}

@@ -193,3 +193,7 @@
 .invisible-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
+<style>
+    .your-element {
+      width: 80%;
+    }

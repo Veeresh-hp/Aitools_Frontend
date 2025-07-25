@@ -25,6 +25,9 @@
   }
 }
 
+.your-element {
+  width: 80%;
+} 
 /*
   Removed:
   body {
