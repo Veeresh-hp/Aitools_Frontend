@@ -1,215 +1,181 @@
+// HistoryPage.js (Corrected Icons)
 import React, { useEffect, useState, useRef } from 'react';
 import { motion as m, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
-import {
-  Trash2,
-  Clock,
-  Star,
-  Calendar,
-  ExternalLink,
-  Sparkles,
-  TrendingUp
-} from 'lucide-react';
 
-// A dynamic, interactive particle background component
+// A dynamic, interactive particle background component (no changes here)
 const InteractiveBackground = () => {
-  const canvasRef = useRef(null);
-  const mousePos = useRef({ x: 0, y: 0 });
-  const animationId = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    const particles = [];
-    const particleCount = 60;
-    
-    class Particle {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.size = Math.random() * 1.5 + 0.5;
-        this.opacity = Math.random() * 0.4 + 0.1;
-        this.hue = Math.random() * 60 + 200;
-      }
+    // ... same as your provided code
+    const canvasRef = useRef(null);
+    const mousePos = useRef({ x: 0, y: 0 });
+    const animationId = useRef(null);
+  
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
       
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        
-        const dx = mousePos.current.x - this.x;
-        const dy = mousePos.current.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < 80) {
-          const force = (80 - distance) / 80;
-          this.vx += dx * force * 0.0008;
-          this.vy += dy * force * 0.0008;
+      const ctx = canvas.getContext('2d');
+      
+      const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+  
+      const particles = [];
+      const particleCount = 60;
+      
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.vx = (Math.random() - 0.5) * 0.3;
+          this.vy = (Math.random() - 0.5) * 0.3;
+          this.size = Math.random() * 1.5 + 0.5;
+          this.opacity = Math.random() * 0.4 + 0.1;
+          this.hue = Math.random() * 60 + 200;
         }
         
-        if (this.x < 0) this.x = canvas.width;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.y < 0) this.y = canvas.height;
-        if (this.y > canvas.height) this.y = 0;
-        
-        this.vx *= 0.99;
-        this.vy *= 0.99;
-      }
-      
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity})`;
-        ctx.fill();
-        
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity * 0.1})`;
-        ctx.fill();
-      }
-    }
-    
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
-    
-    const drawConnections = () => {
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+          
+          const dx = mousePos.current.x - this.x;
+          const dy = mousePos.current.y - this.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < 100) {
-            const opacity = (100 - distance) / 100 * 0.15;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(100, 150, 255, ${opacity})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+          if (distance < 80) {
+            const force = (80 - distance) / 80;
+            this.vx += dx * force * 0.0008;
+            this.vy += dy * force * 0.0008;
           }
+          
+          if (this.x < 0) this.x = canvas.width;
+          if (this.x > canvas.width) this.x = 0;
+          if (this.y < 0) this.y = canvas.height;
+          if (this.y > canvas.height) this.y = 0;
+          
+          this.vx *= 0.99;
+          this.vy *= 0.99;
+        }
+        
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity})`;
+          ctx.fill();
+          
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity * 0.1})`;
+          ctx.fill();
         }
       }
-    };
-    
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
-      });
-      
-      drawConnections();
-      
-      animationId.current = requestAnimationFrame(animate);
-    };
-    
-    animate();
-    
-    const handleMouseMove = (e) => {
-      mousePos.current = {
-        x: e.clientX,
-        y: e.clientY
-      };
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (animationId.current) {
-        cancelAnimationFrame(animationId.current);
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
       }
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
-      style={{ background: 'transparent' }}
-    />
-  );
+      
+      const drawConnections = () => {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 100) {
+              const opacity = (100 - distance) / 100 * 0.15;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(100, 150, 255, ${opacity})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          }
+        }
+      };
+      
+      const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(particle => {
+          particle.update();
+          particle.draw();
+        });
+        
+        drawConnections();
+        
+        animationId.current = requestAnimationFrame(animate);
+      };
+      
+      animate();
+      
+      const handleMouseMove = (e) => {
+        mousePos.current = {
+          x: e.clientX,
+          y: e.clientY
+        };
+      };
+      
+      window.addEventListener('mousemove', handleMouseMove);
+      
+      return () => {
+        window.removeEventListener('resize', resizeCanvas);
+        window.removeEventListener('mousemove', handleMouseMove);
+        if (animationId.current) {
+          cancelAnimationFrame(animationId.current);
+        }
+      };
+    }, []);
+  
+    return (
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ background: 'transparent' }}
+      />
+    );
 };
 
 // Groups history items by date
 const groupByDate = (history) => {
   const groups = {};
   history.forEach((item) => {
-    const date = new Date(item.timestamp).toLocaleDateString();
-    if (!groups[date]) groups[date] = [];
-    groups[date].push(item);
+    // Ensure timestamp is valid before creating a Date object
+    if (item.timestamp) {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(item);
+    }
   });
   return groups;
 };
 
-// Mock data for demonstration if localStorage is empty
-const getMockHistory = () => [
-  { name: "ChatGPT", url: "https://chat.openai.com", timestamp: Date.now() - 1000 * 60 * 30, icon: "🤖" },
-  { name: "Midjourney", url: "https://midjourney.com", timestamp: Date.now() - 1000 * 60 * 60, icon: "🎨" },
-  { name: "Claude AI", url: "https://claude.ai", timestamp: Date.now() - 1000 * 60 * 90, icon: "💭" },
-  { name: "Stable Diffusion", url: "https://stablediffusion.com", timestamp: Date.now() - 1000 * 60 * 120, icon: "🖼️" },
-  { name: "GitHub Copilot", url: "https://github.com/copilot", timestamp: Date.now() - 1000 * 60 * 60 * 24, icon: "💻" }
-];
 
 const HistoryPage = () => {
   const [history, setHistory] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  // Load history and favorites from localStorage on initial render
   useEffect(() => {
     try {
-      const storedHistory = JSON.parse(localStorage.getItem('toolClickHistory'));
-      if (storedHistory && Array.isArray(storedHistory) && storedHistory.length > 0) {
-        setHistory(storedHistory);
-      } else {
-        setHistory(getMockHistory()); // Use mock data if nothing is stored or it's empty
-      }
+      const storedHistory = JSON.parse(localStorage.getItem('toolClickHistory') || '[]');
+      setHistory(storedHistory);
 
-      const storedFavorites = JSON.parse(localStorage.getItem('toolFavorites'));
-      if (storedFavorites && Array.isArray(storedFavorites)) {
-        setFavorites(storedFavorites);
-      }
+      const storedFavorites = JSON.parse(localStorage.getItem('toolFavorites') || '[]');
+      setFavorites(storedFavorites);
     } catch (error) {
       console.error("Error reading from localStorage", error);
-      setHistory(getMockHistory()); // Fallback to mock data on error
+      setHistory([]);
+      setFavorites([]);
     }
   }, []);
 
-  // Save history to localStorage whenever it changes
-  useEffect(() => {
-    try {
-        localStorage.setItem('toolClickHistory', JSON.stringify(history));
-    } catch (error) {
-        console.error("Error writing history to localStorage", error);
-    }
-  }, [history]);
-
-  // Save favorites to localStorage whenever they change
-  useEffect(() => {
-    try {
-        localStorage.setItem('toolFavorites', JSON.stringify(favorites));
-    } catch (error) {
-        console.error("Error writing favorites to localStorage", error);
-    }
-  }, [favorites]);
-
   const handleClear = () => {
+    localStorage.removeItem('toolClickHistory');
+    localStorage.removeItem('toolFavorites');
     setHistory([]);
     setFavorites([]);
     setShowClearConfirm(false);
@@ -219,13 +185,14 @@ const HistoryPage = () => {
     const updatedFavorites = favorites.includes(timestamp)
       ? favorites.filter(fav => fav !== timestamp)
       : [...favorites, timestamp];
+    
     setFavorites(updatedFavorites);
+    localStorage.setItem('toolFavorites', JSON.stringify(updatedFavorites));
   };
 
   const groupedHistory = groupByDate(history);
   const favoriteItems = history.filter(item => favorites.includes(item.timestamp));
 
-  // Animation variants for staggered loading
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -238,7 +205,7 @@ const HistoryPage = () => {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
-
+  
   return (
     <LazyMotion features={domAnimation}>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden relative">
@@ -259,7 +226,7 @@ const HistoryPage = () => {
               >
                 <div className="flex items-center justify-center gap-4 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                    <Clock className="w-6 h-6 text-white" />
+                    <i className="fas fa-history text-2xl text-white"></i>
                   </div>
                   <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
                     Tool History
@@ -278,22 +245,22 @@ const HistoryPage = () => {
                 >
                   <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-center">
                     <div className="text-2xl font-bold text-blue-400 mb-1">{history.length}</div>
-                    <div className="text-gray-400 text-sm font-medium flex items-center justify-center gap-1">
-                      <TrendingUp className="w-3 h-3" />
+                    <div className="text-gray-400 text-sm font-medium flex items-center justify-center gap-2">
+                      <i className="fas fa-chart-line"></i>
                       Total Visits
                     </div>
                   </div>
                   <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-center">
                     <div className="text-2xl font-bold text-yellow-400 mb-1">{favoriteItems.length}</div>
-                    <div className="text-gray-400 text-sm font-medium flex items-center justify-center gap-1">
-                      <Star className="w-3 h-3" />
+                    <div className="text-gray-400 text-sm font-medium flex items-center justify-center gap-2">
+                      <i className="fas fa-star"></i>
                       Favorites
                     </div>
                   </div>
                   <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-center">
                     <div className="text-2xl font-bold text-green-400 mb-1">{Object.keys(groupedHistory).length}</div>
-                    <div className="text-gray-400 text-sm font-medium flex items-center justify-center gap-1">
-                      <Calendar className="w-3 h-3" />
+                    <div className="text-gray-400 text-sm font-medium flex items-center justify-center gap-2">
+                      <i className="fas fa-calendar-alt"></i>
                       Active Days
                     </div>
                   </div>
@@ -312,7 +279,7 @@ const HistoryPage = () => {
                     onClick={() => setShowClearConfirm(true)}
                     className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-red-500/25 transition-all duration-300"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <i className="fas fa-trash-alt"></i>
                     Clear History
                   </m.button>
                   
@@ -328,7 +295,7 @@ const HistoryPage = () => {
                       }}
                       className="flex items-center gap-2 bg-black/30 hover:bg-black/50 text-white px-4 py-2 rounded-xl font-semibold backdrop-blur-sm border border-white/20 transition-all duration-300"
                     >
-                      <Star className="w-4 h-4 text-yellow-400" />
+                      <i className="fas fa-star text-yellow-400"></i>
                       View Favorites ({favoriteItems.length})
                     </m.button>
                   )}
@@ -349,7 +316,7 @@ const HistoryPage = () => {
                         <div className="flex items-center gap-3 mb-6">
                           <div className="w-1 h-6 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-full" />
                           <h2 className="text-xl font-bold text-yellow-400 flex items-center gap-2">
-                            <Star className="w-5 h-5" />
+                            <i className="fas fa-star text-lg"></i>
                             Favorite Tools
                           </h2>
                         </div>
@@ -366,8 +333,9 @@ const HistoryPage = () => {
                               <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                               <div className="relative z-10">
                                 <div className="flex items-start justify-between mb-3">
-                                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center text-lg">
-                                    {item.icon || '🔧'}
+                                  {/* FIXED: This now renders the icon correctly */}
+                                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center text-xl">
+                                    <i className={item.icon || 'fas fa-wrench'}></i>
                                   </div>
                                   <m.button
                                     whileHover={{ scale: 1.1, rotate: 10 }}
@@ -376,9 +344,9 @@ const HistoryPage = () => {
                                       e.stopPropagation();
                                       toggleFavorite(item.timestamp);
                                     }}
-                                    className="text-yellow-400 hover:text-yellow-300 transition-colors"
+                                    className="text-yellow-400 hover:text-yellow-300 transition-colors text-lg"
                                   >
-                                    <Star className="w-4 h-4 fill-current" />
+                                    <i className="fas fa-star"></i>
                                   </m.button>
                                 </div>
                                 <h3 className="font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
@@ -391,9 +359,9 @@ const HistoryPage = () => {
                                   href={item.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                                  className="inline-flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
                                 >
-                                  Visit Tool <ExternalLink className="w-3 h-3" />
+                                  Visit Tool <i className="fas fa-external-link-alt"></i>
                                 </a>
                               </div>
                             </m.div>
@@ -407,8 +375,8 @@ const HistoryPage = () => {
                       <div className="flex items-center gap-3 mb-6">
                         <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
                         <h2 className="text-xl font-bold text-gray-200 flex items-center gap-2">
-                          <Calendar className="w-5 h-5" />
-                          Timeline
+                            <i className="fas fa-calendar-alt text-lg"></i>
+                            Timeline
                         </h2>
                       </div>
                       
@@ -443,8 +411,9 @@ const HistoryPage = () => {
                                     <div className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full border-2 border-gray-900" />
                                     
                                     <div className="flex items-center gap-3">
-                                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-sm flex-shrink-0">
-                                        {item.icon || '🔧'}
+                                      {/* FIXED: This now renders the icon correctly */}
+                                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-lg flex-shrink-0">
+                                        <i className={item.icon || 'fas fa-wrench'}></i>
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
@@ -452,11 +421,11 @@ const HistoryPage = () => {
                                             href={item.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="font-medium text-white hover:text-blue-300 transition-colors inline-flex items-center gap-1 group-hover:underline text-sm"
+                                            className="font-medium text-white hover:text-blue-300 transition-colors inline-flex items-center gap-2 group-hover:underline text-sm"
                                             onClick={(e) => e.stopPropagation()}
                                           >
                                             {item.name}
-                                            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <i className="fas fa-external-link-alt text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
                                           </a>
                                           <m.button
                                             whileHover={{ scale: 1.1 }}
@@ -465,13 +434,13 @@ const HistoryPage = () => {
                                               e.stopPropagation();
                                               toggleFavorite(item.timestamp);
                                             }}
-                                            className={`p-1 rounded transition-all duration-200 ${
+                                            className={`p-1 rounded-full transition-all duration-200 text-xs w-6 h-6 flex items-center justify-center ${
                                               favorites.includes(item.timestamp)
                                                 ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
                                                 : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-yellow-400'
                                             }`}
                                           >
-                                            <Star className={`w-3 h-3 ${favorites.includes(item.timestamp) ? 'fill-current' : ''}`} />
+                                            <i className={`${favorites.includes(item.timestamp) ? 'fas' : 'far'} fa-star`}></i>
                                           </m.button>
                                         </div>
                                         <div className="text-xs text-gray-400 mt-1">
@@ -494,7 +463,7 @@ const HistoryPage = () => {
                     className="text-center py-16"
                   >
                     <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-gray-700 to-gray-600 flex items-center justify-center">
-                      <Clock className="w-12 h-12 text-gray-400" />
+                      <i className="fas fa-history text-5xl text-gray-400"></i>
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-3">No History Yet</h3>
                     <p className="text-lg text-gray-400 mb-6 max-w-md mx-auto">
@@ -506,7 +475,7 @@ const HistoryPage = () => {
                       onClick={() => window.history.back()}
                       className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 inline-flex items-center gap-2"
                     >
-                      <Sparkles className="w-4 h-4" />
+                      <i className="fas fa-rocket"></i>
                       Start Exploring
                     </m.button>
                   </m.div>
@@ -536,7 +505,7 @@ const HistoryPage = () => {
                 <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-6 max-w-md w-full">
                   <div className="text-center">
                     <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
-                      <Trash2 className="w-6 h-6 text-white" />
+                      <i className="fas fa-trash-alt text-2xl text-white"></i>
                     </div>
                     <h3 className="text-xl font-bold text-white mb-3">Clear History?</h3>
                     <p className="text-gray-400 mb-6 text-sm">
