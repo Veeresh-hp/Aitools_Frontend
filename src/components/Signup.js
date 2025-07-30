@@ -1,8 +1,154 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+// ✅ 1. Import useHistory instead of useNavigate
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { motion as m } from 'framer-motion';
 import { Eye, EyeOff, Loader2, Rocket, Mail, User, Lock, Brain, Sparkles } from 'lucide-react';
+
+const InteractiveBackground = () => {
+  const canvasRef = useRef(null);
+  const mousePos = useRef({ x: 0, y: 0 });
+  const animationId = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Particle system
+    const particles = [];
+    const particleCount = 80;
+    
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * 2 + 1;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.hue = Math.random() * 60 + 200; // Blue to purple range
+      }
+      
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        // Mouse interaction
+        const dx = mousePos.current.x - this.x;
+        const dy = mousePos.current.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 100) {
+          const force = (100 - distance) / 100;
+          this.vx += dx * force * 0.001;
+          this.vy += dy * force * 0.001;
+        }
+        
+        // Boundary wrapping
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+        
+        // Velocity damping
+        this.vx *= 0.99;
+        this.vy *= 0.99;
+      }
+      
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity})`;
+        ctx.fill();
+        
+        // Glow effect
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity * 0.1})`;
+        ctx.fill();
+      }
+    }
+    
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+    
+    // Connection lines
+    const drawConnections = () => {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 120) {
+            const opacity = (120 - distance) / 120 * 0.2;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(100, 150, 255, ${opacity})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    };
+    
+    // Animation loop
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Update and draw particles
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      
+      // Draw connections
+      drawConnections();
+      
+      animationId.current = requestAnimationFrame(animate);
+    };
+    
+    animate();
+    
+    // Mouse tracking
+    const handleMouseMove = (e) => {
+      mousePos.current = {
+        x: e.clientX,
+        y: e.clientY
+      };
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (animationId.current) {
+        cancelAnimationFrame(animationId.current);
+      }
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 z-0 pointer-events-none"
+      style={{ background: 'transparent' }}
+    />
+  );
+};
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +162,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // ✅ 2. Use the useHistory hook
   const history = useHistory();
   const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
 
@@ -52,16 +199,22 @@ const Signup = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(`${API_URL}/api/auth/signup`, formData);
+      console.log('API Response:', response.data);
+      if (!response.data.user || !response.data.user.username) {
+        throw new Error('Username not provided in response');
+      }
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.username);
+      localStorage.setItem('username', response.data.user.username);
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', formData.email);
+      localStorage.setItem('userEmail', response.data.user.email);
+      // ✅ 3. Use history.push() for navigation
       history.push('/');
       window.location.reload();
     } catch (error) {
       setErrors({
         general: error.response?.data?.error || 'Signup failed. Please try again.',
       });
+      console.error('Signup error:', error.response?.data || error.message);
     } finally {
       setIsLoading(false);
     }
@@ -109,38 +262,51 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden relative">
-      {/* Animated Background */}
+      {/* Interactive Background */}
+      <InteractiveBackground />
+      
+      {/* Enhanced Background Layers */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-purple-900/30 to-pink-900/30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40" />
       </div>
 
-      {/* Floating Animation Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
+      {/* Floating geometric shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-5">
+        {[...Array(8)].map((_, i) => (
           <m.div
             key={i}
-            className="absolute w-20 h-20 rounded-full border border-white/10"
+            className={`absolute ${i % 2 === 0 ? 'w-16 h-16 rounded-full' : 'w-12 h-12 rotate-45'} border border-white/10`}
+            style={{
+              background: i % 3 === 0 
+                ? 'linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))'
+                : i % 3 === 1 
+                  ? 'linear-gradient(45deg, rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.1))'
+                  : 'linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(59, 130, 246, 0.1))'
+            }}
             initial={{
               x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
               y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
               scale: Math.random() * 0.5 + 0.5,
+              rotate: Math.random() * 360,
             }}
             animate={{
-              y: [0, -100, 0],
-              x: [0, Math.random() * 100 - 50, 0],
-              rotate: 360,
+              y: [0, -150, 0],
+              x: [0, Math.random() * 200 - 100, 0],
+              rotate: [0, 360],
+              scale: [0.5, 1, 0.5],
             }}
             transition={{
-              duration: 20 + Math.random() * 10,
+              duration: 25 + Math.random() * 15,
               repeat: Infinity,
-              ease: "linear",
+              ease: "easeInOut",
             }}
           />
         ))}
       </div>
-
+      
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-16">
         <m.div 
           variants={containerVariants}
@@ -148,19 +314,13 @@ const Signup = () => {
           animate="visible"
           className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16"
         >
-          
-          {/* LEFT COLUMN: Signup Card */}
           <div className="relative w-full max-w-md">
-            {/* NEW: Outer glow effect from Login component */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-3xl blur-xl -z-10" />
-            
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/40 to-purple-500/40 rounded-3xl blur-xl animate-pulse -z-10" />
             <m.div
-              // UPDATED: Classes to match the darker theme
-              className="relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-8"
+              className="relative bg-black/50 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl p-8"
               whileHover={{ y: -5, transition: { duration: 0.3 } }}
             >
               <div className="relative z-10">
-                {/* Header */}
                 <m.div variants={itemVariants} className="text-center mb-8">
                   <m.div 
                     className="flex items-center justify-center space-x-3 mb-6"
@@ -179,7 +339,6 @@ const Signup = () => {
                   </p>
                 </m.div>
 
-                {/* General Error */}
                 {errors.general && (
                   <m.div
                     initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -193,40 +352,36 @@ const Signup = () => {
                   </m.div>
                 )}
 
-                {/* Signup Form */}
                 <form onSubmit={handleSignup} className="space-y-6">
-                  {/* Email Field */}
                   <m.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <Mail className="text-blue-400 w-4 h-4" /> Email Address
                     </label>
                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-blue-500/80 to-purple-500/80 rounded-xl blur-md pointer-events-none" />
-                      <input type="email" name="email" value={formData.email} onChange={handleChange} className={`relative w-full px-4 py-3 bg-white/5 border rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.email ? 'border-red-500/50' : 'border-white/10' }`} placeholder="Enter your email address" />
+                      <input type="email" name="email" value={formData.email} onChange={handleChange} autoComplete="email" className={`relative w-full px-4 py-3 bg-white/10 border rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.email ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Enter your email address" />
                       {errors.email && ( <m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.email} </m.p> )}
                     </m.div>
                   </m.div>
 
-                  {/* Username Field */}
                   <m.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <User className="text-green-400 w-4 h-4" /> Username
                     </label>
                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-green-500/80 to-teal-500/80 rounded-xl blur-md pointer-events-none" />
-                      <input type="text" name="username" value={formData.username} onChange={handleChange} className={`relative w-full px-4 py-3 bg-white/5 border rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.username ? 'border-red-500/50' : 'border-white/10' }`} placeholder="Choose a unique username" />
+                      <input type="text" name="username" value={formData.username} onChange={handleChange} autoComplete="username" className={`relative w-full px-4 py-3 bg-white/10 border rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.username ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Choose a unique username" />
                       {errors.username && ( <m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.username} </m.p> )}
                     </m.div>
                   </m.div>
 
-                  {/* Password Field */}
                   <m.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <Lock className="text-purple-400 w-4 h-4" /> Password
                     </label>
                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-purple-500/80 to-pink-500/80 rounded-xl blur-md pointer-events-none" />
-                      <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} className={`relative w-full px-4 py-3 pr-12 bg-white/5 border rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.password ? 'border-red-500/50' : 'border-white/10' }`} placeholder="Create a secure password" />
+                      <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} autoComplete="new-password" className={`relative w-full px-4 py-3 pr-12 bg-white/10 border rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.password ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Create a secure password" />
                       <m.button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors z-10" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </m.button>
@@ -234,14 +389,13 @@ const Signup = () => {
                     </m.div>
                   </m.div>
 
-                  {/* Confirm Password Field */}
                   <m.div variants={itemVariants}>
                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <Lock className="text-pink-400 w-4 h-4" /> Confirm Password
                     </label>
                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-pink-500/80 to-red-500/80 rounded-xl blur-md pointer-events-none" />
-                      <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} className={`relative w-full px-4 py-3 pr-12 bg-white/5 border rounded-xl focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.confirmPassword ? 'border-red-500/50' : 'border-white/10' }`} placeholder="Confirm your password" />
+                      <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} autoComplete="new-password" className={`relative w-full px-4 py-3 pr-12 bg-white/10 border rounded-xl focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.confirmPassword ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Confirm your password" />
                       <m.button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors z-10" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </m.button>
@@ -249,7 +403,6 @@ const Signup = () => {
                     </m.div>
                   </m.div>
 
-                  {/* Submit Button */}
                   <m.div variants={itemVariants}>
                     <m.button type="submit" disabled={isLoading} className="group relative w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all duration-300 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed" whileHover={{ scale: isLoading ? 1 : 1.02, y: isLoading ? 0 : -2 }} whileTap={{ scale: isLoading ? 1 : 0.98 }}>
                       <span className="relative z-10 flex items-center justify-center gap-2">
@@ -260,7 +413,6 @@ const Signup = () => {
                   </m.div>
                 </form>
 
-                {/* Login Link */}
                 <m.div variants={itemVariants} className="text-center mt-8">
                   <p className="text-gray-400 text-sm">
                     Already have an account?{' '}
@@ -273,12 +425,11 @@ const Signup = () => {
             </m.div>
           </div>
 
-          {/* RIGHT COLUMN: Extra Info */}
           <m.div 
             variants={sideInfoVariants}
             className="w-full max-w-md lg:max-w-sm text-center lg:text-left"
           >
-            <div className="p-6 bg-black/20 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <div className="p-6 bg-black/30 backdrop-blur-sm rounded-2xl border border-white/20 ">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center justify-center lg:justify-start gap-2">
                 <Sparkles className="w-5 h-5 text-yellow-400" />
                 What you'll get:
@@ -286,7 +437,7 @@ const Signup = () => {
               <div className="space-y-3 text-sm text-gray-300">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0" />
-                  <span>Access to 50+ premium AI tools</span>
+                  <span>View Usage History</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full flex-shrink-0" />
@@ -302,8 +453,6 @@ const Signup = () => {
                 </div>
               </div>
             </div>
-
-            {/* Footer */}
             <div className="text-center lg:text-left mt-8">
               <p className="text-xs text-gray-500">
                 By creating an account, you agree to our{' '}
@@ -313,7 +462,6 @@ const Signup = () => {
               </p>
             </div>
           </m.div>
-
         </m.div>
       </div>
     </div>

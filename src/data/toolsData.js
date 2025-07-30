@@ -87,7 +87,7 @@ const toolsData = [
       { name: 'Kling', description: 'Create AI videos from text, images, motion brush, animated videos.', url: 'https://www.klingai.com/global', icon: 'fas fa-video', isNew: true, comingSoon: false },
       { name: 'HauliiuAI', description: 'Same as Kling but lets you add your character into the video.', url: 'https://hailuoai.video', icon: 'fas fa-video', isNew: true, comingSoon: false, badge: 'Recommended' },
       { name: 'Submagic', description: 'Create viral shorts with captions, B-Rolls, zooms, sound effects.', url: 'https://www.submagic.co', icon: 'fas fa-video', isNew: true, comingSoon: false },
-      { name: 'DupDub', description: 'AI agents, video editing, transcription, voice to video.', url: 'https://dupdub.ai', icon: 'fas fa-video', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'DupDub(For Gen video) ', description: 'AI agents, video editing, transcription, voice to video.', url: 'https://dupdub.ai', icon: 'fas fa-video', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'HeyGen', description: 'Studio-quality videos, face cloning, translations.', url: 'https://www.heygen.com', icon: 'fas fa-video', isNew: false, comingSoon: false },
       { name: 'Akool', description: 'Face swap app to create realistic videos.', url: 'https://www.akool.com', icon: 'fas fa-video', isNew: false, comingSoon: false },
       { name: 'VidAI', description: 'Product videos from links/images, face swap, watermark removal.', url: 'https://vid.ai', icon: 'fas fa-video', isNew: false, comingSoon: false, badge: 'Recommended' },

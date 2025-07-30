@@ -13,6 +13,7 @@ import Contact from './components/Contact';
 import HistoryPage from './components/HistoryPage';
 import ResetPassword from './components/ResetPassword';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import AdminDashboard from './components/AdminDashboard';
 import './index.css';
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
             <Route path="/contact" component={Contact} />
             <Route path="/history" component={HistoryPage} />
             <Route path="/reset-password" component={ResetPassword} />
+            <Route path="/admin/newsletter" component={AdminDashboard} />
           </Switch>
         </main>
         {isModalOpen && <ComingSoonModal closeModal={closeModal} />}
