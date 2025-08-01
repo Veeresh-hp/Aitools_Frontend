@@ -22,7 +22,9 @@ const toolsData = [
       { name: 'Kiro',description: 'Fast, keyboard-first AI assistant tailored for developers. Works locally with your code, privacy-first, no sign-up needed.',icon: 'fas fa-code', /* or 'fas fa-code' if you prefer a code-related icon'*/ url: 'https://kiro.dev',isNew: true,comingSoon: false,badge: 'New'},
       {name: 'Kimi',description: 'Powerful, open‑source AI assistant built on Moonshot AI’s K2 model—supports code, deep reasoning, multimodal understanding & large-context workflows.',icon: 'fas fa-robot',url: 'https://www.kimi.com',isNew: true,comingSoon: false,badge:'New'},
       {name: 'ChatGPT Free AI',description: 'Free ChatGPT alternative with no login required. Access powerful GPT-4-like chat experience in your browser anytime.',icon: 'fas fa-comments',url: 'https://chatgptfree.ai/chat/',isNew: true,comingSoon: false,badge: 'Free'},
-      {name: 'Minimax Chat',description: 'AI chatbot by Minimax for Chinese users. Offers natural and fluent conversational experience powered by large language models.',icon: 'fas fa-robot',url: 'https://chat.minimax.io/',isNew: true      ,comingSoon: false,badge:'new'}
+      {name: 'ChatSimple',description: 'No-code AI chatbot builder designed for small businesses to automate lead generation and customer support.',icon: 'fas fa-comments',url: 'https://www.chatsimple.ai/',isNew: true,comingSoon: false,badge: 'new'},
+      {name: 'Chatbase',description: 'Tool to train custom AI chatbots on your data and embed them on websites for automated customer support or engagement.',icon: 'fas fa-database',url: 'https://www.chatbase.co/',isNew: true,comingSoon: false,badge: 'Recommended'},
+      {name: 'Minimax Chat',description: 'AI chatbot by Minimax for Chinese users. Offers natural and fluent conversational experience powered by large language models.',icon: 'fas fa-robot',url: 'https://chat.minimax.io/',isNew: true ,comingSoon: false,badge:'new'},
     // { name: 'DeepSeek-R1', description: 'Open-source, strong reasoning capabilities, efficient performance & Completely free to use.', icon: 'fas fa-comment-alt', url: 'https://www.deepseek.com/en', isNew: false, comingSoon: false, badge: 'Not Recommended' },  
       ],
   },
@@ -35,6 +37,8 @@ const toolsData = [
     {name: 'Quillbot Humanizer',description: 'Refines and rewrites AI-generated text to sound more natural using advanced paraphrasing models.',url: 'https://quillbot.com',icon: 'fas fa-pen-nib',comingSoon: false,badge:'New'},
     {name: 'BypassGPT',description: 'Humanize AI-generated content to bypass detection tools while keeping the meaning intact and natural-sounding.',url: 'https://www.bypassgpt.ai/',icon: 'fas fa-user-secret',isNew: true,comingSoon: false,badge:'New' },
     {name: 'HIX Bypass AI',description: 'Make AI-generated text undetectable by AI detectors using advanced rewriting and humanizing techniques.',url: 'https://bypass.hix.ai/humanize-ai',icon: 'fas fa-user-edit',isNew: true,comingSoon: false,badge:'New' },
+    {name: 'Jenni AI',description: 'AI writing assistant that helps generate essays, articles, and academic content with real-time suggestions.',icon: 'fas fa-pen-nib', url: 'https://app.jenni.ai/',isNew: true, comingSoon: false,badge: 'new',recommended: true},
+    { name: 'Text Blaze',description:'Productivity tool that allows you to automate repetitive typing using templates and text snippets.',icon: 'fas fa-keyboard',url: 'https://blaze.today/',isNew: true,comingSoon: false,badge: 'new',recommended: true}, 
   ]
 },
   {
@@ -77,7 +81,7 @@ const toolsData = [
       { name: 'Tldv', description: 'Transcribes and summarizes meetings with AI.', url: 'https://www.tldv.io', icon: 'fas fa-pen', isNew: false, comingSoon: false },
       { name: 'Blaze AI', description: 'Generate content briefs, ads, and social posts with your brand voice.', url: 'https://www.blaze.ai', icon: 'fas fa-pen', isNew: true, comingSoon: false },
       { name: 'Aithor', description: ' Ai eassy writter.', url: 'https://aithor.com', icon: 'fas fa-pen', isNew: true, comingSoon: false , badge : 'Recommended'},
-   
+      { name: 'AdCreative.ai',description: 'AI-powered platform that generates high-converting ad creatives, texts, and social media posts for marketers and businesses.',icon: 'fas fa-bullhorn',url: 'https://www.adcreative.ai/',isNew: true,comingSoon: false,badge: 'new'},
     ],
   },
   {
@@ -88,7 +92,7 @@ const toolsData = [
       { name: 'HauliiuAI', description: 'Same as Kling but lets you add your character into the video.', url: 'https://hailuoai.video', icon: 'fas fa-video', isNew: true, comingSoon: false, badge: 'Recommended' },
       { name: 'Submagic', description: 'Create viral shorts with captions, B-Rolls, zooms, sound effects.', url: 'https://www.submagic.co', icon: 'fas fa-video', isNew: true, comingSoon: false },
       { name: 'DupDub(For Gen video) ', description: 'AI agents, video editing, transcription, voice to video.', url: 'https://dupdub.ai', icon: 'fas fa-video', isNew: false, comingSoon: false, badge: 'Recommended' },
-      { name: 'HeyGen', description: 'Studio-quality videos, face cloning, translations.', url: 'https://www.heygen.com', icon: 'fas fa-video', isNew: false, comingSoon: false },
+      { name: 'HeyGen', description: 'Studio-quality videos, face cloning, translations.', url: 'https://www.heygen.com', icon: 'fas fa-video', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'Akool', description: 'Face swap app to create realistic videos.', url: 'https://www.akool.com', icon: 'fas fa-video', isNew: false, comingSoon: false },
       { name: 'VidAI', description: 'Product videos from links/images, face swap, watermark removal.', url: 'https://vid.ai', icon: 'fas fa-video', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'Vozo', description: 'Create, dub, lip sync, translate talking videos with AI.', url: 'https://www.vozo.ai', icon: 'fas fa-video', isNew: false, comingSoon: false, badge: 'Recommended' },
@@ -114,10 +118,15 @@ const toolsData = [
     id: 'short-clippers',
     name: 'AI Long Video to Short Clipper',
     tools: [
-      { name: 'Klap App', description: 'Turn videos into viral shorts with AI virality scoring.', url: 'https://www.klap.app', icon: 'fas fa-cut', isNew: false, comingSoon: false },
+      { name: 'Klap App', description: 'Turn videos into viral shorts with AI virality scoring.', url: 'https://www.klap.app', icon: 'fas fa-cut', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'Munch', description: 'Top AI repurposing platform—clip long videos for all platforms.', url: 'https://www.getmunch.com', icon: 'fas fa-cut', isNew: false, comingSoon: false },
-      { name: 'Opus Pro', description: 'Create 10x faster viral clips from 1 long video.', url: 'https://www.opus.pro', icon: 'fas fa-cut', isNew: false, comingSoon: false },
-    ],
+      { name: 'Opus Pro', description: 'Create 10x faster viral clips from 1 long video.', url: 'https://www.opus.pro', icon: 'fas fa-cut', isNew: false, comingSoon: false, badge: 'Recommended' },
+      {name: 'Eightify',description: 'AI tool that summarizes YouTube videos into key ideas using GPT technology.',icon: 'fas fa-video',url: 'https://eightify.app',isNew: true,comingSoon: false,badge:'Recommended'}, 
+      {name: 'Runway ML',description: 'Next-gen AI video and image editing platform used for real-time content generation and special effects.',icon: 'fas fa-magic',url: 'https://runwayml.com/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      {name: 'ImgCreator',description: 'AI image generator that creates realistic or stylized photos from text prompts.', icon: 'fas fa-image', url: 'https://www.zmo.ai/imgcreator',isNew: true,comingSoon: false, badge: 'new'},
+      {name: 'Morph Studio',description: 'AI video generation platform that lets users create talking avatars and characters from text.',icon: 'fas fa-user-astronaut',url: 'https://www.morphstudio.com',isNew: true,comingSoon: false,badge: 'new'},
+      {name: 'InVideo',description: 'Online AI-powered video editor that helps you create engaging marketing, social, and promotional videos in minutes.',icon: 'fas fa-video',url: 'https://invideo.io',isNew: false,comingSoon: false,badge: 'Recommended'},
+    ], 
   },
   {
     id: 'marketing-tools',
@@ -158,9 +167,10 @@ const toolsData = [
       { name: 'Beacons', description: 'Alternative to Linktree with monetization options.', url: 'https://beacons.ai', icon: 'fas fa-globe', isNew: false, comingSoon: false },
       { name: 'Payhip', description: 'Sell your digital products from anywhere in the world.', url: 'https://payhip.com', icon: 'fas fa-globe', isNew: false, comingSoon: false },
       { name: 'Gumroad', description: 'Sell your digital products from anywhere in the world.', url: 'https://gumroad.com', icon: 'fas fa-globe', isNew: false, comingSoon: false },
-      { name: '10Web', description: 'Create websites with AI in a few clicks.', url: 'https://10web.io', icon: 'fas fa-globe', isNew: false, comingSoon: false },
-      { name: 'Durable', description: 'AI website builder.', url: 'https://durable.co', icon: 'fas fa-globe', isNew: false, comingSoon: false },
+      { name: '10Web', description: 'Create websites with AI in a few clicks.', url: 'https://10web.io', icon: 'fas fa-globe', isNew: false, comingSoon: false,badge:'Recommended' },
+      { name: 'Durable', description: 'AI website builder.', url: 'https://durable.co', icon: 'fas fa-globe', isNew: false, comingSoon: false,badge: 'Recommended' },
       { name: 'Same.new', description: 'copy any website and make clone.', url: 'https://same.new', icon: 'fas fa-globe', isNew: false, comingSoon: false, badge: 'New'},
+      { name: 'Emergent',description: 'Agent‑powered AI development platform that builds full‑stack apps—plan, code, test & deploy—from natural language prompts, no manual coding required.',icon: 'fas fa-robot',url: 'https://emergent.sh/',isNew: true,comingSoon: false,badge: 'Recommended'}
     ],
   },
   {
@@ -186,6 +196,9 @@ const toolsData = [
       { name: 'CoPilot', description: 'Create images from words with AI.', url: 'https://copilot.microsoft.com', icon: 'fas fa-palette', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'InstantArt AI', description: 'Free tool for text-to-image generation with AI.', url: 'https://instantart.io', icon: 'fas fa-palette', isNew: false, comingSoon: false },
       { name: 'Midjourney', description: 'Stunning AI art from text prompts.', icon: 'fas fa-palette', url: 'https://midjourney.com', isNew: false, comingSoon: false },
+      { name: 'Fotor',description: 'AI photo editing and design tool that offers one-click enhancements, background remover, AI image generation, and more.',icon: 'fas fa-camera-retro',url: 'https://www.fotor.com/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      { name: 'DALL·E 3', description: 'Advanced image generation model by OpenAI that creates high-quality visuals from natural language prompts.',icon: 'fas fa-brain',url: 'https://openai.com/dall-e',isNew: true,comingSoon: false,badge: 'new'},
+      {name: 'Stability AI',description: 'Creators of Stable Diffusion and other open-source generative AI tools for image, language, and audio synthesis.',icon: 'fas fa-flask',url: 'https://stability.ai/',isNew: false,comingSoon: false,badge: 'Recommended'},
     ],
   },
   {
@@ -212,12 +225,12 @@ const toolsData = [
       { name: 'Bolt.new', description: 'AI to launch and test startup ideas fast. ⚡', icon: 'fas fa-rocket', url: 'https://bolt.new', isNew: true, comingSoon: false, badge: 'New', badge :'Recommended' },
       { name: 'Lovable', description: 'AI for branding, naming, and storytelling. 💖', icon: 'fas fa-heart', url: 'https://lovable.so', isNew: true, comingSoon: false, badge: 'New',badge :'Recommended'  },
       { name: 'Contra', description: 'AI-powered platform for independent creatives. 🧑‍🎨', icon: 'fas fa-briefcase', url: 'https://contra.com', isNew: true, comingSoon: false, badge: 'New'  },
-      { name: 'Framer', description: 'AI-powered site builder for designers. 🖌️', icon: 'fas fa-laptop-code', url: 'https://framer.com', isNew: false, comingSoon: false, badge: 'New'  },
-      { name: 'Goodbrief.io', description: 'AI-generated design briefs for practice. ✍️', icon: 'fas fa-lightbulb', url: 'https://goodbrief.io', isNew: false, comingSoon: false, badge: 'New'  },
-      { name: 'Cofolios', description: 'AI-assisted portfolio builder for designers. 🎨', icon: 'fas fa-folder-open', url: 'https://cofolios.com', isNew: true, comingSoon: false, badge: 'New'  },
-      { name: 'Oddo', description: 'AI-powered tool to remix and generate visual assets. 🌀', icon: 'fas fa-magic', url: 'https://oddo.ai', isNew: true, comingSoon: false, badge: 'New'  },
-      { name: 'Awwwards', description: 'Showcase of the best web design & innovation. 🏆', icon: 'fas fa-award', url: 'https://awwwards.com', isNew: false, comingSoon: false, badge: 'New'  },
-
+      { name: 'Framer', description: 'AI-powered site builder for designers. 🖌️', icon: 'fas fa-laptop-code', url: 'https://framer.com', isNew: false, comingSoon: false, badge: 'New', badge: 'Recommended'},
+      { name: 'Goodbrief.io', description: 'AI-generated design briefs for practice. ✍️', icon: 'fas fa-lightbulb', url: 'https://goodbrief.io', isNew: false, comingSoon: false, badge: 'New' },
+      { name: 'Cofolios', description: 'AI-assisted portfolio builder for designers. 🎨', icon: 'fas fa-folder-open', url: 'https://cofolios.com', isNew: true, comingSoon: false, badge: 'New'},
+      { name: 'Oddo', description: 'AI-powered tool to remix and generate visual assets. 🌀', icon: 'fas fa-magic', url: 'https://oddo.ai', isNew: true, comingSoon: false, badge: 'New'},
+      { name: 'Awwwards', description: 'Showcase of the best web design & innovation. 🏆', icon: 'fas fa-award', url: 'https://awwwards.com', isNew: false, comingSoon: false, badge: 'New'},
+      { name: 'StyleAI',description: 'AI-powered tool for generating, optimizing, and managing websites with SEO and marketing in mind.',icon: 'fas fa-paint-brush',url: 'https://www.styleai.io',isNew: true,comingSoon: false,badge: 'new'},
     ],
   },
   {
