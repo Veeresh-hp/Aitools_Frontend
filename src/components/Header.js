@@ -110,6 +110,9 @@ const Header = () => {
     { name: 'AI Diagrams', id: 'ai-diagrams' }, { name: 'AI Gaming Tools', id: 'gaming-tools' },
     { name: 'Other AI Tools', id: 'other-tools' }, { name: 'Utility Tools', id: 'utility-tools' },
     { name: 'Portfolio Tools', id: 'Portfolio' }, { name: 'Text Humanizer AI', id: 'text-humanizer-ai' },
+    { name: 'AI Prompts Tools', id: 'AI Prompts' }, { name: 'AI Design Tools', id: 'AI Design' },
+    { name: 'AI Logo Generator', id: 'Logo Generators'},{ name: 'Social Media Tools', id: 'Social Media' },
+    { name: 'AI Productivity Tools', id : 'Productivity'},
   ];
 
   const mainNavItems = [
@@ -226,7 +229,7 @@ const Header = () => {
           className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 glass-header ${isScrolled ? 'scrolled' : ''}`}
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           <nav className="relative flex items-center justify-between h-20 w-full px-4 sm:px-6 lg:px-8">
             {/* Mobile Layout */}

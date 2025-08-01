@@ -102,7 +102,7 @@ const toolsData = [
       { name: 'Pictory AI', description: 'Easy video creation for content marketers.', url: 'https://pictory.ai', icon: 'fas fa-video', isNew: false, comingSoon: false },
       { name: 'Fliki AI', description: 'Convert text to videos with AI voices.', url: 'https://fliki.ai', icon: 'fas fa-video', isNew: true, comingSoon: false },
       { name: 'Latte', description: 'Clip short-form content from long videos in a click.', url: 'https://www.latte.social.app', icon: 'fas fa-video', isNew: false, comingSoon: false },,
-      {name: 'Zencoder',description: 'Cloud-based video transcoding service to convert videos into multiple formats for web, mobile, and TV playback.',url: 'https://zencoder.com/',icon: 'fas fa-cloud-upload-alt',isNew:true,comingSoon: false, badge :true }
+      {name: 'Zencoder',description: 'Cloud-based video transcoding service to convert videos into multiple formats for web, mobile, and TV playback.',url: 'https://zencoder.com/',icon: 'fas fa-cloud-upload-alt',isNew:true,comingSoon: false, badge :'new' }
     ],
   },
   {
@@ -112,6 +112,14 @@ const toolsData = [
       { name: 'Simplified', description: 'Create presentations, video editing, and write content with AI.', url: 'https://simplified.com', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false, badge: 'Recommended' },
       { name: 'Tome AI', description: 'Create compelling presentations from prompts using AI.', url: 'https://tome.app', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false },
       { name: 'Gamma AI', description: 'Make customizable presentations and web pages in minutes.', url: 'https://gamma.app', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Decktopus', description: 'AI-powered presentation maker that helps you create professional presentations in minutes.', url: 'https://www.decktopus.com', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Beautiful.ai', description: 'Smart presentation maker that helps you create stunning, clean, and modern slides with AI-assisted design.', url: 'https://www.beautiful.ai', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Slidesgo', description: 'Free Google Slides and PowerPoint templates for presentations.', url: 'https://slidesgo.com', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false },
+      { name: 'Canva', description: 'Design presentations, social media graphics, and more with AI-powered tools.', url: 'https://www.canva.com', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Visme', description: 'Create presentations, infographics, and visual content with AI tools.', url: 'https://www.visme.co', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false },
+      { name: 'SlidesAI', description: 'AI tool that transforms text into professional-looking presentation slides automatically within seconds.', url: 'https://www.slidesai.io', icon: 'fas fa-chalkboard-teacher', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'Designs.ai', description: 'All-in-one creative platform that uses AI to generate logos, videos, banners, mockups, and more with minimal input.', url: 'https://designs.ai/', icon: 'fas fa-paint-roller', isNew: true , comingSoon: false, badge: 'Recommended' },
+
     ],
   },
   {
@@ -153,6 +161,11 @@ const toolsData = [
       { name: 'TTS Maker', description: 'Convert text to audio files easily.', url: 'https://ttsmp3.com', icon: 'fas fa-microphone', isNew: false, comingSoon: false },
       { name: 'Verbatik', description: '100+ realistic voices with text-to-speech options.', url: 'https://www.verbatik.com', icon: 'fas fa-microphone', isNew: false, comingSoon: false },
       { name: 'Prime Voice AI', description: 'The most realistic free AI text-to-speech.', url: 'https://play.ht', icon: 'fas fa-microphone', isNew: true, comingSoon: false },
+      { name: 'Songburst AI',description: 'AI tool to create and customize songs using lyrics and genres of your choice.',icon: 'fas fa-music',url: 'https://www.songburst.ai/', isNew: true,comingSoon: false,badge: 'new'},
+      { name: 'Adobe Podcast',description: 'AI-enhanced podcast editor by Adobe with tools like Enhance Speech for pro audio.',icon: 'fas fa-podcast',url: 'https://podcast.adobe.com/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      { name: 'Voice Cloning', description: 'Clone your voice with AI for personalized audio content.', url: 'https://www.voicecloning.ai', icon: 'fas fa-microphone', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'Voicify', description: 'AI voice generator with over 100+ voices and accents.', url: 'https://voicify.com', icon: 'fas fa-microphone', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'Lovo AI',description: 'AI voice generator and text-to-speech tool with realistic voiceovers for creators.',icon: 'fas fa-microphone',url: 'https://www.lovo.ai/',isNew: false,comingSoon: false,badge: 'Recommended'},
     ],
   },
   {
@@ -170,7 +183,9 @@ const toolsData = [
       { name: '10Web', description: 'Create websites with AI in a few clicks.', url: 'https://10web.io', icon: 'fas fa-globe', isNew: false, comingSoon: false,badge:'Recommended' },
       { name: 'Durable', description: 'AI website builder.', url: 'https://durable.co', icon: 'fas fa-globe', isNew: false, comingSoon: false,badge: 'Recommended' },
       { name: 'Same.new', description: 'copy any website and make clone.', url: 'https://same.new', icon: 'fas fa-globe', isNew: false, comingSoon: false, badge: 'New'},
-      { name: 'Emergent',description: 'Agent‑powered AI development platform that builds full‑stack apps—plan, code, test & deploy—from natural language prompts, no manual coding required.',icon: 'fas fa-robot',url: 'https://emergent.sh/',isNew: true,comingSoon: false,badge: 'Recommended'}
+      { name: 'Emergent',description: 'Agent‑powered AI development platform that builds full‑stack apps—plan, code, test & deploy—from natural language prompts, no manual coding required.',icon: 'fas fa-robot',url: 'https://emergent.sh/',isNew: true,comingSoon: false,badge: 'Recommended'},
+      { name: 'Uizard',description: 'AI design tool to transform sketches or wireframes into working UI prototypes.',icon: 'fas fa-drafting-compass',url: 'https://uizard.io/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      { name: 'UiMagic',description: 'Tool that helps create user interfaces with the help of AI suggestions.',icon: 'fas fa-magic',url: 'https://uimagic.ai/',isNew: true,comingSoon: false,badge: 'new'},
     ],
   },
   {
@@ -266,8 +281,80 @@ const toolsData = [
       { name: 'Airtable', description: 'Organize data with AI-powered spreadsheets and automation.', url: 'https://www.airtable.com', icon: 'fas fa-cog', isNew: false, comingSoon: false },
       { name: 'Bubble', description: 'Build web apps with no-code and AI assistance.', url: 'https://bubble.io', icon: 'fas fa-cog', isNew: true, comingSoon: false },
       { name: 'Mindluster.com', description: 'find any course you want to learn ', url: 'https://www.mindluster.com/', icon: 'fas fa-tools', isNew: true , comingSoon: false, badge: 'Recommended' ,badge: 'New' },
-     ],
+      { name: 'Xembly',description: 'AI executive assistant that helps with scheduling, note-taking, and productivity.',icon: 'fas fa-calendar-check',url: 'https://www.xembly.com/',isNew: true,comingSoon: false,badge: 'new'},
+      {name: 'Bardeen',description: 'No-code automation platform that integrates with Chrome to streamline workflows.',icon: 'fas fa-magic',url: 'https://www.bardeen.ai/',isNew: true,comingSoon: false,badge: 'new'},
+    ],
   },
-];
+  {
+    id: 'AI Prompts',
+    name: 'AI Prompts Tools',
+    tools:[
+      { name: 'FlowGPT',description: 'Platform to discover, share, and use the best ChatGPT prompts.',icon: 'fas fa-lightbulb',url: 'https://flowgpt.com/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      {name: 'Alicent AI',description: 'Prompt generator and management tool for AI-enhanced productivity.',icon: 'fas fa-bolt', url: 'https://alicent.ai/',isNew: true,comingSoon: false,badge: 'new'},
+      {name: 'PromptBox',description: 'Save, organize, and manage AI prompts in one place.',icon: 'fas fa-box-open',url: 'https://promptbox.ai/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      {name: 'Promptbase',description: 'Marketplace for buying and selling quality AI prompts.',icon: 'fas fa-store',url: 'https://promptbase.com/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      {name: 'Snack Prompt',description: 'Platform with community-voted AI prompts for ChatGPT and other tools.',icon: 'fas fa-cookie-bite',url: 'https://snackprompt.com/',isNew: false,comingSoon: false,badge: 'Recommended'}
+    ],
+  },
+  {
+    id: 'AI Design',
+    name: 'AI Design Tools',
+    tools: [
+      {name: 'Flair AI',description: 'AI design platform for creating branded product visuals in seconds.', icon: 'fas fa-star',url: 'https://flair.ai/',isNew: true,comingSoon: false, badge: 'new'},
+      {name: 'Designify',description: 'AI-powered design enhancer that removes backgrounds and improves images.',icon: 'fas fa-wand-magic',url: 'https://www.designify.com/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      {name: 'Clipdrop',description: 'AI suite for image editing, background removal, relighting, and upscaling.', icon: 'fas fa-scissors',url: 'https://clipdrop.co/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      {name: 'Autodraw', description: 'AI experiment by Google that turns rough drawings into polished icons.',icon: 'fas fa-pen',url: 'https://www.autodraw.com/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      {name: 'Magician Design',description: 'Figma plugin using AI to generate icons, copy, and other design elements.',icon: 'fas fa-magic',url: 'https://magician.design/',isNew: true,comingSoon: false,badge: 'new'}
+    ],
+  },
+  {
+    id: 'Logo Generators',
+    name: 'AI Logo Generator',
+    tools: [
+      { name: 'Looka', description: 'AI-powered logo maker that creates professional logos in minutes.', url: 'https://looka.com', icon: 'fas fa-copyright', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'LogoMaker', description: 'Create custom logos with AI assistance.', url: 'https://www.logomaker.com', icon: 'fas fa-copyright', isNew: false, comingSoon: false },
+      { name: 'Hatchful by Shopify', description: 'Free logo maker that helps you create a unique logo for your brand.', url: 'https://hatchful.shopify.com', icon: 'fas fa-copyright', isNew: false, comingSoon: false },
+      { name: 'Brandmark', description: 'AI logo generator that creates unique logos based on your preferences.', url: 'https://brandmark.io', icon: 'fas fa-copyright', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'Logo Genie', description: 'AI-powered logo design tool that generates logos based on your input.', url: 'https://www.logogenie.net/', icon: 'fas fa-copyright', isNew: true, comingSoon: false, badge :'new' },
+      { name: 'Designs AI',description: 'All-in-one creative suite for logo, video, voiceover, and banner generation.',icon: 'fas fa-shapes',url: 'https://designs.ai/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      { name: 'Brandmark',description: 'AI-powered logo design tool for creating professional brand identities instantly.',icon: 'fas fa-bold',url: 'https://brandmark.io/',isNew: false,comingSoon: false,badge: 'Recommended'},
+      { name: 'Stockimg AI',description: 'Generative AI platform for creating stock images, logos, and posters.',icon: 'fas fa-images',url: 'https://stockimg.ai/',isNew: true,comingSoon: false,badge: 'new'},
+      { name: 'Namecheap Logo',description: 'Free logo maker by Namecheap that uses AI to help build your brand design.',icon: 'fas fa-tag',url: 'https://www.namecheap.com/logo-maker/',isNew: false,comingSoon: false,badge: 'Recommended'} 
+    ],
+  },
+  {
+    id: 'Social Media',
+    name: 'AI Social Media Tools',
+    tools: [
+      { name: 'SocialBee', description: 'AI-powered social media management tool for scheduling and content creation.', url: 'https://socialbee.io', icon: 'fas fa-share-alt', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Lately AI', description: 'AI social media management platform that helps you create and schedule posts across multiple platforms.', url: 'https://www.lately.ai', icon: 'fas fa-share-alt', isNew: false, comingSoon: false },
+      { name: 'Postly', description: 'AI-powered social media management tool for scheduling and content creation.', url: 'https://postly.app', icon: 'fas fa-share-alt', isNew: true, comingSoon: false, badge: 'Recommended' },
+      { name: 'Taplio', description: 'AI-powered LinkedIn content creation and growth tool for personal branding.', icon: 'fas fa-network-wired', url: 'https://taplio.com/', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'Typefully', description: 'Tool for crafting, scheduling, and analyzing Twitter threads with AI help.', icon: 'fas fa-feather-alt', url: 'https://typefully.com/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Hypefury', description: 'Social media content manager for scheduling, auto-retweets, and growth insights.', icon: 'fas fa-fire', url: 'https://hypefury.com/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'TweetHunter', description: 'AI-powered Twitter tool to help you write better tweets, schedule, and grow.', icon: 'fas fa-bullhorn', url: 'https://tweethunter.io/', isNew: false, comingSoon: false, badge: 'Recommended' },
+    ],
+  },
+  {
+    id: 'Productivity',
+    name: 'AI Productivity Tools',
+    tools: [
+      { name: 'Merlin', description: 'AI copilot Chrome extension that brings ChatGPT to any site for fast productivity.', icon: 'fas fa-rocket', url: 'https://www.getmerlin.in/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'TinyWow', description: 'Free tools powered by AI for PDF editing, image conversion, and productivity tasks.', icon: 'fas fa-tools', url: 'https://tinywow.com/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Notion AI', description: 'Integrated AI inside Notion to help write, summarize, brainstorm, and more.', icon: 'fas fa-brain', url: 'https://www.notion.so/product/ai', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Adobe Sensei', description: 'Adobe’s AI engine powering intelligent features across their creative apps.', icon: 'fas fa-robot', url: 'https://www.adobe.com/sensei.html', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Personal AI', description: 'Your personal memory-based AI assistant for messaging and productivity.', icon: 'fas fa-user', url: 'https://www.personal.ai/', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'Mem', description: 'AI-powered note-taking app that helps you organize your thoughts and ideas.', icon: 'fas fa-sticky-note', url: 'https://mem.ai/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Superhuman', description: 'AI-powered email client that helps you manage your inbox efficiently.', icon: 'fas fa-envelope', url: 'https://superhuman.com/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Otter.ai', description: 'AI-powered transcription service that converts speech to text in real-time.', icon: 'fas fa-microphone-alt', url: 'https://otter.ai/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Fireflies', description: 'AI meeting assistant that records, transcribes, and analyzes meetings.', icon: 'fas fa-video', url: 'https://fireflies.ai/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Trello', description: 'Project management tool with AI features for task automation and organization.', icon: 'fas fa-tasks', url: 'https://trello.com/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Todoist', description: 'AI-powered task management app that helps you  organize your to-do lists and projects.', icon: 'fas fa-list', url: 'https://todoist.com/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'ClickUp', description: 'All-in-one productivity platform with AI features  for task management, docs, and goals.', icon: 'fas fa-tasks', url: 'https://clickup.com/', isNew: false, comingSoon: false, badge: 'Recommended' },
+      { name: 'Tidy', description: 'AI-powered workspace management tool to organize tasks, notes, and projects collaboratively.', icon: 'fas fa-folder-open', url: 'https://tidyapp.io/', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'Otter.ai', description: 'AI transcription tool for meetings and conversations with real-time note-taking and summaries.', icon: 'fas fa-microphone-alt', url: 'https://otter.ai/', isNew: false, comingSoon: false, badge: 'Recommended' },
+    ],
+  },
 
+];
 export default toolsData;

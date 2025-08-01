@@ -103,6 +103,8 @@ const Hero = ({ openModal }) => {
     { name: 'Image Generators', id: 'image-generators' },
     { name: 'Chatbots', id: 'chatbots' },
     { name: 'AI Music Generators', id: 'music-generators' },
+    { name: 'AI Prompts Tools', id: 'AI Prompts' },
+    { name: 'AI Design Tools', id: 'AI Design' },
     { name: 'AI Data Analysis Tools', id: 'data-analysis' },
     { name: 'AI Gaming Tools', id: 'gaming-tools' },
     { name: 'UML, ER, Use Case Diagrams', id: 'ai-diagrams' },
@@ -110,6 +112,9 @@ const Hero = ({ openModal }) => {
     { name: 'Utility Tools', id: 'utility-tools' },
     { name: 'Ai Portfolio', id: 'Portfolio' },
     { name : 'Text Humanizer AI Tools', id : 'text-humanizer-ai'},
+    {name: 'AI Logo Generators',id : 'Logo Generators'},
+    { name: 'AI Productivity Tools', id : 'Productivity'},
+    { name: 'Social Media Tools', id: 'Social Media' },    
   ];
 
   return (
