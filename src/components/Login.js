@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { motion as m, LazyMotion, domAnimation } from 'framer-motion';
-import {
-  FaUser, FaLock, FaEye, FaEyeSlash, FaTimes, FaSpinner, FaPaperPlane,
-} from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaTimes, FaSpinner, FaPaperPlane,} from 'react-icons/fa';
+import { useLoading } from '../contexts/LoadingContext'; // Import the useLoading hook
 
 // Floating/interactive shapes background component
 const floatingShapesConfig = [
@@ -62,6 +61,7 @@ const Login = () => {
   const [resetMessage, setResetMessage] = useState('');
   const [resetError, setResetError] = useState('');
   const history = useHistory();
+  const { showLoader, hideLoader } = useLoading(); // Get the loader functions
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
 
@@ -85,6 +85,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    showLoader();
     if (!validateForm()) return;
     setIsLoading(true);
     try {
@@ -106,6 +107,7 @@ const Login = () => {
       });
     } finally {
       setIsLoading(false);
+      hideLoader(); // Hide the loader after the request completes
     }
   };
 

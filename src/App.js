@@ -1,19 +1,35 @@
 // App.js
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+// --- CONTEXT PROVIDER ---
+import { LoadingProvider } from './contexts/LoadingContext'; // Make sure this path is correct
+
+// --- STATIC COMPONENTS (Normal Imports) ---
 import Header from './components/Header';
-import Home from './components/Home';
 import Footer from './components/Footer';
 import ComingSoonModal from './components/ComingSoonModal';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import About from './components/About';
-import Contact from './components/Contact';
-import HistoryPage from './components/HistoryPage';
-import ResetPassword from './components/ResetPassword';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import AdminDashboard from './components/AdminDashboard';
 import './index.css';
+
+// --- LAZY-LOADED PAGE COMPONENTS ---
+const Home = lazy(() => import('./components/Home'));
+const Login = lazy(() => import('./components/Login'));
+const Signup = lazy(() => import('./components/Signup'));
+const About = lazy(() => import('./components/About'));
+const Contact = lazy(() => import('./components/Contact'));
+const HistoryPage = lazy(() => import('./components/HistoryPage'));
+const ResetPassword = lazy(() => import('./components/ResetPassword'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+
+// --- LOADER COMPONENT ---
+// This component will be shown while a lazy-loaded page is being fetched.
+const PageLoader = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+    {/* The path should be absolute from the 'public' folder */}
+    <img src="/ailogo.gif" alt="Loading..." style={{ width: '150px' }}/>
+  </div>
+);
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,21 +39,28 @@ function App() {
   return (
     <div className="App min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Router>
-        <Header openModal={openModal} />
-        <main className="flex-grow">
-          <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/login" component={Login} />
-            <Route path="/signup" component={Signup} />
-            <Route path="/about" component={About} />
-            <Route path="/contact" component={Contact} />
-            <Route path="/history" component={HistoryPage} />
-            <Route path="/reset-password" component={ResetPassword} />
-            <Route path="/admin/newsletter" component={AdminDashboard} />
-          </Switch>
-        </main>
-        {isModalOpen && <ComingSoonModal closeModal={closeModal} />}
-        <Footer />
+        <LoadingProvider>
+          <Header openModal={openModal} />
+          <main className="flex-grow">
+            {/* The <Suspense> component wraps your routes.
+              It shows the 'fallback' UI (your PageLoader) whenever a component inside it is not yet loaded.
+            */}
+            <Suspense fallback={<PageLoader />}>
+              <Switch>
+                <Route path="/" exact component={Home} />
+                <Route path="/login" component={Login} />
+                <Route path="/signup" component={Signup} />
+                <Route path="/about" component={About} />
+                <Route path="/contact" component={Contact} />
+                <Route path="/history" component={HistoryPage} />
+                <Route path="/reset-password" component={ResetPassword} />
+                <Route path="/admin/newsletter" component={AdminDashboard} />
+              </Switch>
+            </Suspense>
+          </main>
+          {isModalOpen && <ComingSoonModal closeModal={closeModal} />}
+          <Footer />
+        </LoadingProvider>
       </Router>
     </div>
   );
