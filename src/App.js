@@ -21,6 +21,9 @@ const Contact = lazy(() => import('./components/Contact'));
 const HistoryPage = lazy(() => import('./components/HistoryPage'));
 const ResetPassword = lazy(() => import('./components/ResetPassword'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+// 1. LAZY-LOAD THE USERPROFILE COMPONENT
+const UserProfile = lazy(() => import('./components/UserProfile'));
+
 
 // --- LOADER COMPONENT ---
 // This component will be shown while a lazy-loaded page is being fetched.
@@ -55,6 +58,16 @@ function App() {
                 <Route path="/history" component={HistoryPage} />
                 <Route path="/reset-password" component={ResetPassword} />
                 <Route path="/admin/newsletter" component={AdminDashboard} />
+
+                {/* 2. CORRECTED THE ROUTE FOR THE PROFILE PAGE
+                  - The path is now "/profile" to match your Header links.
+                  - It now correctly points to the UserProfile component.
+                */}
+                <Route path="/profile" component={UserProfile} />
+
+                {/* This was the old, incorrect route which I've removed: */}
+                {/* <Route path="/UserProfile" component={AdminDashboard} /> */}
+
               </Switch>
             </Suspense>
           </main>

@@ -14,7 +14,7 @@ const PageWrapper = ({ children, maxWidth = 'max-w-4xl', className = '', jsx, ..
     <main
       // We spread the 'rest' of the props here, allowing any other valid HTML attributes to be passed.
       {...rest}
-      className={`relative pt-24 px-4 ${maxWidth} mx-auto bg-white dark:bg-gray-900 mt-0 md:mt-[-2cm] ${className}`}
+      className={`relative pt-24 px-15 ${maxWidth} mx-auto bg-white dark:bg-gray-900 mt-0 md:mt-[-2cm] ${className}`}
     >
       {children}
     </main>

@@ -119,7 +119,9 @@ const toolsData = [
       { name: 'Visme', description: 'Create presentations, infographics, and visual content with AI tools.', url: 'https://www.visme.co', icon: 'fas fa-chalkboard-teacher', isNew: false, comingSoon: false },
       { name: 'SlidesAI', description: 'AI tool that transforms text into professional-looking presentation slides automatically within seconds.', url: 'https://www.slidesai.io', icon: 'fas fa-chalkboard-teacher', isNew: true, comingSoon: false, badge: 'new' },
       { name: 'Designs.ai', description: 'All-in-one creative platform that uses AI to generate logos, videos, banners, mockups, and more with minimal input.', url: 'https://designs.ai/', icon: 'fas fa-paint-roller', isNew: true , comingSoon: false, badge: 'Recommended' },
-
+      { name: 'Pitch', description: 'The collaborative presentation software for modern teams, enabling fast-moving teams to create and distribute beautiful presentations.', url: 'https://pitch.com', icon: 'fas fa-file-powerpoint', isNew: false, comingSoon: false, badge: '' },
+      { name: 'Plus AI', description: 'An AI presentation maker for Google Slides. Create, edit, and format presentations in seconds.', url: 'https://www.plusdocs.com', icon: 'fas fa-magic', isNew: true, comingSoon: false, badge: 'new' },
+      { name: 'PopAI', description: 'Your personal AI workspace. Chat with docs, create presentations, and generate images with a powerful AI assistant.', url: 'https://www.popai.pro', icon: 'fas fa-brain', isNew: true, comingSoon: false, badge: 'new' },
     ],
   },
   {

@@ -3,18 +3,14 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import {
   FaTwitter, FaLinkedin, FaGithub, FaDiscord, FaYoutube, FaTelegram, FaInstagram,
   FaEnvelope, FaHeart, FaArrowUp, FaTools, FaUsers, FaCode, FaLightbulb, FaShieldAlt,
-  FaGlobe, FaBook, FaNewspaper, FaSpinner, FaChevronDown, FaChevronUp
+  FaGlobe, FaBook, FaNewspaper, FaSpinner, FaChevronDown, FaChevronUp, FaRocket,
+  FaStar, FaFire, FaChartLine
 } from 'react-icons/fa';
 import { motion as m, LazyMotion, domAnimation, AnimatePresence } from 'framer-motion';
 import Logo from '../assets/logo.png';
 import toolsData from '../data/toolsData';
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState('success');
   const [expandedSections, setExpandedSections] = useState({});
   const history = useHistory();
   const location = useLocation();
@@ -30,68 +26,11 @@ const Footer = () => {
     return null;
   }
 
-  const API_URL = process.env.REACT_APP_API_URL || 'https://your-backend-url.com';
-
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
-  };
-
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    
-    if (!email.trim()) {
-      setMessage('Please enter your email address');
-      setMessageType('error');
-      setTimeout(() => setMessage(''), 3000);
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setMessage('Please enter a valid email address');
-      setMessageType('error');
-      setTimeout(() => setMessage(''), 3000);
-      return;
-    }
-
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch(`${API_URL}/api/newsletter/subscribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: email.trim() }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setIsSubscribed(true);
-        setMessage(data.message || 'Successfully subscribed! Check your email.');
-        setMessageType('success');
-        setEmail('');
-        setTimeout(() => {
-          setIsSubscribed(false);
-          setMessage('');
-        }, 5000);
-      } else {
-        setMessage(data.error || 'Failed to subscribe. Please try again.');
-        setMessageType('error');
-        setTimeout(() => setMessage(''), 4000);
-      }
-    } catch (error) {
-      console.error('Subscription error:', error);
-      setMessage('Network error. Please check your connection and try again.');
-      setMessageType('error');
-      setTimeout(() => setMessage(''), 4000);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const scrollToTop = () => {
@@ -188,24 +127,39 @@ const Footer = () => {
     </div>
   );
 
+  const features = [
+    {
+      icon: FaRocket,
+      title: "Lightning Fast",
+      description: "Discover AI tools instantly with our optimized search"
+    },
+    {
+      icon: FaStar,
+      title: "Curated Collection",
+      description: "Hand-picked premium AI tools for maximum productivity"
+    },
+    {
+      icon: FaFire,
+      title: "Always Updated",
+      description: "Latest AI innovations added weekly to our platform"
+    },
+    {
+      icon: FaChartLine,
+      title: "Trending Tools",
+      description: "Stay ahead with the most popular AI solutions"
+    }
+  ];
+
   return (
     <LazyMotion features={domAnimation}>
       <m.footer
-        className="relative bg-gradient-to-br from-gray-900 via-gray-900/95 to-gray-800/90 backdrop-blur-xl border-t border-white/20 text-white overflow-hidden"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        viewport={{ once: true }}
+        className="relative bg-gray-900 border-t border-gray-800 text-white"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0 }}
       >
-        {/* Enhanced Decorative Elements */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-orange-500" />
-        <div className="absolute -top-32 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -top-20 right-1/4 w-48 h-48 bg-gradient-to-r from-pink-500/8 to-orange-500/8 rounded-full blur-2xl" />
-        
-        {/* Animated background pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10" />
-        </div>
+        {/* Simplified Background */}
+        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500" />
 
         {/* Main Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -241,9 +195,7 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  initial={{ opacity: 1, y: 0 }}
                   whileHover={{ y: -4, scale: 1.15 }}
                   whileTap={{ scale: 0.95 }}
                   className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center bg-white/5 backdrop-blur-sm border border-white/20 text-gray-400 transition-all duration-300 ${social.color} ${social.bgColor} hover:border-white/40 hover:shadow-lg relative overflow-hidden group`}
@@ -257,7 +209,7 @@ const Footer = () => {
           </div>
 
           {/* Mobile-Optimized Links Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             {Object.entries(footerLinks).map(([category, links]) => (
               <CollapsibleSection 
                 key={category} 
@@ -273,116 +225,31 @@ const Footer = () => {
             ))}
           </div>
 
-          {/* Enhanced Newsletter Section */}
-          <m.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="relative bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-3xl border border-white/20 p-8 lg:p-12"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl" />
-            
-            <div className="relative z-10 max-w-2xl mx-auto text-center">
-              <m.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg"
-              >
-                <FaNewspaper className="text-2xl text-white" />
-              </m.div>
-              
-              <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">
-                Stay Updated
-              </h3>
-              <p className="text-gray-300 text-base lg:text-lg mb-8 leading-relaxed">
-                Get weekly updates on the newest AI tools, industry insights, and exclusive content delivered to your inbox.
-              </p>
-              
-              {/* Message Display */}
-              <AnimatePresence>
-                {message && (
-                  <m.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className={`mb-6 p-4 rounded-2xl text-sm lg:text-base font-medium ${
-                      messageType === 'success' 
-                        ? 'bg-green-500/20 text-green-300 border border-green-500/40' 
-                        : 'bg-red-500/20 text-red-300 border border-red-500/40'
-                    }`}
-                  >
-                    {message}
-                  </m.div>
-                )}
-              </AnimatePresence>
 
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-                <div className="relative flex-1">
-                  <input
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address" 
-                    required
-                    disabled={isLoading}
-                    className="w-full px-6 py-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 text-base"
-                  />
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 focus-within:opacity-100 transition-opacity pointer-events-none" />
-                </div>
-                
-                <m.button
-                  type="submit" 
-                  whileHover={{ scale: isLoading ? 1 : 1.05 }} 
-                  whileTap={{ scale: isLoading ? 1 : 0.95 }}
-                  disabled={isLoading}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white rounded-2xl font-semibold shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 relative overflow-hidden group min-w-[140px]"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="relative z-10 flex items-center gap-2">
-                    {isLoading ? (
-                      <>
-                        <FaSpinner className="animate-spin" />
-                        Subscribing...
-                      </>
-                    ) : isSubscribed ? (
-                      <>
-                        <FaHeart className="text-red-400" />
-                        Subscribed!
-                      </>
-                    ) : (
-                      'Subscribe'
-                    )}
-                  </span>
-                </m.button>
-              </form>
-            </div>
-          </m.div>
         </div>
 
         {/* Enhanced Bottom Bar */}
-        <div className="relative z-10 border-t border-white/20 bg-black/20 backdrop-blur-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="border-t border-gray-800 bg-gray-900/80">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-gray-400 text-sm text-center sm:text-left flex items-center gap-2 flex-wrap justify-center sm:justify-start">
-                © {new Date().getFullYear()} AI Tools Hub. All Rights Reserved. 
-                <span className="flex items-center gap-1">
-                  Made with <FaHeart className="text-red-500 animate-pulse" /> by 
-                  <span className="font-semibold text-white">myalltools</span>
-                </span>
+              <p className="text-gray-400 text-sm text-center sm:text-left">
+                © {new Date().getFullYear()} AI Tools Hub. All rights reserved.
               </p>
               
-              <m.button
-                onClick={scrollToTop} 
-                whileHover={{ y: -4, scale: 1.1 }} 
-                whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-blue-500/30 transition-all relative overflow-hidden group"
-                title="Back to top"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <FaArrowUp className="relative z-10" />
-              </m.button>
+              <div className="flex items-center gap-4">
+                <span className="text-gray-500 text-sm flex items-center gap-1">
+                  Made with <FaHeart className="text-red-500 text-xs" /> by myalltools
+                </span>
+                <m.button
+                  onClick={scrollToTop} 
+                  whileHover={{ y: -2 }} 
+                  whileTap={{ scale: 0.95 }}
+                  className="w-8 h-8 rounded-md flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-all"
+                  title="Back to top"
+                >
+                  <FaArrowUp className="text-xs" />
+                </m.button>
+              </div>
             </div>
           </div>
         </div>
