@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { motion as m } from 'framer-motion';
-// ❌ Removed imports for '@react-oauth/google' and 'jwt-decode' as we will load the Google script directly.
 import { Eye, EyeOff, Loader2, Rocket, Mail, User, Lock, Brain, Sparkles } from 'lucide-react';
 
 // This is a background animation component. No changes are needed here.
@@ -150,7 +149,7 @@ const Signup = () => {
   const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
   
-  // ✅ Create a ref for the Google button container
+  // Create a ref for the Google button container
   const googleButtonRef = useRef(null);
 
   const handleChange = (e) => {
@@ -231,7 +230,6 @@ const Signup = () => {
       setErrors({ general: 'Google login failed. Please try again.' });
   };
   
-  // ✅ useEffect to load the Google script and render the button
   useEffect(() => {
     if (!googleClientId) {
       console.error("Google Client ID is missing. Please set REACT_APP_GOOGLE_CLIENT_ID in your .env file.");
@@ -239,7 +237,6 @@ const Signup = () => {
     }
 
     if (window.google && window.google.accounts) {
-        // If script is already there, just initialize and render
         window.google.accounts.id.initialize({
             client_id: googleClientId,
             callback: handleGoogleSuccess
@@ -249,7 +246,6 @@ const Signup = () => {
             { theme: "filled_black", shape: "pill", width: "300" }
         );
     } else {
-        // Load the script
         const script = document.createElement("script");
         script.src = "https://accounts.google.com/gsi/client";
         script.async = true;
@@ -273,8 +269,7 @@ const Signup = () => {
             document.body.removeChild(script);
         };
     }
-  }, [googleClientId]); // Rerun if client ID changes
-
+  }, [googleClientId]);
 
   // --- Animation Variants (no changes needed) ---
   const glowVariants = {
@@ -383,7 +378,6 @@ const Signup = () => {
                 )}
 
                 <form onSubmit={handleSignup} className="space-y-6">
-                  {/* Email, Username, Password, Confirm Password fields remain the same */}
                   <m.div variants={itemVariants}>
                      <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                        <Mail className="text-blue-400 w-4 h-4" /> Email Address
@@ -449,7 +443,7 @@ const Signup = () => {
                   <div className="flex-grow border-t border-white/20"></div>
                 </m.div>
 
-                {/* ✅ This div is now the target for the Google button */}
+                {/* This div is now the target for the Google button */}
                 <m.div variants={itemVariants} className="flex justify-center" ref={googleButtonRef}></m.div>
 
                 <m.div variants={itemVariants} className="text-center mt-8">
