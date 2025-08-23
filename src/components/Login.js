@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { motion as m, LazyMotion, domAnimation } from 'framer-motion';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaTimes, FaSpinner, FaPaperPlane,} from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaTimes, FaSpinner, FaPaperPlane } from 'react-icons/fa';
 import { useLoading } from '../contexts/LoadingContext'; // Import the useLoading hook
 
 // Floating/interactive shapes background component
@@ -64,11 +64,16 @@ const Login = () => {
   const { showLoader, hideLoader } = useLoading(); // Get the loader functions
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+  // Create a ref for the Google button container
+  const googleButtonRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors.general) setErrors((prev) => ({...prev, general: ''}));
   };
 
   const validateForm = () => {
@@ -85,8 +90,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    showLoader();
     if (!validateForm()) return;
+    
+    showLoader();
     setIsLoading(true);
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, formData);
@@ -127,6 +133,78 @@ const Login = () => {
       setResetError(error.response?.data?.error || 'Failed to send reset email. Please try again.');
     }
   };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    showLoader();
+    try {
+        const res = await axios.post(`${API_URL}/api/auth/google-login`, {
+            token: credentialResponse.credential,
+        });
+
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem('username', res.data.user.username);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', res.data.user.email);
+        history.push('/');
+        window.location.reload();
+
+    } catch (err) {
+        console.error("Google login failed:", err);
+        setErrors({
+            general: err.response?.data?.error || 'Google login failed. Please try again.',
+        });
+    } finally {
+        setIsLoading(false);
+        hideLoader();
+    }
+  };
+  
+  const handleGoogleError = () => {
+      console.log("❌ Google Login Failed");
+      setErrors({ general: 'Google login failed. Please try again.' });
+  };
+  
+  useEffect(() => {
+    if (!googleClientId) {
+      console.error("Google Client ID is missing. Please set REACT_APP_GOOGLE_CLIENT_ID in your .env file.");
+      return;
+    }
+
+    if (window.google && window.google.accounts) {
+        window.google.accounts.id.initialize({
+            client_id: googleClientId,
+            callback: handleGoogleSuccess
+        });
+        window.google.accounts.id.renderButton(
+            googleButtonRef.current,
+            { theme: "filled_black", shape: "pill", width: "300" } 
+        );
+    } else {
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            if (window.google && googleButtonRef.current) {
+                window.google.accounts.id.initialize({
+                    client_id: googleClientId,
+                    callback: handleGoogleSuccess
+                });
+                window.google.accounts.id.renderButton(
+                    googleButtonRef.current,
+                    { theme: "filled_black", shape: "pill", width: "300" } 
+                );
+            }
+        };
+        script.onerror = handleGoogleError;
+        document.body.appendChild(script);
+
+        return () => {
+            document.body.removeChild(script);
+        };
+    }
+  }, [googleClientId]);
 
   return (
     <LazyMotion features={domAnimation}>
@@ -242,6 +320,15 @@ const Login = () => {
                 )}
               </m.button>
             </form>
+            
+            <div className="relative flex items-center my-6">
+                <div className="flex-grow border-t border-white/20"></div>
+                <span className="flex-shrink mx-4 text-gray-400 text-xs">OR</span>
+                <div className="flex-grow border-t border-white/20"></div>
+            </div>
+
+            {/* This div is the target for the Google button */}
+            <div className="flex justify-center" ref={googleButtonRef}></div>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-400">

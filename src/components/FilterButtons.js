@@ -3,10 +3,10 @@ import React from 'react';
 
 const FilterButtons = ({ activeFilter, handleFilter }) => {
   const filters = [
-    'all', 'faceless-video', 'video-generators', 'writing-tools', 'presentation-tools',
-    'short-clippers', 'marketing-tools', 'voice-tools', 'website-builders', 'image-generators',
-    'chatbots', 'music-generators', 'data-analysis', 'gaming-tools', 'ai-diagrams',
-    'utility-tools', 'Portfolio','text-humanizer-ai',
+    'all', 'ai-coding-assistants','faceless-video', 'video-generators', 'writing-tools', 'presentation-tools',
+    'short-clippers', 'marketing-tools', 'voice-tools', 'website-builders', 'image-generators','email-assistance',
+    'chatbots', 'music-generators', 'data-analysis', 'gaming-tools', 'ai-diagrams','ai-scheduling','data-visualization',
+    'utility-tools', 'Portfolio','text-humanizer-ai','meeting-notes','spreadsheet-tools'
   ];
 
   return (

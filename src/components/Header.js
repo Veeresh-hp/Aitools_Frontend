@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
+// At the top of Header.js with your other imports
+import { faCode } from '@fortawesome/free-solid-svg-icons'; // Or the correct package
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons'; // Or from whichever style you are using (e.g., free-regular-svg-icons)
+import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'; // Or from whichever style you are using (e.g., free-regular-svg-icons)
+import { faChartBar } from '@fortawesome/free-solid-svg-icons';
 import {
   faBars,
   faTimes,
@@ -201,7 +206,13 @@ const Header = () => {
   const categories = [
     { name: 'Faceless AI Video', id: 'faceless-video', icon: faVideo },
     { name: 'AI Video Generators', id: 'video-generators', icon: faVideo },
+    { name: 'AI Coding Assistants', id: 'ai-coding-assistants', icon: faCode },
     { name: 'AI Writing Tools', id: 'writing-tools', icon: faPen },
+    { name: 'AI Meeting Notes', id: 'meeting-notes', icon: faMicrophone},
+    { name: 'AI Spreadsheet Tools', id: 'spreadsheet-tools', icon: faDatabase},
+    { name: 'Email Assistance', id: 'email-assistance', icon: faEnvelope},
+    { name: 'AI Scheduling', id: 'ai-scheduling', icon: faCalendarAlt},
+    { name: 'AI Data Visualization', id: 'data-visualization', icon: faChartBar},
     { name: 'AI Presentation Tools', id: 'presentation-tools', icon: faDesktop },
     { name: 'AI Short Clippers', id: 'short-clippers', icon: faVideo },
     { name: 'AI Marketing Tools', id: 'marketing-tools', icon: faChartLine },

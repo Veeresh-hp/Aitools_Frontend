@@ -480,12 +480,6 @@ const UserProfile = () => {
               )}
             </AnimatePresence>
 
-            {/* Header */}
-            <m.div variants={itemVariants} className="text-center">
-              <h1 className="text-4xl lg:text-5xl font-bold gradient-text mb-2">User Profile</h1>
-              <p className="text-gray-400 text-lg">Manage your account and preferences</p>
-            </m.div>
-
             {/* Profile Header Card */}
             <m.div variants={itemVariants} className="glass-card rounded-2xl p-6 lg:p-8">
               <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
@@ -578,6 +572,12 @@ const UserProfile = () => {
                   </div>
                 </div>
               </div>
+            </m.div>
+            
+            {/* Header */}
+            <m.div variants={itemVariants} className="text-center mt-8">
+              <h1 className="text-4xl lg:text-5xl font-bold gradient-text mb-2">User Profile</h1>
+              <p className="text-gray-400 text-lg">Manage your account and preferences</p>
             </m.div>
 
             {/* Stats Cards */}

@@ -202,6 +202,15 @@ const Signup = () => {
   };
   
   const handleGoogleSuccess = async (credentialResponse) => {
+  //     // ADD THIS LINE to print the entire response object
+  //   console.log("Google Success Response:", credentialResponse); 
+                     
+  
+  //  ---- these above and below code will display the google token in console ----
+  
+  
+  // // ADD THIS LINE to print just the token string
+  // console.log("Your Google ID Token:", credentialResponse.credential); 
     setIsLoading(true);
     try {
         const res = await axios.post(`${API_URL}/api/auth/google-login`, {
