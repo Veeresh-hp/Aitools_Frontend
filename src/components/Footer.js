@@ -12,8 +12,12 @@ import toolsData from '../data/toolsData';
 
 const Footer = () => {
   const [expandedSections, setExpandedSections] = useState({});
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState({ state: 'idle', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const history = useHistory();
   const location = useLocation();
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   // Pages where footer should be hidden
   const hiddenPages = ['/signup', '/login', '/history', '/sign-up', '/log-in'];
@@ -37,17 +41,10 @@ const Footer = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const aiToolLinks = toolsData.slice(0, 6).map(category => ({
-    name: category.name,
-    href: `#${category.id}`
-  }));
-
   const footerLinks = {
-    'AI Tools': aiToolLinks,
     'Company': [
       { name: 'About Us', href: '/about', icon: FaGlobe },
       { name: 'Contact', href: '/contact', icon: FaEnvelope },
-      { name: 'Blog', href: '/blog', icon: FaNewspaper },
     ],
     'Legal': [
       { name: 'Privacy Policy', href: '/privacy', icon: FaShieldAlt },
@@ -56,12 +53,9 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { icon: FaTwitter, label: 'Twitter', color: 'hover:text-blue-400', bgColor: 'hover:bg-blue-400/20' },
     { icon: FaLinkedin, href: 'https://www.linkedin.com/in/veereshhp/', label: 'LinkedIn', color: 'hover:text-blue-600', bgColor: 'hover:bg-blue-600/20' },
     { icon: FaGithub, href: 'https://github.com/Veeresh-hp', label: 'GitHub', color: 'hover:text-gray-300', bgColor: 'hover:bg-gray-300/20' },
-    { icon: FaDiscord, href: 'https://discord.gg/veer_thinks_53322', label: 'Discord', color: 'hover:text-indigo-400', bgColor: 'hover:bg-indigo-400/20' },
     { icon: FaYoutube, href: 'https://youtube.com/@veerthinks?si=vYqUUFQ2mg2utng3', label: 'YouTube', color: 'hover:text-red-500', bgColor: 'hover:bg-red-500/20' },
-    { icon: FaInstagram, label: 'Instagram', color: 'hover:text-pink-400', bgColor: 'hover:bg-pink-400/20' },
   ];
 
   const handleFooterLinkClick = (href) => {
@@ -161,93 +155,180 @@ const Footer = () => {
         {/* Simplified Background */}
         <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500" />
 
-        {/* Main Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          
-          {/* Mobile-First Brand Section */}
-          <div className="text-center lg:text-left mb-12 lg:mb-0">
-            <Link 
-              to="/" 
-              onClick={() => window.scrollTo({ top: 0 })} 
-              className="inline-flex items-center text-2xl lg:text-3xl font-extrabold mb-6 group"
-            >
-              <m.img 
-                src={Logo} 
-                alt="AI Tools Hub Logo" 
-                className="w-12 h-12 lg:w-14 lg:h-14 mr-3 rounded-xl shadow-lg group-hover:shadow-blue-500/30 transition-shadow duration-300" 
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-                AI Tools Hub
-              </span>
-            </Link>
-            
-            <p className="text-gray-300 text-base lg:text-lg leading-relaxed mb-8 max-w-md mx-auto lg:mx-0">
-              Discover cutting-edge AI tools to supercharge your productivity and innovation in the digital age.
-            </p>
-            
-            {/* Enhanced Social Links */}
-            <div className="flex justify-center lg:justify-start flex-wrap gap-3 mb-12 lg:mb-0">
-              {socialLinks.map((social, index) => (
+        {/* Main Content - Compact */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Newsletter Subscription */}
+          <div className="mb-10">
+            <div className="relative rounded-2xl overflow-hidden p-8 sm:p-10 bg-gradient-to-r from-pink-600 via-red-500 to-orange-500 shadow-xl border border-white/10">
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+                <div className="absolute -bottom-10 -right-10 w-52 h-52 bg-black/10 rounded-full blur-3xl" />
+              </div>
+              <div className="relative z-10 text-center max-w-2xl mx-auto">
+                <h3 className="text-2xl font-bold mb-3 text-white">Subscribe to our Newsletter</h3>
+                <p className="text-sm text-white/90 mb-6 leading-relaxed">Stay informed with weekly updates on the latest AI tools. Get the newest insights, features, and offerings right in your inbox!</p>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setStatus({ state: 'idle', message: '' });
+                    const trimmed = email.trim();
+                    if (!trimmed) {
+                      setStatus({ state: 'error', message: 'Please enter your email.' });
+                      return;
+                    }
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(trimmed)) {
+                      setStatus({ state: 'error', message: 'Enter a valid email.' });
+                      return;
+                    }
+                    setIsSubmitting(true);
+                    try {
+                      const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: trimmed })
+                      });
+                      const json = await res.json();
+                      if (res.ok) {
+                        setStatus({ state: 'success', message: json.message || 'You are subscribed!' });
+                        setEmail('');
+                      } else {
+                        setStatus({ state: 'error', message: json.error || 'Subscription failed.' });
+                      }
+                    } catch (err) {
+                      setStatus({ state: 'error', message: 'Network error. Try again later.' });
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                  }}
+                  className="flex flex-col sm:flex-row items-stretch gap-3 justify-center"
+                >
+                  <div className="flex-1 min-w-[240px] relative">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full px-4 py-3 rounded-lg bg-white/15 backdrop-blur-sm text-white placeholder-white/70 text-sm border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white shadow-inner"
+                      aria-label="Email address"
+                      disabled={isSubmitting}
+                    />
+                    {status.state === 'error' && (
+                      <span className="absolute -bottom-5 left-1 text-xs text-white/90 font-medium">{status.message}</span>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-5 py-3 rounded-lg bg-white text-sm font-semibold text-pink-600 hover:bg-pink-50 transition-all border border-white/30 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shadow"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <circle cx="12" cy="12" r="10" strokeWidth="4" className="opacity-25" />
+                          <path d="M4 12a8 8 0 018-8" strokeWidth="4" strokeLinecap="round" className="opacity-75" />
+                        </svg>
+                        <span>Subscribing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaEnvelope className="text-pink-600" />
+                        <span>Subscribe</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+                {status.state === 'success' && (
+                  <div className="mt-4 text-sm font-medium text-white bg-white/20 rounded-md px-4 py-2 inline-flex items-center gap-2">
+                    <span>✅ {status.message}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            {/* Brand Section - Compact */}
+            <div className="text-center lg:text-left">
+              <Link 
+                to="/" 
+                onClick={() => window.scrollTo({ top: 0 })} 
+                className="inline-flex items-center text-xl font-bold mb-3 group"
+              >
+                <m.img 
+                  src={Logo} 
+                  alt="AI Tools Hub Logo" 
+                  className="w-10 h-10 mr-2 rounded-lg shadow-lg group-hover:shadow-blue-500/30 transition-shadow duration-300" 
+                  whileHover={{ rotate: 360, scale: 1.1 }}
+                  transition={{ duration: 0.6 }}
+                />
+                <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  AI Tools Hub
+                </span>
+              </Link>
+              
+              <p className="text-gray-400 text-sm max-w-xs mx-auto lg:mx-0">
+                Discover cutting-edge AI tools for productivity
+              </p>
+            </div>
+
+            {/* Quick Links - Compact */}
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+              {Object.entries(footerLinks).map(([category, links]) => (
+                <div key={category} className="flex items-center gap-4">
+                  {links.map((link) => (
+                    <button
+                      key={link.name}
+                      onClick={() => handleFooterLinkClick(link.href)}
+                      className="text-gray-400 hover:text-white transition-colors duration-200"
+                    >
+                      {link.name}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Social Links - Compact */}
+            <div className="flex items-center gap-2">
+              {socialLinks.map((social) => (
                 <m.a
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  initial={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.15 }}
+                  whileHover={{ y: -2, scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center bg-white/5 backdrop-blur-sm border border-white/20 text-gray-400 transition-all duration-300 ${social.color} ${social.bgColor} hover:border-white/40 hover:shadow-lg relative overflow-hidden group`}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center bg-white/5 border border-white/10 text-gray-400 transition-all duration-200 ${social.color} ${social.bgColor} hover:border-white/30`}
                   title={social.label}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <social.icon className="text-lg lg:text-xl relative z-10" />
+                  <social.icon className="text-sm" />
                 </m.a>
               ))}
             </div>
           </div>
-
-          {/* Mobile-Optimized Links Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            {Object.entries(footerLinks).map(([category, links]) => (
-              <CollapsibleSection 
-                key={category} 
-                title={category} 
-                sectionKey={category}
-              >
-                {links.map((link) => (
-                  <li key={link.name}>
-                    <FooterLink href={link.href} name={link.name} />
-                  </li>
-                ))}
-              </CollapsibleSection>
-            ))}
-          </div>
-
-
         </div>
 
-        {/* Enhanced Bottom Bar */}
+        {/* Bottom Bar - Compact */}
         <div className="border-t border-gray-800 bg-gray-900/80">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-gray-400 text-sm text-center sm:text-left">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+              <p className="text-gray-500 text-xs text-center sm:text-left">
                 © {new Date().getFullYear()} AI Tools Hub. All rights reserved.
               </p>
               
-              <div className="flex items-center gap-4">
-                <span className="text-gray-500 text-sm flex items-center gap-1">
-                  Made with <FaHeart className="text-red-500 text-xs" /> by myalltools
+              <div className="flex items-center gap-3">
+                <span className="text-gray-500 text-xs flex items-center gap-1">
+                  Made with <FaHeart className="text-red-500 text-[10px]" /> by myalltools
                 </span>
                 <m.button
                   onClick={scrollToTop} 
                   whileHover={{ y: -2 }} 
                   whileTap={{ scale: 0.95 }}
-                  className="w-8 h-8 rounded-md flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-all"
+                  className="w-7 h-7 rounded-md flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-all"
                   title="Back to top"
                 >
-                  <FaArrowUp className="text-xs" />
+                  <FaArrowUp className="text-[10px]" />
                 </m.button>
               </div>
             </div>

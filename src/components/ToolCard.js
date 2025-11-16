@@ -1,65 +1,72 @@
-import React, { useRef } from 'react';
-import { m, LazyMotion, domAnimation, useMotionValue } from 'framer-motion';
+import React from 'react';
+import { m, LazyMotion, domAnimation } from 'framer-motion';
+import { FaExternalLinkAlt, FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { useHistory } from 'react-router-dom';
 
 const ToolCard = ({ tool, openModal }) => {
-  const cardRef = useRef(null);
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-
-  const handleMouseMove = (e) => {
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateAmountX = -(y - centerY) / 20;
-    const rotateAmountY = (x - centerX) / 20;
-
-    rotateX.set(rotateAmountX);
-    rotateY.set(rotateAmountY);
+  const history = useHistory();
+  
+  // Helper to build a favicon URL when no image is available
+  const getFaviconUrl = (url) => {
+    try {
+      if (!url) return null;
+      const { hostname } = new URL(url);
+      return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+    } catch {
+      return null;
+    }
   };
 
-  const handleMouseLeave = () => {
-    rotateX.set(0);
-    rotateY.set(0);
-  };
-
-  const handleClick = (e) => {
-    if (tool.comingSoon) return;
-
-    const ripple = document.createElement('span');
-    ripple.className = 'ripple';
-    ripple.style.left = `${e.nativeEvent.offsetX}px`;
-    ripple.style.top = `${e.nativeEvent.offsetY}px`;
-    cardRef.current.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 600);
-
-    if (typeof openModal === 'function') {
-      openModal(tool);
-    } else {
-      console.warn("openModal is not a function", openModal);
+  const handleClick = () => {
+    if (!tool.comingSoon) {
+      // Generate tool slug from name
+      const toolSlug = tool.name.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+      
+      // Navigate to tool detail page with fallback for undefined category
+      const categorySlug = tool.category || 'all';
+      history.push(`/tools/${categorySlug}/${toolSlug}`);
     }
   };
 
   const handleGetToolClick = (e) => {
     e.stopPropagation();
-    if (!tool.url) {
-      e.preventDefault();
-      return;
+  };
+
+  // Bookmark (save) state: persist bookmarks in localStorage under 'ai_bookmarks'
+  const getToolKey = () => tool.url || tool.name || tool.id;
+  const [saved, setSaved] = React.useState(false);
+
+  React.useEffect(() => {
+    try {
+      const key = getToolKey();
+      const raw = localStorage.getItem('ai_bookmarks');
+      const arr = raw ? JSON.parse(raw) : [];
+      setSaved(arr.includes(key));
+    } catch (err) {
+      // ignore
     }
+  }, [tool.url, tool.name, tool.id]);
 
-    const historyItem = {
-      name: tool.name,
-      url: tool.url,
-      icon: tool.icon,
-      timestamp: new Date().toISOString(),
-    };
-
-    const existingHistory = JSON.parse(localStorage.getItem("toolClickHistory") || "[]");
-    const updatedHistory = [historyItem, ...existingHistory.slice(0, 9)];
-    localStorage.setItem("toolClickHistory", JSON.stringify(updatedHistory));
+  const toggleBookmark = (e) => {
+    e.stopPropagation();
+    try {
+      const key = getToolKey();
+      const raw = localStorage.getItem('ai_bookmarks');
+      let arr = raw ? JSON.parse(raw) : [];
+      if (arr.includes(key)) {
+        arr = arr.filter(x => x !== key);
+        setSaved(false);
+      } else {
+        arr.push(key);
+        setSaved(true);
+      }
+      localStorage.setItem('ai_bookmarks', JSON.stringify(arr));
+    } catch (err) {
+      console.error('bookmark error', err);
+    }
   };
 
   const getCategoryGradient = (category) => {
@@ -93,16 +100,20 @@ const ToolCard = ({ tool, openModal }) => {
 
   const getBadgeClass = (badge) => {
     switch (badge) {
-      case 'Recommended':
-        return 'text-yellow-300 border-yellow-400/50 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm shadow-lg shadow-yellow-500/20 animate-pulse';
-      case 'New':
-        return 'text-green-300 border-green-400/50 bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm';
+      case 'Paid':
+        return 'bg-red-500 text-white';
       case 'Free':
-        return 'text-emerald-300 border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-sm';
+        return 'bg-green-500 text-white';
+      case 'Freemium':
+        return 'bg-orange-500 text-white';
+      case 'Recommended':
+        return 'bg-yellow-500 text-white';
+      case 'New':
+        return 'bg-blue-500 text-white';
       case 'Trending':
-        return 'text-red-300 border-red-400/50 bg-gradient-to-r from-red-500/20 to-pink-500/20 backdrop-blur-sm shadow-lg shadow-red-500/20';
+        return 'bg-purple-500 text-white';
       default:
-        return 'text-blue-300 border-blue-400/50 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-sm';
+        return 'bg-gray-500 text-white';
     }
   };
 
@@ -138,158 +149,148 @@ const ToolCard = ({ tool, openModal }) => {
   return (
     <LazyMotion features={domAnimation}>
       <m.article
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          rotateX,
-          rotateY,
-          transformPerspective: 1000,
-        }}
-        onClick={handleClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if ((e.key === 'Enter' || e.key === ' ') && !tool.comingSoon && typeof openModal === 'function') {
-            openModal(tool);
-          }
-        }}
-        aria-disabled={tool.comingSoon}
-        aria-label={`${tool.name} tool card${tool.comingSoon ? ', coming soon' : ''}`}
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        whileHover={!tool.comingSoon ? { 
-          scale: 1.05, 
-          y: -5,
-          transition: { duration: 0.3, ease: "easeOut" }
-        } : {}}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className={`
-          group relative overflow-hidden rounded-2xl p-6 flex flex-col gap-4 h-full
-          bg-gradient-to-br ${getCategoryGradient(tool.category)} 
-          backdrop-blur-xl border border-white/10
-          text-white shadow-lg hover:shadow-2xl hover:shadow-blue-500/10
-          transition-all duration-300 ease-out
-          ${!tool.comingSoon ? 'cursor-pointer hover:border-white/20' : 'cursor-not-allowed opacity-60'}
-        `}
+        initial={false}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0 }}
+        className={`group relative rounded-2xl shadow-xl flex flex-col overflow-hidden transition-all duration-200 bg-gradient-to-br ${getCategoryGradient(tool.category)} backdrop-blur-xl border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2`}
       >
-        {/* Animated background overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Subtle animated border */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/0 via-purple-500/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" 
-             style={{ background: 'linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent)' }} />
-
-        {tool.comingSoon && (
-          <m.span 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute top-3 right-3 text-xs font-semibold text-yellow-300 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-400/30 px-3 py-1 rounded-full shadow-lg z-20"
+        {/* Tool Image - Full Width at Top */}
+        <div 
+          className="relative w-full h-48 bg-black/30 overflow-hidden cursor-pointer group/image"
+          onClick={handleClick}
+        >
+          {tool.image || tool.url ? (
+            <>
+              <img
+                src={tool.image || getFaviconUrl(tool.url)}
+                alt={tool.name}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                onError={e => {
+                  try {
+                    const current = e.currentTarget.getAttribute('src') || '';
+                    // Try correcting case from /images/ to /Images/ once
+                    if (current.includes('/images/')) {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = current.replace('/images/', '/Images/');
+                    } else if (tool.url) {
+                      // Fallback to favicon if available
+                      const fav = getFaviconUrl(tool.url);
+                      if (fav && current !== fav) {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = fav;
+                      } else {
+                        e.currentTarget.style.display = 'none';
+                      }
+                    } else {
+                      e.currentTarget.style.display = 'none';
+                    }
+                  } catch {
+                    e.currentTarget.style.display = 'none';
+                  }
+                }}
+              />
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Click to view details overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/50 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/image:opacity-100">
+                <span className="text-white text-sm font-semibold bg-white/20 backdrop-blur-md px-4 py-2 rounded-lg border border-white/30">
+                  Click to view details
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm bg-black/20">
+              No Image Available
+            </div>
+          )}
+          
+          {/* Badge - Top Left */}
+          {(tool.badge || tool.isNew) && (
+            <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${
+              tool.isNew 
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse' 
+                : getBadgeClass(tool.badge)
+            }`}>
+              {tool.isNew ? '🎉 NEW' : tool.badge}
+            </span>
+          )}
+          
+          {/* Bookmark (save) Icon - Top Right */}
+          <button
+            className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-lg ${saved ? 'bg-yellow-500 text-white' : 'bg-white/10 text-white'} backdrop-blur-md hover:scale-105 transition-all duration-150 z-10 border ${saved ? 'border-yellow-400' : 'border-white/20'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/70`}
+            onClick={toggleBookmark}
+            title={saved ? 'Saved' : 'Save'}
+            aria-pressed={saved}
           >
-            Coming Soon
-          </m.span>
-        )}
+            {saved ? <FaBookmark className="w-4 h-4" /> : <FaRegBookmark className="w-4 h-4" />}
+          </button>
 
-        <style>{`
-          .ripple {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            animation: ripple-animation 0.6s ease-out;
-            z-index: 10;
-          }
-
-          @keyframes ripple-animation {
-            from { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-            to { transform: translate(-50%, -50%) scale(3); opacity: 0; }
-          }
-
-          @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-          }
-
-          @keyframes glow {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-          }
-
-          .icon-hover {
-            transition: all 0.3s ease;
-          }
-
-          .group:hover .icon-hover {
-            animation: float 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 8px currentColor);
-          }
-        `}</style>
-
-        {/* Icon and Title Section */}
-        <div className="relative z-10 flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300">
-              <i className={`${tool.icon} text-xl ${getIconColor(tool.category)} icon-hover`} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-white truncate group-hover:text-blue-200 transition-colors duration-300">
-                {tool.name}
-              </h3>
-              {tool.badge && (
-                <m.span 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className={`inline-block text-xs font-medium border rounded-full px-2 py-1 mt-1 ${getBadgeClass(tool.badge)}`}
-                >
-                  {tool.badge}
-                </m.span>
-              )}
-            </div>
-          </div>
+          {/* Open Tool Button moved to bottom-right corner of the card */}
         </div>
 
-        {/* Description */}
-        <p className="text-sm text-gray-300 leading-relaxed flex-1 group-hover:text-gray-200 transition-colors duration-300">
-          {tool.description}
-        </p>
-
-        {/* Action Button */}
-        <div className="relative z-10 mt-auto pt-2">
-          {!tool.comingSoon ? (
-            <m.a
-              href={tool.url || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleGetToolClick}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="group/btn relative inline-flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300 overflow-hidden"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Get Tool
-                <svg className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
+        {/* Content Section */}
+        <div className="flex-1 flex flex-col px-5 pt-4 pb-14 gap-3">
+          {/* Tool Name */}
+          <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors duration-200">
+            {tool.name}
+          </h3>
+          
+          {/* Description */}
+          <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed group-hover:text-gray-200">
+            {tool.description}
+          </p>
+        </div>
+        
+        {/* Bottom Left Corner - Date and Category Tags */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
+          {/* Date Added */}
+          {tool.dateAdded && (
+            <div className="flex items-center gap-1.5 text-xs text-gray-400 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/10">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>
+                {new Date(tool.dateAdded).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                })}
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-            </m.a>
-          ) : (
-            <button
-              disabled
-              className="w-full px-4 py-3 text-sm font-medium text-gray-500 bg-gray-800/50 rounded-xl cursor-not-allowed border border-gray-700/50"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Coming Soon
-            </button>
+            </div>
+          )}
+          
+          {/* Category Tag */}
+          {tool.categories && tool.categories.length > 0 && (
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-white/10 text-gray-200 border border-white/20 backdrop-blur-sm">
+              {tool.categories[0]}
+            </span>
+          )}
+          {!tool.categories && tool.category && (
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-white/10 text-gray-200 border border-white/20 backdrop-blur-sm">
+              {tool.category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+            </span>
           )}
         </div>
-
-        {/* Hover glow effect */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        
+        {tool.url && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              try {
+                window.open(tool.url, '_blank', 'noopener,noreferrer');
+              } catch (err) {
+                window.location.href = tool.url;
+              }
+            }}
+            className="absolute bottom-3 right-3 p-0 text-white hover:text-blue-300 transition-colors z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 rounded"
+            title={`Open ${tool.name}`}
+            aria-label={`Open ${tool.name}`}
+          >
+            <FaExternalLinkAlt className="w-4 h-4 opacity-90" />
+          </button>
+        )}
       </m.article>
     </LazyMotion>
   );

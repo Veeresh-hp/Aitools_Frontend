@@ -1,14 +1,53 @@
 import React, { useState } from 'react';
-import { FaNewspaper, FaTools, FaPaperPlane, FaSpinner } from 'react-icons/fa';
+import { FaNewspaper, FaPaperPlane, FaSpinner, FaTools } from 'react-icons/fa';
 import { motion as m } from 'framer-motion';
 
 const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('success');
+  const [pendingTools, setPendingTools] = useState([]);
 
-  // Get API URL from environment
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const token = localStorage.getItem('token');
+
+  // Fetch pending tools for admin approval
+  const fetchPending = async () => {
+    try {
+      setIsLoading(true);
+      setMessage('');
+      
+      if (!token) {
+        setMessage('⚠️ Not authenticated. Please login again.');
+        setMessageType('error');
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/tools/pending`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      
+      if (res.ok) {
+        setPendingTools(json.tools || []);
+        setMessage(json.tools.length > 0 ? `✅ Loaded ${json.tools.length} pending tool(s)` : 'No pending tools');
+        setMessageType('success');
+      } else {
+        setMessage(`❌ Failed: ${json.error || res.statusText}. Status: ${res.status}`);
+        setMessageType('error');
+      }
+    } catch (err) {
+      console.error('Fetch pending tools error:', err);
+      setMessage(`❌ Network error: ${err.message}. Check if backend is running on ${API_URL}`);
+      setMessageType('error');
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setMessage(''), 8000);
+    }
+  };
+
+  React.useEffect(() => { fetchPending(); }, []);
+
 
   // Send newsletter for new tool
   const sendNewToolNewsletter = async (toolData) => {
@@ -84,10 +123,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl sm:text-3xl font-bold mb-8 flex items-center gap-3">
-          <FaNewspaper className="text-blue-400" />
-          Newsletter Admin Dashboard
+          <FaTools className="text-blue-400" />
+          Admin Dashboard
         </h1>
 
         {/* Message Display */}
@@ -119,6 +158,68 @@ const AdminDashboard = () => {
             isLoading={isLoading} 
           />
           
+        </div>
+
+        {/* Pending Tools for Approval */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-blue-400">🛠 Pending Tool Submissions</h3>
+            <m.button
+              onClick={fetchPending}
+              disabled={isLoading}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {isLoading ? <FaSpinner className="animate-spin" /> : '🔄'} Refresh
+            </m.button>
+          </div>
+          {isLoading && <p className="text-gray-300">Loading...</p>}
+          {!isLoading && pendingTools.length === 0 && <p className="text-gray-400">No pending tools</p>}
+          <div className="space-y-4">
+            {pendingTools.map((tool) => (
+              <div key={tool._id} className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg flex items-start justify-between">
+                <div>
+                  <h4 className="font-bold text-white">{tool.name}</h4>
+                  <p className="text-gray-300 text-sm">{tool.description}</p>
+                  {tool.url && <p className="text-xs text-blue-400 mt-1">URL: {tool.url}</p>}
+                  <p className="text-xs text-gray-400 mt-1">
+                    Submitted by: {tool.submittedBy ? `${tool.submittedBy.username} (${tool.submittedBy.email})` : 'Anonymous user'}
+                  </p>
+                  {tool.snapshotUrl && (
+                    <p className="text-xs text-gray-400">
+                      <a href={`${API_URL}${tool.snapshotUrl}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                        View snapshot
+                      </a>
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={async () => {
+                    try {
+                      setIsLoading(true);
+                      const res = await fetch(`${API_URL}/api/tools/${tool._id}/approve`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+                      const json = await res.json();
+                      if (res.ok) { setMessage('Tool approved'); fetchPending(); }
+                      else setMessage(json.error || 'Failed to approve');
+                    } catch (err) { console.error(err); setMessage('Network error'); }
+                    finally { setIsLoading(false); setTimeout(() => setMessage(''), 4000); }
+                  }} className="px-3 py-2 bg-green-600 rounded text-sm">Approve</button>
+
+                  <button onClick={async () => {
+                    try {
+                      setIsLoading(true);
+                      const res = await fetch(`${API_URL}/api/tools/${tool._id}/reject`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+                      const json = await res.json();
+                      if (res.ok) { setMessage('Tool rejected'); fetchPending(); }
+                      else setMessage(json.error || 'Failed to reject');
+                    } catch (err) { console.error(err); setMessage('Network error'); }
+                    finally { setIsLoading(false); setTimeout(() => setMessage(''), 4000); }
+                  }} className="px-3 py-2 bg-red-600 rounded text-sm">Reject</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Instructions */}

@@ -55,6 +55,7 @@ const Header = () => {
   const [isMobileToolsDropdownOpen, setIsMobileToolsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
+  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('isAdmin') === 'true');
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
@@ -382,7 +383,6 @@ const Header = () => {
                 </m.button>
               </div>
             </div>
-
             {/* Desktop Layout */}
             <div className="hidden sm:flex items-center">
               <m.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="logo-bounce">
@@ -476,6 +476,7 @@ const Header = () => {
                     {isAccountDropdownOpen && (
                       <m.ul initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.2, ease: "easeOut" }} className="absolute right-0 mt-2 rounded-2xl py-2 z-50 text-sm w-48 dropdown-glass" onMouseEnter={cancelCloseAccountDropdown} onMouseLeave={closeAccountDropdownWithDelay} role="menu">
                         <li role="menuitem"><Link to="/history" className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-blue-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faHistory} className="w-4 h-4" /> History</Link></li>
+                        {isAdmin && <li role="menuitem"><Link to="/admin" className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-green-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faShieldAlt} className="w-4 h-4" /> Admin Dashboard</Link></li>}
                         <li role="menuitem"><Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-blue-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faUser} /> Profile</Link></li>
                         <li role="menuitem"><m.button onClick={handleLogout} className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-300 hover:text-red-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faSignOutAlt} className="w-4 h-4" /> Sign Out</m.button></li>
                       </m.ul>
@@ -490,6 +491,17 @@ const Header = () => {
               )}
               <m.button onClick={() => history.push('/profile')} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} className="action-btn w-12 h-12 rounded-xl flex items-center justify-center text-white transition-all duration-300" aria-label="Profile">
                 <FontAwesomeIcon icon={faUser} className="text-lg" />
+              </m.button>
+              {/* Add Tool button - visible to everyone (logged in or not) */}
+              <m.button 
+                onClick={() => history.push('/add-tool')} 
+                whileHover={{ scale: 1.05, y: -2 }} 
+                whileTap={{ scale: 0.95 }} 
+                className="ml-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 flex items-center gap-2" 
+                aria-label="Add Tool"
+              >
+                <FontAwesomeIcon icon={faTools} className="w-4 h-4" />
+                ✨ Add Tool
               </m.button>
             </div>
           </nav>
@@ -802,6 +814,18 @@ const Header = () => {
                         </m.li>
                       </>
                     )}
+                    
+                    {/* Add Tool Button - visible to everyone */}
+                    <m.li role="menuitem" variants={menuItemVariants} initial="closed" animate="open" custom={mainNavItems.length + 6}>
+                      <m.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-4">
+                        <Link to="/add-tool" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-3 w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-300 font-semibold">
+                          <m.div whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                            <FontAwesomeIcon icon={faTools} className="w-5 text-center" />
+                          </m.div>
+                          ✨ Add New Tool
+                        </Link>
+                      </m.div>
+                    </m.li>
                   </div>
                 </ul>
               </m.div>

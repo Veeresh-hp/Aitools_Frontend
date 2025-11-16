@@ -1,0 +1,74 @@
+/* Example CSS for testing the sticky category bar behavior */
+
+/* You can add these additional enhancements if needed: */
+
+/* Enhance sticky bar with shadow animation */
+@media (max-width: 768px) {
+  /* Smooth shadow transition when bar becomes sticky */
+  nav[role="tablist"].sticky {
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+  
+  /* Optional: Add fade-in animation when page loads */
+  @keyframes slideInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  nav[role="tablist"] {
+    animation: slideInFromTop 0.4s ease-out;
+  }
+  
+  /* Optional: Enhance pill hover effects */
+  nav[role="tablist"] button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  nav[role="tablist"] button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Optional: Add gradient border to active pill */
+  nav[role="tablist"] button[aria-selected="true"]::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.5;
+  }
+}
+
+/* Ensure content doesn't jump when scrolling to sections */
+html {
+  scroll-padding-top: 160px; /* Header + sticky bar */
+}
+
+/* Smooth scroll behavior for better UX */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* For users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  nav[role="tablist"] {
+    animation: none;
+  }
+  
+  nav[role="tablist"] button {
+    transition: none;
+  }
+}

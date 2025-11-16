@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import { motion as m } from "framer-motion";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const CARD_WIDTH = 240; // px
@@ -119,16 +118,12 @@ export default function Carousel({
         style={{ scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", cursor: "grab" }}
       >
         {items.map((item, idx) => (
-          <m.div
+          <div
             key={item.id || idx}
             className={`min-w-[220px] max-w-[240px] snap-center ${cardClassName}`}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: idx * 0.07 }}
           >
             {renderItem(item, idx)}
-          </m.div>
+          </div>
         ))}
       </div>
       {/* Progress Bar */}

@@ -103,6 +103,7 @@ const Login = () => {
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', response.data.user.email);
       localStorage.setItem('username', response.data.user.username);
+      localStorage.setItem('isAdmin', response.data.user.role === 'admin' ? 'true' : 'false');
       history.push('/');
       window.location.reload();
     } catch (error) {
@@ -146,6 +147,7 @@ const Login = () => {
         localStorage.setItem('username', res.data.user.username);
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userEmail', res.data.user.email);
+        localStorage.setItem('isAdmin', res.data.user.role === 'admin' ? 'true' : 'false');
         history.push('/');
         window.location.reload();
 

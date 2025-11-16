@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { m, LazyMotion, domAnimation, LayoutGroup } from 'framer-motion';
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
 
 const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, setActiveFilter }) => {
+  const [approvedTools, setApprovedTools] = useState([]);
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+  // Fetch approved tools from backend
+  useEffect(() => {
+    const fetchApprovedTools = async () => {
+      try {
+        console.log('🔍 Fetching approved tools from:', `${API_URL}/api/tools/approved`);
+        const res = await fetch(`${API_URL}/api/tools/approved`);
+        const json = await res.json();
+        console.log('✅ Approved tools response:', json);
+        if (res.ok) {
+          setApprovedTools(json.tools || []);
+          console.log('📦 Set approved tools count:', json.tools?.length || 0);
+        }
+      } catch (err) {
+        console.error('❌ Failed to fetch approved tools:', err);
+      }
+    };
+    fetchApprovedTools();
+  }, [API_URL]);
+
   const handleSearch = () => setActiveFilter('all');
 
   const handleFilter = (category) => {
@@ -11,7 +33,61 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
     setSearchQuery('');
   };
 
-  const filteredTools = toolsData
+  // Convert approved tools from database to display format with NEW badge
+  const convertedApprovedTools = approvedTools.map((tool) => ({
+    name: tool.name,
+    description: tool.description,
+    link: tool.url || '#',
+    image: tool.snapshotUrl ? `${API_URL}${tool.snapshotUrl}` : null,
+    isNew: true, // Mark as NEW
+    category: tool.category || 'community-submitted', // Use category or default to 'community-submitted'
+  }));
+
+  console.log('🎯 Converted approved tools:', convertedApprovedTools);
+
+  // Merge approved tools into their respective categories
+  const allToolsData = toolsData.map(category => {
+    // Find approved tools that belong to this category
+    const categoryApprovedTools = convertedApprovedTools.filter(
+      tool => tool.category === category.id
+    );
+    
+    console.log(`🔍 Category "${category.id}" (${category.name}): Found ${categoryApprovedTools.length} approved tools`);
+    if (categoryApprovedTools.length > 0) {
+      console.log(`   ✅ Adding tools:`, categoryApprovedTools.map(t => t.name));
+    }
+    
+    // If there are approved tools for this category, add them
+    if (categoryApprovedTools.length > 0) {
+      return {
+        ...category,
+        tools: [...category.tools, ...categoryApprovedTools]
+      };
+    }
+    
+    return category;
+  });
+
+  // Add new categories for approved tools that don't match existing categories
+  const newCategories = {};
+  convertedApprovedTools.forEach(tool => {
+    const categoryExists = toolsData.some(cat => cat.id === tool.category);
+    if (!categoryExists) {
+      if (!newCategories[tool.category]) {
+        newCategories[tool.category] = {
+          id: tool.category,
+          name: `🎉 ${tool.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}`,
+          tools: []
+        };
+      }
+      newCategories[tool.category].tools.push(tool);
+    }
+  });
+
+  // Add new categories to the end
+  const finalToolsData = [...allToolsData, ...Object.values(newCategories)];
+
+  const filteredTools = finalToolsData
     .map((category) => ({
       ...category,
       tools: category.tools.filter((tool) => {
@@ -24,6 +100,10 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
       }),
     }))
     .filter((category) => category.tools.length > 0);
+
+  // Calculate total tools count including approved tools
+  const totalToolsCount = finalToolsData.reduce((sum, category) => sum + category.tools.length, 0);
+  console.log('📊 Total tools count:', totalToolsCount);
 
   const getCategoryIcon = (categoryId) => {
     const iconMap = {

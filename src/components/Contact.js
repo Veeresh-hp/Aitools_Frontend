@@ -204,14 +204,21 @@ const Contact = () => {
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 rounded-3xl blur-xl -z-10" />
             
             <m.div
-              className="relative bg-black/50 backdrop-blur-3xl border border-white/20 rounded-3xl shadow-2xl p-8 group"
+              className="relative backdrop-blur-3xl border border-white/20 rounded-3xl shadow-2xl p-8 group overflow-hidden"
               whileHover={{ 
                 y: -8, 
                 rotateX: 2,
                 transition: { duration: 0.4, ease: "easeOut" } 
               }}
-              style={{ transformStyle: "preserve-3d" }}
+              style={{
+                transformStyle: "preserve-3d",
+                backgroundImage: "url('/home-bg.JPG')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
             >
+              {/* Dark overlay for readability over image */}
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#0d0e1b]/85 via-[#1b1430]/75 to-[#140d25]/85" />
               {/* Premium shine effect */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
