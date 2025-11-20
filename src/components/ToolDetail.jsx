@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
 import { motion as m } from 'framer-motion';
 import { FaArrowLeft, FaExternalLinkAlt, FaStar, FaBookmark, FaRegBookmark, FaCalendar, FaTag } from 'react-icons/fa';
@@ -14,19 +14,75 @@ const ToolDetail = () => {
   const [relatedTools, setRelatedTools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [approvedTools, setApprovedTools] = useState([]);
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  // Robust API base: env var first, then detect Vercel, else localhost
+  const API_URL = useMemo(() => {
+    const envUrl = process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL.trim();
+    if (envUrl) return envUrl;
+    try {
+      const host = typeof window !== 'undefined' ? window.location.hostname : '';
+      const isVercel = /vercel\.app$/.test(host);
+      if (isVercel) return 'https://ai-tools-hub-backend-u2v6.onrender.com';
+    } catch {}
+    return 'http://localhost:5000';
+  }, []);
 
-  // Fetch approved tools from backend
+  const toSlug = useCallback((val) => {
+    try {
+      return String(val || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    } catch {
+      return '';
+    }
+  }, []);
+
+  const getFaviconUrl = useCallback((url) => {
+    try {
+      if (!url) return null;
+      const { hostname } = new URL(url);
+      return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const buildSnapshotUrl = useCallback((snap) => {
+    if (!snap) return null;
+    try {
+      // If it's already a full URL (http/https), use it directly (Cloudinary URLs)
+      if (/^https?:\/\//i.test(snap)) return snap;
+      
+      // If it's a relative path (local storage), prefix with API_URL
+      const withLeading = snap.startsWith('/') ? snap : `/${snap}`;
+      return `${API_URL}${withLeading}`;
+    } catch {
+      return null;
+    }
+  }, [API_URL]);
+
+  // Fetch approved tools from backend with cache-busting
   useEffect(() => {
     const fetchApprovedTools = async () => {
+      const tick = Math.floor(Date.now() / 60000);
+      const base = `${API_URL}/api/tools/approved`;
+      const url = `${base}?t=${tick}`;
       try {
-        const res = await fetch(`${API_URL}/api/tools/approved`, {
+        let res = await fetch(url, {
           priority: 'low',
-          cache: 'force-cache'
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
         });
-        const json = await res.json();
+        let json = await res.json();
+        if (!(res.ok && json.tools && Array.isArray(json.tools))) {
+          const url2 = `${base}?t=${Date.now()}`;
+          res = await fetch(url2, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+          json = await res.json();
+        }
         if (res.ok && json.tools && Array.isArray(json.tools)) {
-          const validTools = json.tools.filter(tool => tool && tool.name);
+          const validTools = json.tools.filter(t => t && t.name);
           setApprovedTools(validTools);
         } else {
           setApprovedTools([]);
@@ -42,21 +98,32 @@ const ToolDetail = () => {
   // Convert approved tools to display format
   const convertedApprovedTools = useMemo(() => {
     if (!approvedTools || !Array.isArray(approvedTools)) return [];
-    
+
     return approvedTools
-      .filter(tool => tool && tool.name && typeof tool.name === 'string')
-      .map((tool) => ({
-        _id: tool._id,
-        name: tool.name,
-        description: tool.description || '',
-        link: tool.url || '#',
-        url: tool.url || '#',
-        image: tool.snapshotUrl ? `${API_URL}${tool.snapshotUrl}` : null,
-        isNew: true,
-        category: tool.category || 'voice-tools',
-        dateAdded: tool.createdAt || tool.updatedAt ? new Date(tool.createdAt || tool.updatedAt).getTime() : Date.now(),
-      }));
-  }, [approvedTools, API_URL]);
+      .filter(t => t && t.name && typeof t.name === 'string')
+      .map((t) => {
+        const snapshot = buildSnapshotUrl(t.snapshotUrl);
+        const fallback = !snapshot ? getFaviconUrl(t.url) : null;
+
+        const rawCategory = t.category || 'voice-tools';
+        const slugCategory = toSlug(rawCategory);
+
+        const parsed = Date.parse(t.createdAt || t.updatedAt || '');
+        const safeTime = isNaN(parsed) ? Date.now() : parsed;
+
+        return {
+          _id: t._id,
+          name: t.name,
+          description: t.description || '',
+          link: t.url || '#',
+          url: t.url || '#',
+          image: snapshot || fallback || null,
+          isNew: true,
+          category: slugCategory,
+          dateAdded: safeTime,
+        };
+      });
+  }, [approvedTools, buildSnapshotUrl, getFaviconUrl, toSlug]);
 
   // Merge approved tools into toolsData
   const mergedToolsData = useMemo(() => {
@@ -102,10 +169,7 @@ const ToolDetail = () => {
         
         const tool = cat.tools.find(t => {
           if (!t || !t.name || typeof t.name !== 'string') return false;
-          const toolSlugGenerated = t.name.toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-');
+          const toolSlugGenerated = toSlug(t.name);
           return toolSlugGenerated === toolSlug;
         });
         
@@ -120,10 +184,7 @@ const ToolDetail = () => {
       if (foundCategory.tools && Array.isArray(foundCategory.tools)) {
         foundTool = foundCategory.tools.find(t => {
           if (!t || !t.name || typeof t.name !== 'string') return false;
-          const toolSlugGenerated = t.name.toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-');
+          const toolSlugGenerated = toSlug(t.name);
           return toolSlugGenerated === toolSlug;
         });
       }

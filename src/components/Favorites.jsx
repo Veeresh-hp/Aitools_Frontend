@@ -2,7 +2,7 @@ import React from 'react';
 import { motion as m } from 'framer-motion';
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
-import axios from 'axios';
+import api, { API_URL } from '../utils/api';
 
 // Favorites page: shows user's saved tools with sorting and drag reordering (custom mode only)
 export default function Favorites() {
@@ -25,11 +25,10 @@ export default function Favorites() {
   // Fetch server favorites and merge
   React.useEffect(() => {
     const token = localStorage.getItem('token');
-    const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
     if (!token) return;
     (async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/auth/favorites`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await api.get('/api/auth/favorites');
         const serverFavs = Array.isArray(res.data?.favorites) ? res.data.favorites : [];
         if (serverFavs.length) {
           const rawLocal = localStorage.getItem('ai_bookmarks');
@@ -47,12 +46,11 @@ export default function Favorites() {
   // Sync to backend (debounced)
   React.useEffect(() => {
     const token = localStorage.getItem('token');
-    const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
     if (!token) return;
     const t = setTimeout(() => {
       (async () => {
         try {
-          await axios.post(`${API_URL}/api/auth/favorites/sync`, { favorites: favoriteKeys }, { headers: { Authorization: `Bearer ${token}` } });
+          await api.post('/api/auth/favorites/sync', { favorites: favoriteKeys });
         } catch {}
       })();
     }, 500);

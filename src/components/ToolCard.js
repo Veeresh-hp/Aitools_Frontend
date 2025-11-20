@@ -166,26 +166,30 @@ const ToolCard = ({ tool, openModal }) => {
                 alt={tool.name}
                 loading="lazy"
                 decoding="async"
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 onError={e => {
                   try {
-                    const current = e.currentTarget.getAttribute('src') || '';
-                    // Try correcting case from /images/ to /Images/ once
+                    const imgEl = e.currentTarget;
+                    const current = imgEl.getAttribute('src') || '';
+                    // 1) Fix case-sensitive local assets
                     if (current.includes('/images/')) {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = current.replace('/images/', '/Images/');
-                    } else if (tool.url) {
-                      // Fallback to favicon if available
+                      imgEl.onerror = null;
+                      imgEl.src = current.replace('/images/', '/Images/');
+                      return;
+                    }
+                    // 2) Backend snapshot fallback to site favicon
+                    if ((current.includes('/uploads/') || current.includes('onrender.com')) && tool.url) {
                       const fav = getFaviconUrl(tool.url);
                       if (fav && current !== fav) {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = fav;
-                      } else {
-                        e.currentTarget.style.display = 'none';
+                        imgEl.onerror = null;
+                        imgEl.src = fav;
+                        return;
                       }
-                    } else {
-                      e.currentTarget.style.display = 'none';
                     }
+                    // 3) Last resort: hide image container
+                    imgEl.style.display = 'none';
                   } catch {
                     e.currentTarget.style.display = 'none';
                   }

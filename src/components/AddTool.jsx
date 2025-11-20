@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import api, { API_URL } from '../utils/api';
+import axios from 'axios';
 
 const AddTool = ({ historyProp }) => {
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [form, setForm] = useState({ name: '', description: '', url: '', category: '' });
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,34 +56,18 @@ const AddTool = ({ historyProp }) => {
         const formData = new FormData();
         formData.append('snapshot', file);
         
-        // Upload without auth requirement
-        const upRes = await fetch(`${API_URL}/api/tools/upload`, {
-          method: 'POST',
-          body: formData,
-        });
-        const upJson = await upRes.json();
-        if (upRes.ok) snapshotUrl = upJson.url;
-        else throw new Error(upJson.error || 'Upload failed');
-      }
-
-      // Submit with optional auth (if logged in, include token)
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-      if (isLoggedIn && token) {
-        headers.Authorization = `Bearer ${token}`;
+        // Upload without auth requirement (use axios directly)
+        const upRes = await axios.post(`${API_URL}/api/tools/upload`, formData);
+        snapshotUrl = upRes.data.url;
       }
 
       // Use custom category if "custom" was selected
       const finalCategory = form.category === 'custom' ? customCategory : form.category;
       
-      const res = await fetch(`${API_URL}/api/tools/submit`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ ...form, category: finalCategory, snapshotUrl }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Submission failed');
+      // Submit with optional auth (api instance handles token automatically if logged in)
+      const res = isLoggedIn && token
+        ? await api.post('/api/tools/submit', { ...form, category: finalCategory, snapshotUrl })
+        : await axios.post(`${API_URL}/api/tools/submit`, { ...form, category: finalCategory, snapshotUrl });
       setMessage('Tool submitted successfully and is pending admin approval! Thank you for your contribution.');
       setForm({ name: '', description: '', url: '', category: '' });
       setFile(null);

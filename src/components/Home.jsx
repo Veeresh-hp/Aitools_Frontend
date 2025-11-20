@@ -818,7 +818,31 @@ const ProCarousel = ({
     
     // Fetch approved tools from backend - NON-BLOCKING
     const [approvedTools, setApprovedTools] = useState([]);
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    // Robust API base: env var, else auto-detect for Vercel hosts, else localhost
+    const API_URL = useMemo(() => {
+      const envUrl = process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL.trim();
+      if (envUrl) return envUrl;
+      try {
+        const host = typeof window !== 'undefined' ? window.location.hostname : '';
+        const isVercel = /vercel\.app$/.test(host);
+        if (isVercel) return 'https://ai-tools-hub-backend-u2v6.onrender.com';
+      } catch {}
+      return 'http://localhost:5000';
+    }, []);
+
+    // Memoize slug function
+    const toSlug = useCallback((val) => {
+      try {
+        return String(val || '')
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-');
+      } catch {
+        return '';
+      }
+    }, []);
 
     // Helper: build a favicon URL fallback when a tool has no snapshot image
     const getFaviconUrl = useCallback((url) => {
@@ -842,12 +866,22 @@ const ProCarousel = ({
     useEffect(() => {
       // Fetch in background without blocking UI
       const fetchApprovedTools = async () => {
+        const tick = Math.floor(Date.now() / 60000); // bust cache every minute
+        const base = `${API_URL}/api/tools/approved`;
+        const url = `${base}?t=${tick}`;
         try {
-          const res = await fetch(`${API_URL}/api/tools/approved`, {
-            priority: 'low', // Don't block main content
-            cache: 'force-cache' // Use cache for instant load, update in background
+          let res = await fetch(url, {
+            priority: 'low',
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache' }
           });
-          const json = await res.json();
+          let json = await res.json();
+          if (!(res.ok && json.tools && Array.isArray(json.tools))) {
+            // Fallback: try once more with a hard-bust timestamp
+            const url2 = `${base}?t=${Date.now()}`;
+            res = await fetch(url2, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+            json = await res.json();
+          }
           if (res.ok && json.tools && Array.isArray(json.tools)) {
             const validTools = json.tools.filter(tool => tool && tool.name);
             setApprovedTools(validTools);
@@ -867,24 +901,57 @@ const ProCarousel = ({
 
     // Convert approved tools from database to display format with NEW badge
     const convertedApprovedTools = useMemo(() => {
-      return approvedTools
+      console.log('🔄 Converting approved tools, count:', approvedTools.length);
+
+      const buildSnapshotUrl = (snap) => {
+        if (!snap) return null;
+        try {
+          // If it's already a full URL (http/https), use it directly (Cloudinary URLs)
+          if (/^https?:\/\//i.test(snap)) return snap;
+          
+          // If it's a relative path (local storage), prefix with API_URL
+          const withLeading = snap.startsWith('/') ? snap : `/${snap}`;
+          return `${API_URL}${withLeading}`;
+        } catch {
+          return null;
+        }
+      };
+
+      const converted = approvedTools
         .filter(tool => tool && tool.name) // Filter out invalid tools
         .map((tool) => {
-          const snapshot = tool.snapshotUrl ? `${API_URL}${tool.snapshotUrl}` : null;
+          const snapshot = buildSnapshotUrl(tool.snapshotUrl);
           const fallback = !snapshot ? getFaviconUrl(tool.url) : null;
+
+          // Normalize category to our known IDs (e.g., "Meeting Notes" -> "meeting-notes")
+          const rawCategory = tool.category || 'voice-tools';
+          const slugCategory = toSlug(rawCategory);
+          const normalizedCategory = CATEGORY_IDS.includes(slugCategory)
+            ? slugCategory
+            : (CATEGORY_IDS.includes('utility-tools') ? 'utility-tools' : 'voice-tools');
+
+          // Safe timestamp (fallback to now if invalid)
+          const parsed = Date.parse(tool.createdAt || tool.updatedAt || '');
+          const safeTime = isNaN(parsed) ? Date.now() : parsed;
+
+          console.log(`🔧 Converting tool: ${tool.name}, rawCategory: ${rawCategory}, slugCategory: ${slugCategory}, normalized: ${normalizedCategory}`);
+
           return {
             _id: tool._id,
             name: tool.name,
-            description: tool.description,
+            description: tool.description || '',
             link: tool.url || '#',
             url: tool.url || '#',
             image: snapshot || fallback || null,
             isNew: true, // Mark as NEW
-            category: tool.category || 'voice-tools',
-            dateAdded: new Date(tool.createdAt || tool.updatedAt).getTime(), // Add timestamp from database
+            category: normalizedCategory,
+            dateAdded: safeTime,
           };
         });
-    }, [approvedTools, API_URL, getFaviconUrl]);
+      
+      console.log('📦 Converted approved tools:', converted.length, converted.map(t => `${t.name} (${t.category})`));
+      return converted;
+    }, [approvedTools, API_URL, getFaviconUrl, toSlug]);
 
     // Merge approved tools into toolsData
     const mergedToolsData = useMemo(() => {
@@ -894,6 +961,7 @@ const ProCarousel = ({
         );
         
         if (categoryApprovedTools.length > 0) {
+          console.log(`✅ Merging ${categoryApprovedTools.length} approved tools into category: ${category.id}`, categoryApprovedTools.map(t => t.name));
           return {
             ...category,
             tools: [...category.tools, ...categoryApprovedTools]
@@ -901,6 +969,8 @@ const ProCarousel = ({
         }
         return category;
       });
+      console.log('🔍 Total merged categories:', dataWithApproved.length);
+      console.log('🔍 Total tools after merge:', dataWithApproved.reduce((sum, cat) => sum + cat.tools.length, 0));
       return dataWithApproved;
     }, [convertedApprovedTools]);
     
@@ -953,16 +1023,16 @@ const ProCarousel = ({
         .map((category) => ({
           ...category,
           tools: category.tools.filter((tool) => {
-            // Skip invalid tools
-            if (!tool || !tool.name || !tool.description) return false;
-            
+            // Skip invalid tools (allow missing description)
+            if (!tool || !tool.name) return false;
+
             const searchLower = searchQuery.toLowerCase();
             const matchesSearch = searchQuery
               ? tool.name.toLowerCase().includes(searchLower) ||
-                tool.description.toLowerCase().includes(searchLower)
+                (tool.description ? tool.description.toLowerCase() : '').includes(searchLower)
               : true;
             const matchesFilter = activeFilter === 'all' || category.id === activeFilter;
-            
+
             // Pricing filter logic
             let matchesPricing = true;
             if (activePricing !== 'all') {
@@ -977,7 +1047,7 @@ const ProCarousel = ({
                 matchesPricing = toolPricing === 'open source' || toolPricing === 'open-source';
               }
             }
-            
+
             return matchesSearch && matchesFilter && matchesPricing;
           }),
         }))
@@ -1041,7 +1111,7 @@ const ProCarousel = ({
       setPage(next);
     }, [location.search, isMobile]);
 
-    // Reset when filters/search/sort/pricing change
+    // Reset when filters/search/sort/pricing change (but NOT when page changes)
     useEffect(() => {
       setPage(1);
       setMobileVisibleCount(PAGE_SIZE);
@@ -1052,14 +1122,16 @@ const ProCarousel = ({
           history.replace({ pathname: location.pathname, search: params.toString(), hash: location.hash });
         }
       }
-    }, [searchQuery, activeFilter, activePricing, sortBy, isMobile, history, location.pathname, location.search, location.hash]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchQuery, activeFilter, activePricing, sortBy, isMobile]);
 
     const updatePage = useCallback((next) => {
       if (isMobile) return; // use Load More on mobile
       setPage(next);
       const params = new URLSearchParams(location.search || '');
       params.set('page', String(next));
-      history.push({ pathname: location.pathname, search: params.toString(), hash: location.hash });
+      // Use replace instead of push to avoid adding to browser history stack
+      history.replace({ pathname: location.pathname || '/', search: params.toString(), hash: location.hash });
       setTimeout(() => {
         const toolsEl = document.getElementById('tools');
         if (toolsEl) toolsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1092,10 +1164,28 @@ const ProCarousel = ({
       }));
     }, []);
 
+    // Debug overlay support (visit with ?debug=1)
+    const debugMode = (() => {
+      try {
+        return new URLSearchParams(location.search || '').get('debug') === '1';
+      } catch { return false; }
+    })();
+
     return (
       <>
       <LazyMotion features={domAnimation}>
         <div className="min-h-screen text-white relative overflow-hidden">
+          {debugMode && (
+            <div className="fixed top-2 left-2 z-[1000] p-3 rounded-lg bg-black/70 text-xs font-mono border border-white/20 shadow-lg space-y-1">
+              <div><strong>DEBUG</strong></div>
+              <div>API_URL: {API_URL}</div>
+              <div>approvedTools: {approvedTools.length}</div>
+              <div>convertedApprovedTools: {convertedApprovedTools.length}</div>
+              <div>merged toolList: {toolList.length}</div>
+              <div>activeFilter: {activeFilter}</div>
+              <div>searchQuery: {searchQuery || '(empty)'}</div>
+            </div>
+          )}
           {/* Global Single Background for Entire Page */}
           <div className="fixed inset-0 z-0">
             {/* Base gradient background - Deep Navy Blue */}
