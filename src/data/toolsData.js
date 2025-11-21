@@ -55,7 +55,7 @@ const toolsData = [
       isNew: true,
       comingSoon: false,
       badge: 'New',
-      image: '/images/tinywow.JPG',
+      image: '/images/Tinywow.JPG',
       dateAdded: new Date('2023-02-18').getTime()
     },
     {
@@ -216,7 +216,7 @@ const toolsData = [
     name: 'AI Writing Tools',
     tools: [
       { name: 'Rytr', description: 'AI writing assistant to create high-quality content in seconds.', url: 'https://rytr.me', icon: 'fas fa-pen', isNew: true, comingSoon: false, badge: 'Recommended' ,image:'/images/Rytr.JPG', dateAdded: new Date('2023-04-13').getTime()},
-      { name: 'WriteSonic', description: 'Best AI tool for writing blog posts, essays, copy, emails.', url: 'https://writesonic.com', icon: 'fas fa-pen', isNew: false, comingSoon: false ,image:'/images/Writesonic.JPG' , dateAdded: new Date('2023-04-15').getTime()},
+      { name: 'WriteSonic', description: 'Best AI tool for writing blog posts, essays, copy, emails.', url: 'https://writesonic.com', icon: 'fas fa-pen', isNew: false, comingSoon: false ,image:'/images/writesonic.JPG' , dateAdded: new Date('2023-04-15').getTime()},
       { name: 'Copy AI', description: 'All-in-one AI tool for marketing and content creation.', url: 'https://www.copy.ai', icon: 'fas fa-pen', isNew: true, comingSoon: false ,image:'/images/Copy.JPG' , dateAdded: new Date('2023-04-17').getTime()},
       { name: 'Beehiiv', description: 'Monetize your newsletter and grow subscribers.', url: 'https://www.beehiiv.com', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge: 'Recommended' ,image:'/images/Beehiiv.JPG' , dateAdded: new Date('2023-04-19').getTime()},
       { name: 'Undetectable AI', description: 'AI Detector and Humanizer for converting AI text to human tone.', url: 'https://undetectable.ai', icon: 'fas fa-pen', isNew: false, comingSoon: false, badge:'Recommended',image:'/images/Undetectable.JPG' , dateAdded: new Date('2023-04-25').getTime()},
