@@ -14,9 +14,37 @@ const Sidebar = () => {
   const [activeNav, setActiveNav] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
-  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('isAdmin') === 'true');
-  const [username, setUsername] = useState(() => localStorage.getItem('username') || 'User');
+  // const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
+  // const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('isAdmin') === 'true');
+  // const [username, setUsername] = useState(() => localStorage.getItem('username') || 'User');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+const [isAdmin, setIsAdmin] = useState(false);
+const [username, setUsername] = useState('User');
+const [email, setEmail] = useState('');
+
+// detect login/admin info from localStorage on mount
+useEffect(() => {
+  const storedLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const storedUsername = localStorage.getItem('username') || 'User';
+  const storedEmail = localStorage.getItem('email') || '';
+  const adminFlag = localStorage.getItem('isAdmin') === 'true';
+  const envAdmin = process.env.REACT_APP_ADMIN_EMAIL;
+
+  setIsLoggedIn(storedLoggedIn);
+  setUsername(storedUsername);
+  setEmail(storedEmail);
+
+  // 👇 put YOUR admin Gmail here
+  const HARDCODED_ADMIN_EMAIL = 'veereshhp2004@gmail.com';
+
+  const resolvedIsAdmin =
+    adminFlag || // from backend/token
+    (envAdmin && storedEmail === envAdmin) || // from .env
+    storedEmail === HARDCODED_ADMIN_EMAIL;    // hardcoded fallback
+
+  setIsAdmin(resolvedIsAdmin);
+}, []);
+
   const [showCategories, setShowCategories] = useState(false);
   const [dropdownFocusIndex, setDropdownFocusIndex] = useState(0);
   const dropdownRef = useRef(null);

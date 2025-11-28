@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Determine API URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
+const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000'
+  : (process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com');
 
 // Create axios instance
 const api = axios.create({
@@ -64,10 +66,10 @@ api.interceptors.response.use(
 
           const newToken = response.data.token;
           localStorage.setItem('token', newToken);
-          
+
           // Update original request with new token
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          
+
           // Notify all waiting requests
           onRefreshed(newToken);
           isRefreshing = false;

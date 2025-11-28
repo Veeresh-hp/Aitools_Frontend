@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 
 const ToolCard = ({ tool, openModal }) => {
   const history = useHistory();
-  
+
   // Helper to build a favicon URL when no image is available
   const getFaviconUrl = (url) => {
     try {
@@ -24,7 +24,7 @@ const ToolCard = ({ tool, openModal }) => {
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
-      
+
       // Navigate to tool detail page with fallback for undefined category
       const categorySlug = tool.category || 'all';
       history.push(`/tools/${categorySlug}/${toolSlug}`);
@@ -155,7 +155,7 @@ const ToolCard = ({ tool, openModal }) => {
         className={`group relative rounded-2xl shadow-xl flex flex-col overflow-hidden transition-all duration-200 bg-gradient-to-br ${getCategoryGradient(tool.category)} backdrop-blur-xl border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2`}
       >
         {/* Tool Image - Full Width at Top */}
-        <div 
+        <div
           className="relative w-full h-48 bg-black/30 overflow-hidden cursor-pointer group/image"
           onClick={handleClick}
         >
@@ -209,18 +209,17 @@ const ToolCard = ({ tool, openModal }) => {
               No Image Available
             </div>
           )}
-          
+
           {/* Badge - Top Left */}
           {(tool.badge || tool.isNew) && (
-            <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${
-              tool.isNew 
-                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse' 
+            <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${tool.isNew
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
                 : getBadgeClass(tool.badge)
-            }`}>
+              }`}>
               {tool.isNew ? '🎉 NEW' : tool.badge}
             </span>
           )}
-          
+
           {/* Bookmark (save) Icon - Top Right */}
           <button
             className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-lg ${saved ? 'bg-yellow-500 text-white' : 'bg-white/10 text-white'} backdrop-blur-md hover:scale-105 transition-all duration-150 z-10 border ${saved ? 'border-yellow-400' : 'border-white/20'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/70`}
@@ -240,13 +239,13 @@ const ToolCard = ({ tool, openModal }) => {
           <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors duration-200">
             {tool.name}
           </h3>
-          
+
           {/* Description */}
           <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed group-hover:text-gray-200">
-            {tool.description}
+            {tool.shortDescription || tool.description}
           </p>
         </div>
-        
+
         {/* Bottom Left Corner - Date and Category Tags */}
         <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
           {/* Date Added */}
@@ -256,15 +255,15 @@ const ToolCard = ({ tool, openModal }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <span>
-                {new Date(tool.dateAdded).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric', 
-                  year: 'numeric' 
+                {new Date(tool.dateAdded).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
                 })}
               </span>
             </div>
           )}
-          
+
           {/* Category Tag */}
           {tool.categories && tool.categories.length > 0 && (
             <span className="px-3 py-1 text-xs font-medium rounded-full bg-white/10 text-gray-200 border border-white/20 backdrop-blur-sm">
@@ -277,7 +276,7 @@ const ToolCard = ({ tool, openModal }) => {
             </span>
           )}
         </div>
-        
+
         {tool.url && (
           <button
             onClick={(e) => {

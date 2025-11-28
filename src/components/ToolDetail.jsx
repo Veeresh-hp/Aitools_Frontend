@@ -22,7 +22,7 @@ const ToolDetail = () => {
       const host = typeof window !== 'undefined' ? window.location.hostname : '';
       const isVercel = /vercel\.app$/.test(host);
       if (isVercel) return 'https://ai-tools-hub-backend-u2v6.onrender.com';
-    } catch {}
+    } catch { }
     return 'http://localhost:5000';
   }, []);
 
@@ -54,7 +54,7 @@ const ToolDetail = () => {
     try {
       // If it's already a full URL (http/https), use it directly (Cloudinary URLs)
       if (/^https?:\/\//i.test(snap)) return snap;
-      
+
       // If it's a relative path (local storage), prefix with API_URL
       const withLeading = snap.startsWith('/') ? snap : `/${snap}`;
       return `${API_URL}${withLeading}`;
@@ -121,58 +121,63 @@ const ToolDetail = () => {
           isNew: true,
           category: slugCategory,
           dateAdded: safeTime,
+          hashtags: t.hashtags || []
         };
       });
   }, [approvedTools, buildSnapshotUrl, getFaviconUrl, toSlug]);
 
   // Merge approved tools into toolsData
   const mergedToolsData = useMemo(() => {
-    if (!Array.isArray(toolsData)) return [];
-    
-    const dataWithApproved = toolsData.map(categoryData => {
-      if (!categoryData || !Array.isArray(categoryData.tools)) return categoryData;
-      
-      const categoryApprovedTools = convertedApprovedTools.filter(
-        tool => tool && tool.category === categoryData.id
-      );
-      
-      if (categoryApprovedTools.length > 0) {
-        return {
-          ...categoryData,
-          tools: [...categoryData.tools, ...categoryApprovedTools]
-        };
+    const staticCategoriesMap = new Map(
+      toolsData.map(cat => [cat.id, { ...cat, tools: [...cat.tools] }])
+    );
+    const newCategoriesMap = new Map();
+
+    convertedApprovedTools.forEach(tool => {
+      if (staticCategoriesMap.has(tool.category)) {
+        staticCategoriesMap.get(tool.category).tools.push(tool);
+      } else {
+        if (!newCategoriesMap.has(tool.category)) {
+          const displayName = tool.category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          newCategoriesMap.set(tool.category, {
+            id: tool.category,
+            name: displayName,
+            description: `Tools for ${displayName}`,
+            tools: []
+          });
+        }
+        newCategoriesMap.get(tool.category).tools.push(tool);
       }
-      return categoryData;
     });
-    return dataWithApproved;
+    return [...staticCategoriesMap.values(), ...newCategoriesMap.values()];
   }, [convertedApprovedTools]);
 
   // Find the tool based on category and slug
   useEffect(() => {
     setLoading(true);
-    
+
     let foundTool = null;
     let foundCategory = null;
-    
+
     // Normalize category - handle "undefined" string, "all", or missing category
     const normalizedCategory = (category && category !== 'undefined' && category !== 'all') ? category : null;
-    
+
     // Search through all categories if category is invalid or not found
     if (normalizedCategory) {
       foundCategory = mergedToolsData.find(cat => cat.id === normalizedCategory);
     }
-    
+
     // If category not specified or not found, search all categories
     if (!foundCategory) {
       for (const cat of mergedToolsData) {
         if (!cat || !Array.isArray(cat.tools)) continue;
-        
+
         const tool = cat.tools.find(t => {
           if (!t || !t.name || typeof t.name !== 'string') return false;
           const toolSlugGenerated = toSlug(t.name);
           return toolSlugGenerated === toolSlug;
         });
-        
+
         if (tool) {
           foundTool = tool;
           foundCategory = cat;
@@ -189,14 +194,14 @@ const ToolDetail = () => {
         });
       }
     }
-    
+
     if (foundTool && foundCategory) {
-      setTool({ 
-        ...foundTool, 
-        category: foundCategory.name || 'Unknown', 
+      setTool({
+        ...foundTool,
+        category: foundCategory.name || 'Unknown',
         categoryId: foundCategory.id || 'unknown'
       });
-      
+
       // Get related tools from same category
       if (foundCategory.tools && Array.isArray(foundCategory.tools)) {
         const related = foundCategory.tools
@@ -206,7 +211,7 @@ const ToolDetail = () => {
       } else {
         setRelatedTools([]);
       }
-      
+
       // Check if bookmarked
       try {
         const bookmarks = JSON.parse(localStorage.getItem('ai_bookmarks') || '[]');
@@ -219,7 +224,7 @@ const ToolDetail = () => {
       setTool(null);
       setRelatedTools([]);
     }
-    
+
     setLoading(false);
   }, [category, toolSlug, mergedToolsData]);
 
@@ -227,7 +232,7 @@ const ToolDetail = () => {
     try {
       const toolKey = tool.url || tool.name;
       const bookmarks = JSON.parse(localStorage.getItem('ai_bookmarks') || '[]');
-      
+
       if (bookmarks.includes(toolKey)) {
         const updated = bookmarks.filter(k => k !== toolKey);
         localStorage.setItem('ai_bookmarks', JSON.stringify(updated));
@@ -296,11 +301,11 @@ const ToolDetail = () => {
       {/* Breadcrumb */}
       <div className="bg-gray-800/50 border-b border-gray-700">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Breadcrumb 
+          <Breadcrumb
             items={[
               { label: tool.category, link: `/#${tool.categoryId}` },
               { label: tool.name }
-            ]} 
+            ]}
           />
         </div>
       </div>
@@ -345,9 +350,9 @@ const ToolDetail = () => {
                   {tool.category}
                 </Link>
               )}
-              
+
               <h1 className="text-3xl font-bold mb-3">{tool.name || 'Unnamed Tool'}</h1>
-              
+
               <p className="text-gray-300 text-base leading-relaxed mb-4 whitespace-pre-line">
                 {tool.description || 'No description available for this tool.'}
               </p>
@@ -378,11 +383,10 @@ const ToolDetail = () => {
                 )}
                 <button
                   onClick={toggleBookmark}
-                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                    saved
-                      ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
-                  }`}
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${saved
+                    ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                    : 'bg-gray-700 text-white hover:bg-gray-600'
+                    }`}
                 >
                   {saved ? <FaBookmark /> : <FaRegBookmark />}
                   {saved ? 'Bookmarked' : 'Bookmark'}
@@ -408,6 +412,22 @@ const ToolDetail = () => {
             )}
           </p>
         </div>
+
+        {/* Hashtags Section */}
+        {tool.hashtags && tool.hashtags.length > 0 && (
+          <div className="bg-gray-800 rounded-2xl p-6 mb-8 border border-gray-700">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <FaTag className="text-blue-400" /> Related Tags
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {tool.hashtags.map((tag, index) => (
+                <span key={index} className="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-sm border border-blue-500/20 hover:bg-blue-500/20 transition-colors cursor-pointer">
+                  {tag.startsWith('#') ? tag : `#${tag}`}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Metadata Section */}
         {tool.dateAdded && (
@@ -440,7 +460,7 @@ const ToolDetail = () => {
                   .replace(/[^a-z0-9\s-]/g, '')
                   .replace(/\s+/g, '-')
                   .replace(/-+/g, '-');
-                
+
                 return (
                   <Link
                     key={relatedTool.name}
