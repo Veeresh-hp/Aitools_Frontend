@@ -1,7 +1,7 @@
 import React from 'react';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import { FaExternalLinkAlt, FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 
 const ToolCard = ({ tool, openModal }) => {
   const history = useHistory();
@@ -108,6 +108,8 @@ const ToolCard = ({ tool, openModal }) => {
         return 'bg-orange-500 text-white';
       case 'Recommended':
         return 'bg-yellow-500 text-white';
+      case 'Admin Choice':
+        return 'bg-yellow-500 text-white font-bold border border-yellow-400 shadow-yellow-500/20';
       case 'New':
         return 'bg-blue-500 text-white';
       case 'Trending':
@@ -176,33 +178,17 @@ const ToolCard = ({ tool, openModal }) => {
                     // 1) Fix case-sensitive local assets
                     if (current.includes('/images/')) {
                       imgEl.onerror = null;
-                      imgEl.src = current.replace('/images/', '/Images/');
+                      imgEl.src = getFaviconUrl(tool.url);
                       return;
                     }
-                    // 2) Backend snapshot fallback to site favicon
-                    if ((current.includes('/uploads/') || current.includes('onrender.com')) && tool.url) {
-                      const fav = getFaviconUrl(tool.url);
-                      if (fav && current !== fav) {
-                        imgEl.onerror = null;
-                        imgEl.src = fav;
-                        return;
-                      }
-                    }
-                    // 3) Last resort: hide image container
-                    imgEl.style.display = 'none';
-                  } catch {
-                    e.currentTarget.style.display = 'none';
+                    // 2) Fallback to favicon
+                    imgEl.onerror = null;
+                    imgEl.src = getFaviconUrl(tool.url);
+                  } catch (err) {
+                    // ignore
                   }
                 }}
               />
-              {/* Gradient overlay on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              {/* Click to view details overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/50 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/image:opacity-100">
-                <span className="text-white text-sm font-semibold bg-white/20 backdrop-blur-md px-4 py-2 rounded-lg border border-white/30">
-                  Click to view details
-                </span>
-              </div>
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm bg-black/20">
@@ -213,8 +199,8 @@ const ToolCard = ({ tool, openModal }) => {
           {/* Badge - Top Left */}
           {(tool.badge || tool.isNew) && (
             <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${tool.isNew
-                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
-                : getBadgeClass(tool.badge)
+              ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
+              : getBadgeClass(tool.badge)
               }`}>
               {tool.isNew ? '🎉 NEW' : tool.badge}
             </span>
@@ -250,7 +236,7 @@ const ToolCard = ({ tool, openModal }) => {
         <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
           {/* Date Added */}
           {tool.dateAdded && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-400 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/10">
+            <div className="flex items-center gap-1.5 text-xs text-gray-300 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-sm">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -261,19 +247,22 @@ const ToolCard = ({ tool, openModal }) => {
                   year: 'numeric'
                 })}
               </span>
+              {/* Pricing Badge */}
+              {tool.pricing && (
+                <Link
+                  to={`/?pricing=${tool.pricing.toLowerCase().replace(' ', '-')}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className={`px-3 py-1 text-xs font-medium rounded-full backdrop-blur-sm border shadow-sm transition-transform hover:scale-105 ${tool.pricing === 'Free' ? 'bg-green-500/20 text-green-200 border-green-500/30' :
+                    tool.pricing === 'Paid' ? 'bg-red-500/20 text-red-200 border-red-500/30' :
+                      tool.pricing === 'Open Source' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
+                        tool.pricing === 'subscription' ? 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30' :
+                          'bg-yellow-500/20 text-yellow-100 border-yellow-500/30' // Freemium
+                    }`}
+                >
+                  {tool.pricing}
+                </Link>
+              )}
             </div>
-          )}
-
-          {/* Category Tag */}
-          {tool.categories && tool.categories.length > 0 && (
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-white/10 text-gray-200 border border-white/20 backdrop-blur-sm">
-              {tool.categories[0]}
-            </span>
-          )}
-          {!tool.categories && tool.category && (
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-white/10 text-gray-200 border border-white/20 backdrop-blur-sm">
-              {tool.category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-            </span>
           )}
         </div>
 

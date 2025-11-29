@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion as m } from 'framer-motion';
 import Logo from '../assets/logo.png';
 
-export default function MobileTopNav({ categories = [], onCategorySelect = () => {}, onPicksClick = () => {} }) {
+export default function MobileTopNav({ categories = [], onCategorySelect = () => { }, onPicksClick = () => { } }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -25,7 +25,7 @@ export default function MobileTopNav({ categories = [], onCategorySelect = () =>
   };
 
   return (
-    <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-[#1a1d3a]/98 to-[#252847]/98 backdrop-blur-xl border-b border-white/10 shadow-lg">
+    <header className="md:hidden fixed top-0 left-0 right-0 z-[1000] bg-gradient-to-b from-[#1a1d3a]/98 to-[#252847]/98 backdrop-blur-xl border-b border-white/10 shadow-lg">
       {/* Navbar Container */}
       <div className="flex items-center justify-between px-4 py-3 h-16">
         {/* Left: Logo */}
@@ -66,7 +66,7 @@ export default function MobileTopNav({ categories = [], onCategorySelect = () =>
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.15 }}
-                className="absolute top-full mt-2 -right-2 w-56 bg-[#1a1d3a]/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 overflow-hidden z-[100]"
+                className="absolute top-full mt-2 -right-2 w-56 bg-[#1a1d3a]/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 overflow-hidden z-[2000]"
               >
                 <div className="max-h-72 overflow-y-auto scrollbar-hide">
                   {categories.map((cat) => (
@@ -95,6 +95,6 @@ export default function MobileTopNav({ categories = [], onCategorySelect = () =>
           </m.button>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

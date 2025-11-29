@@ -1,20 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import api from '../utils/api';
-import {
-  FaCheck,
-  FaTimes,
-  FaEye,
-  FaSpinner,
-  FaExclamationTriangle,
-  FaEdit,
-  FaTrash,
-  FaSync,
-  FaStar
-} from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaSync, FaExclamationTriangle, FaCheck, FaTimes, FaSpinner, FaEye, FaStar, FaEdit } from 'react-icons/fa';
+import api from '../utils/api';
 
 const AdminDashboard = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
   const [pendingTools, setPendingTools] = useState([]);
@@ -69,6 +58,8 @@ const AdminDashboard = () => {
     fetchPendingCategories();
   }, [fetchPending, fetchPendingCategories]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleApproveCategory = async (id) => {
     try {
       await api.post(`/api/categories/${id}/approve`);
@@ -99,10 +90,13 @@ const AdminDashboard = () => {
     setEditingTool(tool);
     setEditForm({
       name: tool.name,
+      shortDescription: tool.shortDescription,
       description: tool.description,
       url: tool.url,
       category: tool.category,
-      pricing: tool.pricing
+      pricing: tool.pricing,
+      hashtags: Array.isArray(tool.hashtags) ? tool.hashtags.join(', ') : tool.hashtags,
+      isAiToolsChoice: tool.isAiToolsChoice
     });
     setEditSnapshot(null);
   };
@@ -146,6 +140,28 @@ const AdminDashboard = () => {
     } catch (err) {
       console.error(err);
       setMessage('Failed to update tool');
+      setMessageType('error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleChoice = async (tool) => {
+    try {
+      setIsLoading(true);
+      const res = await api.put(`/api/tools/${tool._id}/toggle-choice`);
+      const updatedTool = res.data.tool;
+
+      setPendingTools(
+        pendingTools.map((t) =>
+          t._id === tool._id ? { ...t, isAiToolsChoice: updatedTool.isAiToolsChoice } : t
+        )
+      );
+      setMessage(`Choice status updated for ${tool.name}`);
+      setMessageType('success');
+    } catch (err) {
+      console.error(err);
+      setMessage('Failed to toggle choice status');
       setMessageType('error');
     } finally {
       setIsLoading(false);
@@ -322,67 +338,18 @@ const AdminDashboard = () => {
                               {tool.url} <FaEye className="text-xs" />
                             </a>
                           </div>
-                          <span className="px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-medium rounded-full border border-blue-500/20">
-                            {tool.category}
-                          </span>
+                          <button
+                            onClick={() => handleToggleChoice(tool)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${tool.isAiToolsChoice
+                              ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
+                              : 'bg-gray-700/50 text-gray-400 hover:bg-gray-700'
+                              }`}
+                          >
+                            <FaStar className={tool.isAiToolsChoice ? 'fill-current' : ''} /> Choice
+                          </button>
                         </div>
 
-                        <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                          {tool.description}
-                        </p>
-
-                        <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-700/50">
-                          <button
-                            onClick={async () => {
-                              try {
-                                setIsLoading(true);
-                                await api.post(
-                                  `/api/tools/${tool._id}/approve`
-                                );
-                                setPendingTools(
-                                  pendingTools.filter((t) => t._id !== tool._id)
-                                );
-                                setMessage(`Approved ${tool.name}`);
-                                setMessageType('success');
-                              } catch (err) {
-                                console.error(err);
-                                setMessage('Failed to approve');
-                                setMessageType('error');
-                              } finally {
-                                setIsLoading(false);
-                              }
-                            }}
-                            className="px-4 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                          >
-                            <FaCheck /> Approve
-                          </button>
-
-                          <button
-                            onClick={async () => {
-                              try {
-                                setIsLoading(true);
-                                await api.post(
-                                  `/api/tools/${tool._id}/approve`,
-                                  { isAiToolsChoice: true }
-                                );
-                                setPendingTools(
-                                  pendingTools.filter((t) => t._id !== tool._id)
-                                );
-                                setMessage(`Approved ${tool.name} as Choice`);
-                                setMessageType('success');
-                              } catch (err) {
-                                console.error(err);
-                                setMessage('Failed to approve as choice');
-                                setMessageType('error');
-                              } finally {
-                                setIsLoading(false);
-                              }
-                            }}
-                            className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                          >
-                            <FaStar /> Choice
-                          </button>
-
+                        <div className="flex gap-2">
                           <button
                             onClick={() => handleEditClick(tool)}
                             className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
@@ -429,10 +396,10 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
-      </div>
+      </div >
 
       {/* Edit Modal */}
-      <AnimatePresence>
+      < AnimatePresence >
         {editingTool && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <motion.div
@@ -457,6 +424,16 @@ const AdminDashboard = () => {
                   <input
                     name="name"
                     value={editForm.name || ''}
+                    onChange={handleEditChange}
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Short Description</label>
+                  <input
+                    name="shortDescription"
+                    value={editForm.shortDescription || ''}
                     onChange={handleEditChange}
                     className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   />
@@ -495,6 +472,32 @@ const AdminDashboard = () => {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Hashtags (comma separated)</label>
+                  <input
+                    name="hashtags"
+                    value={editForm.hashtags || ''}
+                    onChange={handleEditChange}
+                    placeholder="e.g. ai, video, generator"
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Pricing</label>
+                  <select
+                    name="pricing"
+                    value={editForm.pricing || 'Freemium'}
+                    onChange={handleEditChange}
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  >
+                    <option value="Free">Free</option>
+                    <option value="Freemium">Freemium</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Open Source">Open Source</option>
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Update Snapshot (Optional)</label>
                   <input
                     type="file"
@@ -525,8 +528,8 @@ const AdminDashboard = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
-    </div>
+      </AnimatePresence >
+    </div >
   );
 };
 
