@@ -183,6 +183,23 @@ const AddTool = ({ historyProp }) => {
               </select>
             </div>
 
+            <div>
+              <label className="text-sm font-semibold text-gray-300 mb-2 block">Pricing Model *</label>
+              <select
+                name="pricing"
+                value={form.pricing}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-lg bg-gray-700/40 border border-white/20 text-white focus:bg-gray-700/60 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all appearance-none cursor-pointer"
+              >
+                <option value="free">Free</option>
+                <option value="freemium">Freemium</option>
+                <option value="paid">Paid</option>
+                <option value="free-trial">Free Trial</option>
+                <option value="contact">Contact for Pricing</option>
+              </select>
+            </div>
+
             {form.category === 'custom' && (
               <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
                 <label className="text-sm font-semibold text-blue-300 mb-2 block">New Category Name *</label>

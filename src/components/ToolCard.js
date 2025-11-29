@@ -208,13 +208,20 @@ const ToolCard = ({ tool, openModal }) => {
 
           {/* Bookmark (save) Icon - Top Right */}
           <button
-            className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-lg ${saved ? 'bg-yellow-500 text-white' : 'bg-white/10 text-white'} backdrop-blur-md hover:scale-105 transition-all duration-150 z-10 border ${saved ? 'border-yellow-400' : 'border-white/20'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/70`}
+            className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-lg ${saved ? 'bg-yellow-500 text-white' : 'bg-white/10 text-white'} backdrop-blur-md hover:scale-105 transition-all duration-150 z-30 border ${saved ? 'border-yellow-400' : 'border-white/20'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/70`}
             onClick={toggleBookmark}
             title={saved ? 'Saved' : 'Save'}
             aria-pressed={saved}
           >
             {saved ? <FaBookmark className="w-4 h-4" /> : <FaRegBookmark className="w-4 h-4" />}
           </button>
+
+          {/* View Now Overlay */}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+            <span className="px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-semibold text-sm transform translate-y-4 group-hover/image:translate-y-0 transition-transform duration-300">
+              Click Here
+            </span>
+          </div>
 
           {/* Open Tool Button moved to bottom-right corner of the card */}
         </div>

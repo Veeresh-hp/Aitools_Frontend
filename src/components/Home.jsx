@@ -897,10 +897,7 @@ const Home = () => {
     const buildSnapshotUrl = (snap) => {
       if (!snap) return null;
       try {
-        // If it's already a full URL (http/https), use it directly (Cloudinary URLs)
         if (/^https?:\/\//i.test(snap)) return snap;
-
-        // If it's a relative path (local storage), prefix with API_URL
         const withLeading = snap.startsWith('/') ? snap : `/${snap}`;
         return `${API_URL}${withLeading}`;
       } catch {
@@ -929,6 +926,7 @@ const Home = () => {
           isNew: true,
           category: normalizedCategory,
           dateAdded: safeTime,
+          pricing: tool.pricing || 'Freemium',
         };
       });
     return converted;
@@ -1053,14 +1051,6 @@ const Home = () => {
   }, [location.hash, mergedToolsData]);
 
   useEffect(() => {
-    if (isMobile) return;
-    const params = new URLSearchParams(location.search || '');
-    const raw = parseInt(params.get('page') || '1', 10);
-    const next = isNaN(raw) || raw < 1 ? 1 : raw;
-    setPage(next);
-  }, [location.search, isMobile]);
-
-  useEffect(() => {
     setPage(1);
     setMobileVisibleCount(PAGE_SIZE);
     if (!isMobile) {
@@ -1114,6 +1104,70 @@ const Home = () => {
     try { return new URLSearchParams(location.search || '').get('debug') === '1'; }
     catch { return false; }
   })();
+
+  // Categories logic
+  const curatedBase = [
+    'all',
+    'ai-coding-assistants',
+    'faceless-video',
+    'video-generators',
+    'writing-tools',
+    'presentation-tools',
+    'short-clippers',
+    'marketing-tools',
+    'voice-tools',
+    'website-builders',
+    'image-generators',
+    'email-assistance',
+    'chatbots',
+    'music-generators',
+    'data-analysis',
+    'gaming-tools',
+    'ai-diagrams',
+    'ai-scheduling',
+    'data-visualization',
+    'utility-tools',
+    'Portfolio',
+    'text-humanizer-ai',
+    'meeting-notes',
+    'spreadsheet-tools'
+  ];
+
+  const labelFor = (id) => (
+    id === 'all' ? 'All' :
+      id === 'ai-coding-assistants' ? 'Ai Coding Assistants' :
+        id === 'faceless-video' ? 'Faceless Video' :
+          id === 'video-generators' ? 'Video Generators' :
+            id === 'writing-tools' ? 'Writing Tools' :
+              id === 'presentation-tools' ? 'Presentation Tools' :
+                id === 'short-clippers' ? 'Short Clippers' :
+                  id === 'marketing-tools' ? 'Marketing Tools' :
+                    id === 'voice-tools' ? 'Voice Tools' :
+                      id === 'website-builders' ? 'Website Builders' :
+                        id === 'image-generators' ? 'Image Generators' :
+                          id === 'email-assistance' ? 'Email Assistance' :
+                            id === 'chatbots' ? 'Chatbots' :
+                              id === 'music-generators' ? 'Music Generators' :
+                                id === 'data-analysis' ? 'Data Analysis' :
+                                  id === 'gaming-tools' ? 'Gaming Tools' :
+                                    id === 'ai-diagrams' ? 'Ai Diagrams' :
+                                      id === 'ai-scheduling' ? 'Ai Scheduling' :
+                                        id === 'data-visualization' ? 'Data Visualization' :
+                                          id === 'utility-tools' ? 'Utility Tools' :
+                                            id === 'Portfolio' ? 'Portfolio' :
+                                              id === 'text-humanizer-ai' ? 'Text Humanizer Ai' :
+                                                id === 'meeting-notes' ? 'Meeting Notes' :
+                                                  id === 'spreadsheet-tools' ? 'Spreadsheet Tools' :
+                                                    id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  );
+
+  const userCats = Array.from(new Set((convertedApprovedTools || []).map(t => t.category).filter(Boolean)));
+  const dataCats = toolsData.map(c => c.id);
+  const allSet = Array.from(new Set(['all', ...curatedBase.filter(id => id !== 'all'), ...dataCats, ...userCats]));
+  const extra = allSet.filter(id => !curatedBase.includes(id));
+  const collapsed = [...curatedBase, '__more__'];
+  const expanded = [...curatedBase, ...extra];
+  const categoriesToShow = showAllCategories ? expanded : collapsed;
 
   return (
     <>
@@ -1873,93 +1927,37 @@ const Home = () => {
                         <p className="text-gray-400 text-sm">Explore tools organized by their purpose</p>
                       </div>
 
-                      <div className="max-w-6xl mx-auto">
-                        <div ref={mainCatsRef} className="flex flex-wrap justify-center gap-2" role="group" aria-label="Filter tools by category">
-                          {(() => {
-                            // Curated order ending at chatbots
-                            const curatedBase = [
-                              'all',
-                              'ai-coding-assistants',
-                              'faceless-video',
-                              'video-generators',
-                              'writing-tools',
-                              'presentation-tools',
-                              'short-clippers',
-                              'marketing-tools',
-                              'voice-tools',
-                              'website-builders',
-                              'image-generators',
-                              'email-assistance',
-                              'chatbots'
-                            ];
-
-                            // Gather dynamic categories
-                            const dataCats = Array.from(new Set((toolsData || []).map(c => c.id).filter(Boolean)));
-                            const userCats = Array.from(new Set((convertedApprovedTools || []).map(t => t.category).filter(Boolean)));
-                            const allSet = Array.from(new Set(['all', ...curatedBase.filter(i => i !== 'all'), ...dataCats, ...userCats]));
-
-                            const extra = allSet.filter(id => !curatedBase.includes(id));
-                            const collapsed = [...curatedBase, '__more__'];
-                            const expanded = [...curatedBase, ...extra];
-                            const categoriesToShow = showAllCategories ? expanded : collapsed;
-
-                            const labelFor = (id) => (
-                              id === 'all' ? 'All' :
-                                id === 'ai-coding-assistants' ? 'Ai Coding Assistants' :
-                                  id === 'faceless-video' ? 'Faceless Video' :
-                                    id === 'video-generators' ? 'Video Generators' :
-                                      id === 'writing-tools' ? 'Writing Tools' :
-                                        id === 'presentation-tools' ? 'Presentation Tools' :
-                                          id === 'short-clippers' ? 'Short Clippers' :
-                                            id === 'marketing-tools' ? 'Marketing Tools' :
-                                              id === 'voice-tools' ? 'Voice Tools' :
-                                                id === 'website-builders' ? 'Website Builders' :
-                                                  id === 'image-generators' ? 'Image Generators' :
-                                                    id === 'email-assistance' ? 'Email Assistance' :
-                                                      id === 'chatbots' ? 'Chatbots' :
-                                                        id === 'music-generators' ? 'Music Generators' :
-                                                          id === 'data-analysis' ? 'Data Analysis' :
-                                                            id === 'gaming-tools' ? 'Gaming Tools' :
-                                                              id === 'ai-diagrams' ? 'Ai Diagrams' :
-                                                                id === 'ai-scheduling' ? 'Ai Scheduling' :
-                                                                  id === 'data-visualization' ? 'Data Visualization' :
-                                                                    id === 'utility-tools' ? 'Utility Tools' :
-                                                                      id === 'Portfolio' ? 'Portfolio' :
-                                                                        id === 'text-humanizer-ai' ? 'Text Humanizer Ai' :
-                                                                          id === 'meeting-notes' ? 'Meeting Notes' :
-                                                                            id === 'spreadsheet-tools' ? 'Spreadsheet Tools' :
-                                                                              id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                      <div className="flex flex-wrap justify-center gap-3">
+                        {categoriesToShow.map((id) => {
+                          if (id === '__more__') {
+                            return (
+                              <button
+                                key="__more__"
+                                onClick={() => setShowAllCategories(true)}
+                                className="px-5 py-3 text-sm font-medium rounded-full transition-all duration-300 bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30 hover:scale-105"
+                                aria-label="Show more categories"
+                              >
+                                Show More
+                              </button>
                             );
-
-                            return categoriesToShow.map((id) => {
-                              if (id === '__more__') {
-                                return (
-                                  <button
-                                    key="__more__"
-                                    onClick={() => setShowAllCategories(true)}
-                                    className="px-5 py-3 text-sm font-medium rounded-full transition-all duration-300 bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30 hover:scale-105"
-                                    aria-label="Show more categories"
-                                  >
-                                    Show More
-                                  </button>
-                                );
-                              }
-                              return (
-                                <button
-                                  key={id}
-                                  onClick={() => setActiveFilter(id)}
-                                  className={`px-5 py-3 text-sm font-medium rounded-full transition-all duration-300 ${activeFilter === id
-                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-105'
-                                    : 'bg-gray-900/40 backdrop-blur-xl text-gray-300 border border-white/10 hover:bg-white/10 hover:border-white/20 hover:text-white hover:scale-105'
-                                    }`}
-                                  aria-pressed={activeFilter === id}
-                                >
-                                  {labelFor(id)}
-                                </button>
-                              );
-                            });
-                          })()}
-                        </div>
+                          }
+                          return (
+                            <button
+                              key={id}
+                              onClick={() => {
+                                setActiveFilter(id);
+                                const el = document.querySelector(`[data-category="${id}"]`);
+                                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }}
+                              className={`px-5 py-3 text-sm font-medium rounded-full transition-all duration-300 border ${activeFilter === id
+                                ? 'bg-white text-blue-900 border-white shadow-lg scale-105'
+                                : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-white/30'
+                                }`}
+                            >
+                              {labelFor(id)}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </section>
@@ -2314,7 +2312,7 @@ const Home = () => {
               </main>
             </div>
             {/* End of centered content wrapper */}
-          </div>
+          </div >
         </div >
       </LazyMotion >
 
