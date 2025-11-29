@@ -460,15 +460,15 @@ const ToolDetail = () => {
                     <Link
                       to={`/?pricing=${(tool.pricing || 'freemium').toLowerCase().replace(' ', '-')}`}
                       className={`px-3 py-1 text-xs font-medium rounded-full border ${tool.pricing === 'Free' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                          tool.pricing === 'Paid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                            'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                        tool.pricing === 'Paid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                          'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                         } hover:scale-105 transition-transform`}
                     >
                       {tool.pricing}
                     </Link>
                   )}
                 </div>
-                <p className="text-gray-300 text-lg leading-relaxed">
+                <p className="text-gray-300 text-lg leading-relaxed line-clamp-2">
                   {tool.shortDescription || tool.description}
                 </p>
               </div>
