@@ -53,10 +53,22 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const [categories, setCategories] = useState([]);
+
   useEffect(() => {
     fetchPending();
     fetchPendingCategories();
+    fetchCategories();
   }, [fetchPending, fetchPendingCategories]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get('/api/categories');
+      setCategories(res.data);
+    } catch (err) {
+      console.error('Failed to fetch categories', err);
+    }
+  };
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -140,6 +152,23 @@ const AdminDashboard = () => {
     } catch (err) {
       console.error(err);
       setMessage('Failed to update tool');
+      setMessageType('error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleApproveTool = async (tool) => {
+    if (!window.confirm(`Are you sure you want to approve ${tool.name}?`)) return;
+    try {
+      setIsLoading(true);
+      await api.post(`/api/tools/${tool._id}/approve`);
+      setPendingTools(pendingTools.filter((t) => t._id !== tool._id));
+      setMessage(`✅ Approved ${tool.name}`);
+      setMessageType('success');
+    } catch (err) {
+      console.error(err);
+      setMessage('Failed to approve tool');
       setMessageType('error');
     } finally {
       setIsLoading(false);
@@ -351,6 +380,13 @@ const AdminDashboard = () => {
 
                         <div className="flex gap-2">
                           <button
+                            onClick={() => handleApproveTool(tool)}
+                            className="px-4 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                          >
+                            <FaCheck /> Approve
+                          </button>
+
+                          <button
                             onClick={() => handleEditClick(tool)}
                             className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                           >
@@ -462,12 +498,19 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Category</label>
-                    <input
+                    <select
                       name="category"
                       value={editForm.category || ''}
                       onChange={handleEditChange}
                       className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                    />
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat._id} value={cat.slug}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -494,6 +537,8 @@ const AdminDashboard = () => {
                     <option value="Freemium">Freemium</option>
                     <option value="Paid">Paid</option>
                     <option value="Open Source">Open Source</option>
+                    <option value="Free Trial">Free Trial</option>
+                    <option value="Contact">Contact</option>
                   </select>
                 </div>
 
