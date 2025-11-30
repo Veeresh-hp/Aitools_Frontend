@@ -114,6 +114,10 @@ const ToolCard = ({ tool, openModal }) => {
         return 'bg-blue-500 text-white';
       case 'Trending':
         return 'bg-purple-500 text-white';
+      case 'Free Trial':
+        return 'bg-indigo-500 text-white';
+      case 'Contact':
+        return 'bg-gray-500 text-white';
       default:
         return 'bg-gray-500 text-white';
     }
@@ -262,8 +266,11 @@ const ToolCard = ({ tool, openModal }) => {
                   className={`px-3 py-1 text-xs font-medium rounded-full backdrop-blur-sm border shadow-sm transition-transform hover:scale-105 ${tool.pricing === 'Free' ? 'bg-green-500/20 text-green-200 border-green-500/30' :
                     tool.pricing === 'Paid' ? 'bg-red-500/20 text-red-200 border-red-500/30' :
                       tool.pricing === 'Open Source' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
-                        tool.pricing === 'subscription' ? 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30' :
-                          'bg-yellow-500/20 text-yellow-100 border-yellow-500/30' // Freemium
+                        tool.pricing === 'Open Source' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
+                          tool.pricing === 'Free Trial' ? 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30' :
+                            tool.pricing === 'Contact' ? 'bg-gray-500/20 text-gray-200 border-gray-500/30' :
+                              tool.pricing === 'subscription' ? 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30' :
+                                'bg-yellow-500/20 text-yellow-100 border-yellow-500/30' // Freemium
                     }`}
                 >
                   {tool.pricing}

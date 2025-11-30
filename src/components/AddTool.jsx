@@ -8,7 +8,7 @@ const AddTool = ({ historyProp }) => {
     description: '',
     url: '',
     category: '',
-    pricing: 'free',
+    pricing: 'Free',
     hashtags: ''
   });
   const [file, setFile] = useState(null);
@@ -73,7 +73,7 @@ const AddTool = ({ historyProp }) => {
 
       await api.post('/api/tools/submit', toolData);
       setMessage('✅ Tool submitted successfully! It will be reviewed by an admin.');
-      setForm({ name: '', shortDescription: '', description: '', url: '', category: '', pricing: 'free', hashtags: '' });
+      setForm({ name: '', shortDescription: '', description: '', url: '', category: '', pricing: 'Free', hashtags: '' });
       setFile(null);
       setCustomCategory('');
     } catch (err) {
@@ -192,11 +192,11 @@ const AddTool = ({ historyProp }) => {
                 required
                 className="w-full px-4 py-3 rounded-lg bg-gray-700/40 border border-white/20 text-white focus:bg-gray-700/60 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all appearance-none cursor-pointer"
               >
-                <option value="free">Free</option>
-                <option value="freemium">Freemium</option>
-                <option value="paid">Paid</option>
-                <option value="free-trial">Free Trial</option>
-                <option value="contact">Contact for Pricing</option>
+                <option value="Free">Free</option>
+                <option value="Freemium">Freemium</option>
+                <option value="Paid">Paid</option>
+                <option value="Free Trial">Free Trial</option>
+                <option value="Contact">Contact for Pricing</option>
               </select>
             </div>
 
