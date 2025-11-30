@@ -656,6 +656,88 @@ const Home = () => {
         return () => document.removeEventListener('mousedown', onDocClick);
     }, [showAllStickyCategories, showAllCategories]);
 
+    // Horizontal scroll for sticky navbar categories (non-passive to prevent default page scroll)
+    useEffect(() => {
+        const el = stickyCatsRef.current;
+        if (!el) return;
+
+        let targetScroll = el.scrollLeft;
+        let isAnimating = false;
+        let animationFrameId;
+
+        const ease = 0.1; // Smoothness factor (lower is smoother/slower)
+
+        const animateScroll = () => {
+            if (!el) return;
+
+            // Linear interpolation
+            const diff = targetScroll - el.scrollLeft;
+
+            if (Math.abs(diff) < 0.5) {
+                el.scrollLeft = targetScroll;
+                isAnimating = false;
+                return;
+            }
+
+            el.scrollLeft += diff * ease;
+            animationFrameId = requestAnimationFrame(animateScroll);
+        };
+
+        const onWheel = (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+
+                // Update target scroll position
+                const maxScroll = el.scrollWidth - el.clientWidth;
+                targetScroll = Math.max(0, Math.min(maxScroll, targetScroll + e.deltaY));
+
+                if (!isAnimating) {
+                    isAnimating = true;
+                    // Sync target with current if we were stopped (prevents jumps if user scrolls after animation stopped)
+                    // But here we want to accumulate, so we just start the loop.
+                    // However, if we were stopped, targetScroll might be stale? 
+                    // No, we just updated it based on current targetScroll. 
+                    // Wait, if animation stopped, targetScroll == scrollLeft. 
+                    // So we are good.
+                    // Actually, better to re-sync targetScroll to current scrollLeft + delta if we were idle?
+                    // No, because we want to maintain momentum if they scroll fast.
+                    // But if they stopped scrolling for a while, targetScroll is already at scrollLeft.
+                    // So it's fine.
+
+                    // One edge case: if external scroll happened (e.g. drag), targetScroll might be wrong.
+                    // So we should sync targetScroll on scroll event?
+                    // But we are overriding wheel. Drag is handled by browser native or other handlers.
+                    // Let's just sync targetScroll to el.scrollLeft + deltaY if not animating?
+                    // If not animating, targetScroll IS el.scrollLeft (approximately).
+                    // So let's just ensure we start from current position if we are starting fresh.
+                    if (Math.abs(targetScroll - el.scrollLeft) > 100) {
+                        // If we drifted too far (e.g. manual drag), reset target
+                        targetScroll = el.scrollLeft + e.deltaY;
+                    }
+
+                    animateScroll();
+                }
+            }
+        };
+
+        // We also need to update targetScroll if the user scrolls manually (e.g. touch/drag)
+        // so that the next wheel event doesn't jump back.
+        const onScroll = () => {
+            if (!isAnimating) {
+                targetScroll = el.scrollLeft;
+            }
+        };
+
+        el.addEventListener('wheel', onWheel, { passive: false });
+        el.addEventListener('scroll', onScroll);
+
+        return () => {
+            el.removeEventListener('wheel', onWheel);
+            el.removeEventListener('scroll', onScroll);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [showStickyNav]);
+
     // Fallback scroll listener in case IntersectionObserver doesn't trigger (some edge browsers / dynamic layout changes)
     useEffect(() => {
         let ticking = false;
@@ -1337,7 +1419,10 @@ const Home = () => {
 
                                     {/* Bottom Row: Category Pills */}
                                     <div className="py-3 overflow-x-auto scrollbar-hide">
-                                        <div ref={stickyCatsRef} className="flex items-center gap-2 flex-nowrap">
+                                        <div
+                                            ref={stickyCatsRef}
+                                            className="flex items-center gap-2 flex-nowrap"
+                                        >
                                             {(() => {
                                                 // Curated base order up to Chatbots
                                                 const curatedBase = [

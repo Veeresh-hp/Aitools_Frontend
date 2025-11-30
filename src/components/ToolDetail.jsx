@@ -76,6 +76,8 @@ const ToolDetail = () => {
   const [loading, setLoading] = useState(true);
   const [approvedTools, setApprovedTools] = useState([]);
 
+  const [initialFetchDone, setInitialFetchDone] = useState(false);
+
   // Accordion state (only for FAQ now)
   const [openSection, setOpenSection] = useState('faq');
 
@@ -159,6 +161,8 @@ const ToolDetail = () => {
       } catch (err) {
         console.error('Failed to fetch approved tools:', err);
         setApprovedTools([]);
+      } finally {
+        setInitialFetchDone(true);
       }
     };
     fetchApprovedTools();
@@ -291,13 +295,15 @@ const ToolDetail = () => {
       } catch (err) {
         console.error('Error checking bookmark:', err);
       }
+      setLoading(false);
     } else {
-      setTool(null);
-      setRelatedTools([]);
+      if (initialFetchDone) {
+        setTool(null);
+        setRelatedTools([]);
+        setLoading(false);
+      }
     }
-
-    setLoading(false);
-  }, [category, toolSlug, mergedToolsData]);
+  }, [category, toolSlug, mergedToolsData, initialFetchDone]);
 
   const toggleBookmark = () => {
     try {
