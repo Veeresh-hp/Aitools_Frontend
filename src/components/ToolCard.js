@@ -201,12 +201,14 @@ const ToolCard = ({ tool, openModal }) => {
           )}
 
           {/* Badge - Top Left */}
-          {(tool.badge || tool.isNew) && (
-            <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${tool.isNew
-              ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
-              : getBadgeClass(tool.badge)
+          {(tool.isAiToolsChoice || tool.badge || tool.isNew) && (
+            <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${tool.isAiToolsChoice
+                ? 'bg-yellow-500 text-white font-bold border border-yellow-400 shadow-yellow-500/20'
+                : tool.isNew
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
+                  : getBadgeClass(tool.badge)
               }`}>
-              {tool.isNew ? '🎉 NEW' : tool.badge}
+              {tool.isAiToolsChoice ? 'Admin Choice' : (tool.isNew ? '🎉 NEW' : tool.badge)}
             </span>
           )}
 

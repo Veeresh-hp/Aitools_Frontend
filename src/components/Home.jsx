@@ -9,6 +9,7 @@ import ToolDetailModal from './ToolDetailModal';
 import { FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import MobileCategoryTabs from './MobileCategoryTabs';
 import MobileTopNav from './MobileTopNav';
+import MobileSortMenu from './MobileSortMenu';
 import HeroHeading from './HeroHeading';
 
 // Derived category IDs (fallback if utility not present)
@@ -428,98 +429,14 @@ const SortDropdown = ({ sortBy, handleSort }) => {
     );
 };
 
-// --- Mobile Combined Sort & Pricing Menu (replaces separate dropdowns on mobile) ---
-const MobileSortMenu = ({ activePricing, setActivePricing, sortBy, setSortBy }) => {
-    const [open, setOpen] = useState(false);
-    const ref = useRef(null);
-
-    // Unified option list: first pricing filters then sort options
-    const options = [
-        { type: 'pricing', value: 'free', label: 'Free' },
-        { type: 'pricing', value: 'freemium', label: 'Freemium' },
-        { type: 'pricing', value: 'open-source', label: 'Open Source' },
-        { type: 'pricing', value: 'paid', label: 'Paid' },
-        { type: 'sort', value: 'date-added', label: 'Date Added' },
-        { type: 'sort', value: 'name', label: 'Name' }
-    ];
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (ref.current && !ref.current.contains(e.target)) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    // Helper to produce a compact summary (pricing + sort)
-    const summaryLabel = () => {
-        const pricingLabel = activePricing !== 'all' ? options.find(o => o.type === 'pricing' && o.value === activePricing)?.label : 'All';
-        const sortLabel = options.find(o => o.type === 'sort' && o.value === sortBy)?.label || 'Date Added';
-        return `${pricingLabel} · ${sortLabel}`;
-    };
-
-    return (
-        <div className="relative" ref={ref}>
-            <button
-                onClick={() => setOpen(o => !o)}
-                className="px-4 py-2 text-xs font-medium rounded-lg bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20 transition-all duration-200 flex items-center gap-2 shadow-lg"
-                aria-haspopup="true"
-                aria-expanded={open}
-            >
-                <span className="flex items-center gap-2">
-                    <span className="text-sm">⚙️</span>
-                    <span>Sort & Filter</span>
-                </span>
-                <span className="ml-auto text-[10px] text-gray-300 hidden xs:inline-block truncate max-w-[90px]">{summaryLabel()}</span>
-                <span className={`transition-transform duration-200 text-[10px] ${open ? 'rotate-180' : ''}`}>▼</span>
-            </button>
-            {open && (
-                <div className="absolute bottom-full mb-2 left-0 bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 py-2 min-w-[190px] max-h-80 overflow-auto z-[9999]">
-                    <div className="px-3 pb-2 text-[11px] uppercase tracking-wide text-gray-400">Pricing</div>
-                    {options.filter(o => o.type === 'pricing').map(opt => {
-                        const active = activePricing === opt.value;
-                        return (
-                            <button
-                                key={opt.value}
-                                onClick={() => {
-                                    setActivePricing(opt.value);
-                                    setOpen(false);
-                                }}
-                                className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-white/10 transition-all duration-150 ${active ? 'bg-orange-500/20 border-l-4 border-orange-500' : ''}`}
-                            >
-                                <span className="text-sm font-medium whitespace-nowrap">{opt.label}</span>
-                            </button>
-                        );
-                    })}
-                    <div className="px-3 pt-3 pb-2 text-[11px] uppercase tracking-wide text-gray-400 border-t border-white/10">Sort By</div>
-                    {options.filter(o => o.type === 'sort').map(opt => {
-                        const active = sortBy === opt.value;
-                        return (
-                            <button
-                                key={opt.value}
-                                onClick={() => {
-                                    setSortBy(opt.value);
-                                    setOpen(false);
-                                }}
-                                className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-white/10 transition-all duration-150 ${active ? 'bg-orange-500/20 border-l-4 border-orange-500' : ''}`}
-                            >
-                                <span className="text-sm font-medium whitespace-nowrap">{opt.label}</span>
-                            </button>
-                        );
-                    })}
-                </div>
-            )}
-        </div>
-    );
-};
 
 // --- Main Home Component ---
 const Home = () => {
     // nav-related state moved to a global Sidebar component
 
     // Show more categories state
+
+
     const [showAllCategories, setShowAllCategories] = useState(false);
     const [showAllStickyCategories, setShowAllStickyCategories] = useState(false);
 
@@ -557,7 +474,6 @@ const Home = () => {
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [activeFilter, setActiveFilter] = useState('all');
-    const [viewingPicksOnly, setViewingPicksOnly] = useState(false);
     const [activePricing, setActivePricing] = useState('all');
     const [sortBy, setSortBy] = useState('date-added');
     // Pagination & progressive loading
@@ -1008,7 +924,10 @@ const Home = () => {
                     isNew: true,
                     category: normalizedCategory,
                     dateAdded: safeTime,
+                    category: normalizedCategory,
+                    dateAdded: safeTime,
                     pricing: tool.pricing || 'Freemium',
+                    isAiToolsChoice: tool.isAiToolsChoice || false,
                 };
             });
         return converted;
@@ -1039,6 +958,13 @@ const Home = () => {
         return [...staticCategoriesMap.values(), ...newCategoriesMap.values()];
     }, [convertedApprovedTools]);
 
+    // Mobile Categories (Sorted A-Z) - Derived from merged data to include server categories
+    const mobileCategories = useMemo(() => {
+        const allCats = mergedToolsData.map(cat => ({ id: cat.id, label: cat.name }));
+        const sorted = allCats.sort((a, b) => a.label.localeCompare(b.label));
+        return [{ id: 'all', label: 'Show All' }, ...sorted];
+    }, [mergedToolsData]);
+
     const toolList = useMemo(() =>
         mergedToolsData.flatMap((category) =>
             category.tools.map((tool) => ({ ...tool, category: category.id }))
@@ -1053,7 +979,7 @@ const Home = () => {
         } catch (e) { FuseCtor = FuseNamespace; }
 
         try {
-            return new FuseCtor(toolList, { keys: ['name', 'description'], threshold: 0.4 });
+            return new FuseCtor(toolList, { keys: ['name', 'description', 'tags'], threshold: 0.4 });
         } catch (err) { return { search: () => [] }; }
     }, [toolList]);
 
@@ -1089,6 +1015,12 @@ const Home = () => {
                         else if (activePricing === 'paid') matchesPricing = toolPricing === 'paid';
                         else if (activePricing === 'open-source') matchesPricing = toolPricing === 'open source' || toolPricing === 'open-source';
                     }
+
+                    // Special filter for Admin Choice
+                    if (activeFilter === 'choice') {
+                        return matchesSearch && matchesPricing && tool.isAiToolsChoice;
+                    }
+
                     return matchesSearch && matchesFilter && matchesPricing;
                 }),
             }))
@@ -1119,6 +1051,11 @@ const Home = () => {
         if (!id) return;
         if (id === 'all') {
             setActiveFilter('all');
+            setTimeout(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50);
+            return;
+        }
+        if (id === 'choice') {
+            setActiveFilter('choice');
             setTimeout(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50);
             return;
         }
@@ -1240,7 +1177,8 @@ const Home = () => {
                                                                                             id === 'text-humanizer-ai' ? 'Text Humanizer Ai' :
                                                                                                 id === 'meeting-notes' ? 'Meeting Notes' :
                                                                                                     id === 'spreadsheet-tools' ? 'Spreadsheet Tools' :
-                                                                                                        id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                                                                                                        id === 'choice' ? 'Admin Choice' :
+                                                                                                            id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
     );
 
     const userCats = Array.from(new Set((convertedApprovedTools || []).map(t => t.category).filter(Boolean)));
@@ -1678,11 +1616,11 @@ const Home = () => {
                                     {/* Stats Section */}
                                     <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-12 mb-4 sm:mb-8">
                                         <div className="text-center">
-                                            <div className="text-2xl sm:text-4xl font-bold text-white mb-0.5">60+</div>
+                                            <div className="text-2xl sm:text-4xl font-bold text-white mb-0.5">300+</div>
                                             <div className="text-xs sm:text-sm text-gray-400">AI Tools</div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-2xl sm:text-4xl font-bold text-white mb-0.5">10+</div>
+                                            <div className="text-2xl sm:text-4xl font-bold text-white mb-0.5">99+</div>
                                             <div className="text-xs sm:text-sm text-gray-400">Use Cases</div>
                                         </div>
                                         <div className="text-center">
@@ -1860,40 +1798,8 @@ const Home = () => {
                     {
                         isMobile && (
                             <MobileTopNav
-                                categories={[
-                                    { id: 'all', label: 'Show All' },
-                                    { id: 'chatbots', label: 'ChatGPT Alternatives' },
-                                    { id: 'text-humanizer-ai', label: 'Text Humanizer AI' },
-                                    { id: 'ai-coding-assistants', label: 'AI Coding Assistants' },
-                                    { id: 'faceless-video', label: 'Faceless AI Video' },
-                                    { id: 'email-assistance', label: 'Email Assistance' },
-                                    { id: 'spreadsheet-tools', label: 'Spreadsheet Tools' },
-                                    { id: 'meeting-notes', label: 'Meeting Notes' },
-                                    { id: 'writing-tools', label: 'AI Writing Tools' },
-                                    { id: 'video-generators', label: 'AI Video Generators' },
-                                    { id: 'presentation-tools', label: 'AI Presentation Tools' },
-                                    { id: 'short-clippers', label: 'Long to Short Clipper' },
-                                    { id: 'marketing-tools', label: 'AI Marketing Tools' },
-                                    { id: 'voice-tools', label: 'AI Voice/Audio Tools' },
-                                    { id: 'website-builders', label: 'AI Website Builders' },
-                                    { id: 'music-generators', label: 'AI Music Generators' },
-                                    { id: 'image-generators', label: 'AI Image Generators' },
-                                    { id: 'data-analysis', label: 'AI Data Analysis Tools' },
-                                    { id: 'ai-diagrams', label: 'UML & Diagrams' },
-                                    { id: 'Portfolio', label: 'AI Portfolio' },
-                                    { id: 'ai-scheduling', label: 'AI Scheduling' },
-                                    { id: 'data-visualization', label: 'AI Data Visualization' },
-                                    { id: 'gaming-tools', label: 'AI Gaming Tools' },
-                                    { id: 'other-tools', label: 'Other AI Tools' },
-                                    { id: 'utility-tools', label: 'Utility Tools' },
-                                    { id: 'AI Prompts', label: 'AI Prompts Tools' },
-                                    { id: 'AI Design', label: 'AI Design Tools' },
-                                    { id: 'Logo Generators', label: 'AI Logo Generator' },
-                                    { id: 'Social Media', label: 'AI Social Media Tools' },
-                                    { id: 'Productivity', label: 'AI Productivity Tools' },
-                                ]}
+                                categories={mobileCategories}
                                 onCategorySelect={(id) => {
-                                    setViewingPicksOnly(false);
                                     setActiveFilter(id);
                                     setTimeout(() => {
                                         if (id === 'all') {
@@ -1904,15 +1810,14 @@ const Home = () => {
                                         }
                                     }, 50);
                                 }}
-                                onPicksClick={() => {
-                                    setViewingPicksOnly(true);
-                                    setActiveFilter('user-favorite-tools');
-                                    const picksEl = document.querySelector('[data-category="user-favorite-tools"]');
-                                    if (picksEl) {
-                                        setTimeout(() => picksEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-                                    } else {
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }
+                                onChoiceClick={() => {
+                                    setActiveFilter('choice');
+                                    history.push('/#choice');
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                onLogoClick={() => {
+                                    setActiveFilter('all');
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}
                             />
                         )
@@ -1929,7 +1834,7 @@ const Home = () => {
                             <div className="px-0">
                                 <MobileCategoryTabs
                                     categories={[
-                                        { id: 'all', label: "What's New" },
+                                        { id: 'all', label: "New Tools" },
                                         { id: 'chatbots', label: 'ChatGPT Alternatives' },
                                         { id: 'ai-coding-assistants', label: 'AI Coding Assistants' },
                                         ...categories.filter(c => !['all', 'chatbots', 'ai-coding-assistants'].includes(c.id)).slice(0, 5)
@@ -1958,34 +1863,33 @@ const Home = () => {
                             {/* Centered main content area */}
                             <main className="w-full max-w-5xl">
                                 {/* Carousels Section - Only show when no search query (now treated as part of What's New) */}
-                                {!searchQuery && activeFilter === 'all' && !viewingPicksOnly && (
+                                {!searchQuery && activeFilter === 'all' && (
                                     <div className="relative pt-2 sm:pt-8 pb-6 sm:pb-8 space-y-4 sm:space-y-6 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
                                         {/* Subtle background accent - only on mobile */}
                                         {isMobile && <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.03] to-transparent pointer-events-none" />}
                                         {/* Latest Tools Carousel - Sorted by Date - Hidden when viewing Picks only */}
-                                        {!viewingPicksOnly && (
-                                            <div className="relative -mb-2 sm:mb-0">
-                                                {/* Decorative line accent */}
-                                                <div className="absolute top-0 left-0 w-32 h-[2px] bg-gradient-to-r from-blue-500 to-transparent" />
-                                                <ProCarousel
-                                                    items={[...toolList]
-                                                        .filter(t => t && t.name && t.dateAdded)
-                                                        .sort((a, b) => (b.dateAdded || 0) - (a.dateAdded || 0))
-                                                        .slice(0, 20)}
-                                                    label="Latest Additions"
-                                                    emoji="🆕"
-                                                    centerHeader={true}
-                                                    labelClass="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent"
-                                                    progressColor="bg-gradient-to-r from-blue-500 to-teal-500"
-                                                    renderCard={(tool) => (
-                                                        <ToolCard tool={tool} openModal={openModal} />
-                                                    )}
-                                                />
-                                            </div>
-                                        )}
+                                        {/* Latest Tools Carousel - Sorted by Date */}
+                                        <div className="relative -mb-2 sm:mb-0">
+                                            {/* Decorative line accent */}
+                                            <div className="absolute top-0 left-0 w-32 h-[2px] bg-gradient-to-r from-blue-500 to-transparent" />
+                                            <ProCarousel
+                                                items={[...toolList]
+                                                    .filter(t => t && t.name && t.dateAdded)
+                                                    .sort((a, b) => (b.dateAdded || 0) - (a.dateAdded || 0))
+                                                    .slice(0, 20)}
+                                                label="Latest Additions"
+                                                emoji="🆕"
+                                                centerHeader={true}
+                                                labelClass="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent"
+                                                progressColor="bg-gradient-to-r from-blue-500 to-teal-500"
+                                                renderCard={(tool) => (
+                                                    <ToolCard tool={tool} openModal={openModal} />
+                                                )}
+                                            />
+                                        </div>
 
                                         {/* Recommended Tools Carousel - Hidden when viewing Picks only */}
-                                        {trendingTools.length > 0 && !viewingPicksOnly && (
+                                        {trendingTools.length > 0 && (
                                             <div className="relative -mt-2 sm:mt-0" id="picks-section" data-category="__picks__">
                                                 {/* Decorative line accent */}
                                                 <div className="absolute top-0 right-0 w-32 h-[2px] bg-gradient-to-l from-orange-500 to-transparent" />
@@ -2015,7 +1919,7 @@ const Home = () => {
                                                 <p className="text-gray-400 text-sm">Explore tools organized by their purpose</p>
                                             </div>
 
-                                            <div className="flex flex-wrap justify-center gap-3">
+                                            <div ref={mainCatsRef} className="flex flex-wrap justify-center gap-3">
                                                 {categoriesToShow.map((id) => {
                                                     if (id === '__more__') {
                                                         return (
@@ -2096,7 +2000,7 @@ const Home = () => {
 
                                     <div className="max-w-7xl mx-auto relative">
                                         {/* Pricing/Sort Controls - above tools */}
-                                        <div className={`flex items-center justify-between px-2 ${isMobile ? 'mb-4' : 'mb-8'}`}>
+                                        <div className={`flex items-center justify-between px-2 relative z-30 ${isMobile ? 'mb-4' : 'mb-8'}`}>
                                             {/* Left group: Pricing + Count */}
                                             <div className="flex items-center gap-2">
                                                 {/* Mobile: single combined Sort button replaces "All Resources"; Desktop: Pricing dropdown */}
@@ -2164,14 +2068,33 @@ const Home = () => {
                                             {isMobile && activeFilter === 'all' ? (
                                                 // What's New (renamed from For You; uses 'all' id)
                                                 (() => {
-                                                    const allNew = [...newTools].sort((a, b) => (b.dateAdded || 0) - (a.dateAdded || 0));
+                                                    let allNew = [...newTools];
+
+                                                    // Apply Pricing Filter
+                                                    if (activePricing !== 'all') {
+                                                        allNew = allNew.filter(tool => {
+                                                            const toolPricing = (tool.pricing || 'free').toLowerCase();
+                                                            if (activePricing === 'free') return toolPricing === 'free';
+                                                            if (activePricing === 'freemium') return toolPricing === 'freemium';
+                                                            if (activePricing === 'paid') return toolPricing === 'paid';
+                                                            if (activePricing === 'open-source') return toolPricing === 'open source' || toolPricing === 'open-source';
+                                                            return true;
+                                                        });
+                                                    }
+
+                                                    // Apply Sort
+                                                    if (sortBy === 'name') {
+                                                        allNew.sort((a, b) => a.name.localeCompare(b.name));
+                                                    } else {
+                                                        allNew.sort((a, b) => (b.dateAdded || 0) - (a.dateAdded || 0));
+                                                    }
                                                     const total = allNew.length;
                                                     const displayed = isMobile ? allNew.slice(0, mobileVisibleCount) : allNew;
                                                     return (
                                                         <div className="mb-12">
                                                             <div className="flex items-center gap-3 mb-8 px-2 relative">
                                                                 <div className="w-1 h-10 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg" />
-                                                                <h2 className="text-3xl font-bold text-white">What's New</h2>
+                                                                <h2 className="text-3xl font-bold text-white">New Tools</h2>
                                                             </div>
                                                             {viewMode === 'grid' ? (
                                                                 <>
@@ -2349,7 +2272,7 @@ const Home = () => {
                                                         </div>
                                                     )}
 
-                                                    {activeFilter !== 'all' && filteredTools.filter(cat => viewingPicksOnly ? cat.id === 'user-favorite-tools' : true).map(category => (
+                                                    {activeFilter !== 'all' && filteredTools.map(category => (
                                                         <div key={category.id} className="mb-12" data-category={category.id}>
                                                             <div className="flex items-center gap-3 mb-8 px-2 relative">
                                                                 <div className="w-1 h-10 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg shadow-blue-500/50" />
@@ -2412,7 +2335,7 @@ const Home = () => {
                                     </div>
                                 </section>
                             </main>
-                        </div>
+                        </div >
                         {/* End of centered content wrapper */}
                     </div >
                 </div >

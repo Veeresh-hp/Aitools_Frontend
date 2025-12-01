@@ -45,7 +45,7 @@ const Help = () => {
           ))}
         </div>
         <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-12 text-center text-xs text-gray-400">
-          Still stuck? Reach out at <span className="text-indigo-300">support@ai-tools-hub.example</span>
+          Still stuck? Reach out at <span className="text-indigo-300">support@aitoolshub2@gmail.com</span>
         </m.div>
       </m.div>
     </div>

@@ -56,7 +56,11 @@ const MobileSortMenu = ({ activePricing, setActivePricing, sortBy, setSortBy }) 
                             <button
                                 key={opt.value}
                                 onClick={() => {
-                                    setActivePricing(opt.value);
+                                    if (activePricing === opt.value) {
+                                        setActivePricing('all');
+                                    } else {
+                                        setActivePricing(opt.value);
+                                    }
                                     setOpen(false);
                                 }}
                                 className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-white/10 transition-all duration-150 ${active ? 'bg-orange-500/20 border-l-4 border-orange-500' : ''}`}

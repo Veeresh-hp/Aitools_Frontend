@@ -25,7 +25,6 @@ const HeroHeading = () => {
     'Website Builders',
     'Image Generators',
     'Email Assistance',
-    'Aitools Picks',
     'Text Humanizer Ai',
     'Spreadsheet Tools',
     'Music Generators',
