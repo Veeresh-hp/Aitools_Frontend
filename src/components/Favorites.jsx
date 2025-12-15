@@ -66,7 +66,30 @@ export default function Favorites() {
       const match = all.find(t => t.url === key || t.name === key || t.id === key);
       if (match) found.push(match); else missing.push(key);
     });
-    const placeholders = missing.map(k => ({ name: k, description: 'Saved item', url: /^https?:\/\//.test(k) ? k : undefined, category: 'utility-tools' }));
+    const placeholders = missing.map(k => {
+      const isUrl = /^https?:\/\//.test(k);
+      let name = k;
+      let image = undefined;
+      
+      if (isUrl) {
+        try {
+          const urlObj = new URL(k);
+          const host = urlObj.hostname.replace('www.', '');
+          name = host.split('.')[0];
+          name = name.charAt(0).toUpperCase() + name.slice(1);
+          // Use thum.io for a website screenshot as the card image
+          image = `https://image.thum.io/get/width/600/crop/600/noanimate/${k}`;
+        } catch {}
+      }
+
+      return { 
+        name: name, 
+        description: 'Saved item', 
+        url: isUrl ? k : undefined, 
+        image: image,
+        category: 'utility-tools' 
+      };
+    });
     try {
       const rawOrder = localStorage.getItem('ai_bookmarks_order');
       if (rawOrder) {

@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import {
-  FaTwitter, FaLinkedin, FaGithub, FaDiscord, FaYoutube, FaTelegram, FaInstagram,
-  FaEnvelope, FaHeart, FaArrowUp, FaTools, FaUsers, FaCode, FaLightbulb, FaShieldAlt,
-  FaGlobe, FaBook, FaNewspaper, FaSpinner, FaChevronDown, FaChevronUp, FaRocket,
+  FaLinkedin, FaGithub, FaYoutube,
+  FaEnvelope, FaHeart, FaArrowUp, FaShieldAlt,
+  FaGlobe, FaBook, FaChevronDown,
   FaStar, FaFire, FaChartLine
 } from 'react-icons/fa';
 import { motion as m, LazyMotion, domAnimation, AnimatePresence } from 'framer-motion';
 import Logo from '../assets/logo.png';
-import toolsData from '../data/toolsData';
+import SubscriptionSuccess from './SubscriptionSuccess';
+
 
 const Footer = () => {
   const [expandedSections, setExpandedSections] = useState({});
@@ -21,8 +22,8 @@ const Footer = () => {
 
   // Pages where footer should be hidden
   const hiddenPages = ['/signup', '/login', '/history', '/sign-up', '/log-in'];
-  
-  const shouldHideFooter = hiddenPages.some(page => 
+
+  const shouldHideFooter = hiddenPages.some(page =>
     location.pathname === page || location.pathname.startsWith(page + '/')
   );
 
@@ -74,75 +75,11 @@ const Footer = () => {
     }
   };
 
-  const FooterLink = ({ href, name }) => (
-    <m.button
-      onClick={() => handleFooterLinkClick(href)}
-      whileHover={{ x: 4 }}
-      whileTap={{ scale: 0.98 }}
-      className="group text-gray-400 hover:text-white text-sm transition-all duration-300 relative py-2 w-full text-left"
-    >
-      <span className="relative z-10">{name}</span>
-      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0 h-8 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-r-lg transition-all duration-300 group-hover:w-full -z-0" />
-      <span className="absolute left-0 bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-6" />
-    </m.button>
-  );
 
-  const CollapsibleSection = ({ title, children, sectionKey }) => (
-    <div className="lg:block">
-      <button
-        onClick={() => toggleSection(sectionKey)}
-        className="lg:pointer-events-none lg:cursor-default flex items-center justify-between w-full font-bold text-lg mb-4 text-white py-2 lg:py-0"
-      >
-        <span className="flex items-center gap-2">{title}</span>
-        <m.div
-          animate={{ rotate: expandedSections[sectionKey] ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
-          className="lg:hidden"
-        >
-          <FaChevronDown className="text-sm" />
-        </m.div>
-      </button>
-      
-      <AnimatePresence>
-        {(expandedSections[sectionKey] || window.innerWidth >= 1024) && (
-          <m.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden lg:!h-auto lg:!opacity-100"
-          >
-            <ul className="space-y-2 pb-4 lg:pb-0">
-              {children}
-            </ul>
-          </m.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
 
-  const features = [
-    {
-      icon: FaRocket,
-      title: "Lightning Fast",
-      description: "Discover AI tools instantly with our optimized search"
-    },
-    {
-      icon: FaStar,
-      title: "Curated Collection",
-      description: "Hand-picked premium AI tools for maximum productivity"
-    },
-    {
-      icon: FaFire,
-      title: "Always Updated",
-      description: "Latest AI innovations added weekly to our platform"
-    },
-    {
-      icon: FaChartLine,
-      title: "Trending Tools",
-      description: "Stay ahead with the most popular AI solutions"
-    }
-  ];
+
+
+
 
   return (
     <LazyMotion features={domAnimation}>
@@ -158,107 +95,121 @@ const Footer = () => {
         {/* Main Content - Compact */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Newsletter Subscription */}
-          <div className="mb-10">
-            <div className="relative rounded-2xl overflow-hidden p-8 sm:p-10 bg-gradient-to-r from-pink-600 via-red-500 to-orange-500 shadow-xl border border-white/10">
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-                <div className="absolute -bottom-10 -right-10 w-52 h-52 bg-black/10 rounded-full blur-3xl" />
-              </div>
-              <div className="relative z-10 text-center max-w-2xl mx-auto">
-                <h3 className="text-2xl font-bold mb-3 text-white">Subscribe to our Newsletter</h3>
-                <p className="text-sm text-white/90 mb-6 leading-relaxed">Stay informed with weekly updates on the latest AI tools. Get the newest insights, features, and offerings right in your inbox!</p>
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setStatus({ state: 'idle', message: '' });
-                    const trimmed = email.trim();
-                    if (!trimmed) {
-                      setStatus({ state: 'error', message: 'Please enter your email.' });
-                      return;
-                    }
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(trimmed)) {
-                      setStatus({ state: 'error', message: 'Enter a valid email.' });
-                      return;
-                    }
-                    setIsSubmitting(true);
-                    try {
-                      const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: trimmed })
-                      });
-                      const json = await res.json();
-                      if (res.ok) {
-                        setStatus({ state: 'success', message: json.message || 'You are subscribed!' });
-                        setEmail('');
-                      } else {
-                        setStatus({ state: 'error', message: json.error || 'Subscription failed.' });
-                      }
-                    } catch (err) {
-                      setStatus({ state: 'error', message: 'Network error. Try again later.' });
-                    } finally {
-                      setIsSubmitting(false);
-                    }
-                  }}
-                  className="flex flex-col sm:flex-row items-stretch gap-3 justify-center"
-                >
-                  <div className="flex-1 min-w-[240px] relative">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      className="w-full px-4 py-3 rounded-lg bg-white/15 backdrop-blur-sm text-white placeholder-white/70 text-sm border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white shadow-inner"
-                      aria-label="Email address"
-                      disabled={isSubmitting}
-                    />
-                    {status.state === 'error' && (
-                      <span className="absolute -bottom-5 left-1 text-xs text-white/90 font-medium">{status.message}</span>
-                    )}
+            {/* Professional Newsletter Section */}
+            {/* Professional Newsletter Section */}
+            <div className="relative mb-12">
+              <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-2xl">
+                {/* Subtle Gradient Glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5 opacity-50" />
+                
+                <div className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                  
+                  {/* Text Content */}
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className="text-2xl font-bold mb-2 tracking-tight bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+                      Stay ahead of the curve
+                    </h3>
+                    <p className="text-slate-300 text-sm leading-relaxed max-w-md mx-auto md:mx-0 font-medium">
+                      Join <span className="text-cyan-400 glow-text drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">10,000+ professionals</span> discovering the latest AI tools and trends weekly. No spam, just value.
+                    </p>
                   </div>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-5 py-3 rounded-lg bg-white text-sm font-semibold text-pink-600 hover:bg-pink-50 transition-all border border-white/30 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shadow"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <circle cx="12" cy="12" r="10" strokeWidth="4" className="opacity-25" />
-                          <path d="M4 12a8 8 0 018-8" strokeWidth="4" strokeLinecap="round" className="opacity-75" />
-                        </svg>
-                        <span>Subscribing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <FaEnvelope className="text-pink-600" />
-                        <span>Subscribe</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-                {status.state === 'success' && (
-                  <div className="mt-4 text-sm font-medium text-white bg-white/20 rounded-md px-4 py-2 inline-flex items-center gap-2">
-                    <span>✅ {status.message}</span>
+
+                  {/* Form */}
+                  <div className="w-full md:w-auto flex-shrink-0">
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        setStatus({ state: 'idle', message: '' });
+                        const trimmed = email.trim();
+                        if (!trimmed) {
+                          setStatus({ state: 'error', message: 'Email is required' });
+                          return;
+                        }
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(trimmed)) {
+                          setStatus({ state: 'error', message: 'Invalid email address' });
+                          return;
+                        }
+                        setIsSubmitting(true);
+                        try {
+                          const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: trimmed })
+                          });
+                          const json = await res.json();
+                          if (res.ok) {
+                            setStatus({ state: 'success', message: 'Subscribed successfully' });
+                            setEmail('');
+                          } else {
+                            setStatus({ state: 'error', message: json.error || 'Failed to subscribe' });
+                          }
+                        } catch (err) {
+                          setStatus({ state: 'error', message: 'Connection error' });
+                        } finally {
+                          setIsSubmitting(false);
+                        }
+                      }}
+                      className="relative w-full md:w-[400px]"
+                    >
+                      <div className="group flex items-center gap-2 p-1 bg-slate-800/80 rounded-xl border border-white/10 hover:border-violet-500/30 focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-500/20 transition-all duration-300 shadow-lg hover:shadow-violet-500/10">
+                        <FaEnvelope className="ml-3 text-slate-400 group-focus-within:text-violet-400 transition-colors" />
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="Enter your work email"
+                          className="flex-1 bg-transparent px-3 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:placeholder-violet-400/50 transition-all"
+                          disabled={isSubmitting || status.state === 'success'}
+                        />
+                        <m.button
+                          type="submit"
+                          disabled={isSubmitting || status.state === 'success'}
+                          whileHover={{ scale: 1.02, backgroundImage: 'linear-gradient(to right, #7e22ce, #db2777)' }}
+                          whileTap={{ scale: 0.98 }}
+                          className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-bold shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_25px_rgba(147,51,234,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 relative overflow-hidden"
+                        >
+                          {isSubmitting ? 'Joining...' : 'Subscribe'}
+                        </m.button>
+                      </div>
+
+                      <AnimatePresence>
+                        {status.state === 'error' && (
+                          <m.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute -bottom-8 left-0 text-xs font-medium flex items-center gap-1.5 text-red-400"
+                          >
+                             <FaShieldAlt /> {status.message}
+                          </m.div>
+                        )}
+                      </AnimatePresence>
+                    </form>
                   </div>
-                )}
+                </div>
+
+                {/* Success Overlay covering the entire card */}
+                <AnimatePresence>
+                  {status.state === 'success' && (
+                    <SubscriptionSuccess />
+                  )}
+                </AnimatePresence>
               </div>
             </div>
-          </div>
 
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             {/* Brand Section - Compact */}
             <div className="text-center lg:text-left">
-              <Link 
-                to="/" 
-                onClick={() => window.scrollTo({ top: 0 })} 
+              <Link
+                to="/"
+                onClick={() => window.scrollTo({ top: 0 })}
                 className="inline-flex items-center text-xl font-bold mb-3 group"
               >
-                <m.img 
-                  src={Logo} 
-                  alt="AI Tools Hub Logo" 
-                  className="w-10 h-10 mr-2 rounded-lg shadow-lg group-hover:shadow-blue-500/30 transition-shadow duration-300" 
+                <m.img
+                  src={Logo}
+                  alt="AI Tools Hub Logo"
+                  className="w-10 h-10 mr-2 rounded-lg shadow-lg group-hover:shadow-blue-500/30 transition-shadow duration-300"
                   whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
                 />
@@ -266,7 +217,7 @@ const Footer = () => {
                   AI Tools Hub
                 </span>
               </Link>
-              
+
               <p className="text-gray-400 text-sm max-w-xs mx-auto lg:mx-0">
                 Discover cutting-edge AI tools for productivity
               </p>
@@ -316,14 +267,14 @@ const Footer = () => {
               <p className="text-gray-500 text-xs text-center sm:text-left">
                 © {new Date().getFullYear()} AI Tools Hub. All rights reserved.
               </p>
-              
+
               <div className="flex items-center gap-3">
                 <span className="text-gray-500 text-xs flex items-center gap-1">
                   Made with <FaHeart className="text-red-500 text-[10px]" /> by myalltools
                 </span>
                 <m.button
-                  onClick={scrollToTop} 
-                  whileHover={{ y: -2 }} 
+                  onClick={scrollToTop}
+                  whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   className="w-7 h-7 rounded-md flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-all"
                   title="Back to top"

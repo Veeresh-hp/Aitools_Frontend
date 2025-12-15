@@ -1,6 +1,7 @@
 // HistoryPage.js (Corrected Icons)
 import React, { useEffect, useState, useRef } from 'react';
 import { motion as m, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
+import { addRefToUrl } from '../utils/linkUtils';
 
 // A dynamic, interactive particle background component (no changes here)
 const InteractiveBackground = () => {
@@ -164,7 +165,8 @@ const HistoryPage = () => {
       const storedHistory = JSON.parse(localStorage.getItem('toolClickHistory') || '[]');
       setHistory(storedHistory);
 
-      const storedFavorites = JSON.parse(localStorage.getItem('toolFavorites') || '[]');
+      // Read from the correct bookmarks key used by ToolCard
+      const storedFavorites = JSON.parse(localStorage.getItem('ai_bookmarks') || '[]');
       setFavorites(storedFavorites);
     } catch (error) {
       console.error("Error reading from localStorage", error);
@@ -175,23 +177,41 @@ const HistoryPage = () => {
 
   const handleClear = () => {
     localStorage.removeItem('toolClickHistory');
-    localStorage.removeItem('toolFavorites');
+    // Don't clear bookmarks here unless explicitly requested, as they are "saved" tools
     setHistory([]);
-    setFavorites([]);
     setShowClearConfirm(false);
   };
 
-  const toggleFavorite = (timestamp) => {
-    const updatedFavorites = favorites.includes(timestamp)
-      ? favorites.filter(fav => fav !== timestamp)
-      : [...favorites, timestamp];
+  // Helper to match ToolCard's key generation
+  const getToolKey = (tool) => {
+    if (!tool) return '';
+    // This MUST match ToolCard.js logic: tool.url || tool.name || tool.id
+    return tool.url || tool.name || tool.id;
+  };
+
+  const toggleFavorite = (tool) => {
+    const key = getToolKey(tool);
+    // Mimic ToolCard logic
+    const isFav = favorites.includes(key);
+    let updatedFavorites;
+    
+    if (isFav) {
+      updatedFavorites = favorites.filter(fav => fav !== key);
+    } else {
+      updatedFavorites = [...favorites, key];
+    }
     
     setFavorites(updatedFavorites);
-    localStorage.setItem('toolFavorites', JSON.stringify(updatedFavorites));
+    localStorage.setItem('ai_bookmarks', JSON.stringify(updatedFavorites));
   };
 
   const groupedHistory = groupByDate(history);
-  const favoriteItems = history.filter(item => favorites.includes(item.timestamp));
+  // Filter history items that are in favorites
+  // We use the tool name/key to match against the stored strings in ai_bookmarks
+  const favoriteItems = history.filter(item => favorites.includes(getToolKey(item)));
+  // Remove duplicates from favorites view (if saved multiple times in history)
+  const uniqueFavorites = Array.from(new Set(favoriteItems.map(a => a.name)))
+    .map(name => favoriteItems.find(a => a.name === name));
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -251,7 +271,7 @@ const HistoryPage = () => {
                     </div>
                   </div>
                   <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-center">
-                    <div className="text-2xl font-bold text-yellow-400 mb-1">{favoriteItems.length}</div>
+                    <div className="text-2xl font-bold text-yellow-400 mb-1">{uniqueFavorites.length}</div>
                     <div className="text-gray-400 text-sm font-medium flex items-center justify-center gap-2">
                       <i className="fas fa-star"></i>
                       Favorites
@@ -283,7 +303,7 @@ const HistoryPage = () => {
                     Clear History
                   </m.button>
                   
-                  {favoriteItems.length > 0 && (
+                  {uniqueFavorites.length > 0 && (
                     <m.button
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -296,7 +316,7 @@ const HistoryPage = () => {
                       className="flex items-center gap-2 bg-black/30 hover:bg-black/50 text-white px-4 py-2 rounded-xl font-semibold backdrop-blur-sm border border-white/20 transition-all duration-300"
                     >
                       <i className="fas fa-star text-yellow-400"></i>
-                      View Favorites ({favoriteItems.length})
+                      View Favorites ({uniqueFavorites.length})
                     </m.button>
                   )}
                 </m.div>
@@ -307,7 +327,7 @@ const HistoryPage = () => {
                 {history.length > 0 ? (
                   <>
                     {/* Favorites Section */}
-                    {favoriteItems.length > 0 && (
+                    {uniqueFavorites.length > 0 && (
                       <m.section
                         id="favorites"
                         variants={itemVariants}
@@ -321,7 +341,7 @@ const HistoryPage = () => {
                           </h2>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {favoriteItems.slice(0, 6).map((item, idx) => (
+                          {uniqueFavorites.slice(0, 6).map((item, idx) => (
                             <m.div
                               key={`fav-${item.timestamp}-${idx}`}
                               initial={{ opacity: 0, y: 20 }}
@@ -333,30 +353,36 @@ const HistoryPage = () => {
                               <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                               <div className="relative z-10">
                                 <div className="flex items-start justify-between mb-3">
-                                  {/* FIXED: This now renders the icon correctly */}
-                                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center text-xl">
-                                    <i className={item.icon || 'fas fa-wrench'}></i>
+                                  {/* Renders Image if available, otherwise Icon */}
+                                  <div className="w-12 h-12 rounded-lg bg-gray-800 border border-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
+                                    {item.image ? (
+                                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                      <div className="w-full h-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center text-xl">
+                                        <i className={item.icon || 'fas fa-wrench'}></i>
+                                      </div>
+                                    )}
                                   </div>
                                   <m.button
                                     whileHover={{ scale: 1.1, rotate: 10 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      toggleFavorite(item.timestamp);
+                                      toggleFavorite(item);
                                     }}
                                     className="text-yellow-400 hover:text-yellow-300 transition-colors text-lg"
                                   >
                                     <i className="fas fa-star"></i>
                                   </m.button>
                                 </div>
-                                <h3 className="font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                                <h3 className="font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors line-clamp-1">
                                   {item.name}
                                 </h3>
-                                <p className="text-xs text-gray-400 mb-3">
+                                <p className="text-xs text-gray-400 mb-3 block">
                                   {new Date(item.timestamp).toLocaleString()}
                                 </p>
                                 <a
-                                  href={item.url}
+                                  href={addRefToUrl(item.url)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
@@ -411,14 +437,20 @@ const HistoryPage = () => {
                                     <div className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full border-2 border-gray-900" />
                                     
                                     <div className="flex items-center gap-3">
-                                      {/* FIXED: This now renders the icon correctly */}
-                                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-lg flex-shrink-0">
-                                        <i className={item.icon || 'fas fa-wrench'}></i>
+                                      {/* Renders Image if available, otherwise Icon */}
+                                      <div className="w-12 h-12 rounded-lg bg-gray-800 border border-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
+                                        {item.image ? (
+                                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                          <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-lg">
+                                            <i className={item.icon || 'fas fa-wrench'}></i>
+                                          </div>
+                                        )}
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
                                           <a
-                                            href={item.url}
+                                            href={addRefToUrl(item.url)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="font-medium text-white hover:text-blue-300 transition-colors inline-flex items-center gap-2 group-hover:underline text-sm"
@@ -432,15 +464,15 @@ const HistoryPage = () => {
                                             whileTap={{ scale: 0.9 }}
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              toggleFavorite(item.timestamp);
+                                              toggleFavorite(item);
                                             }}
                                             className={`p-1 rounded-full transition-all duration-200 text-xs w-6 h-6 flex items-center justify-center ${
-                                              favorites.includes(item.timestamp)
+                                              favorites.includes(getToolKey(item))
                                                 ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
                                                 : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-yellow-400'
                                             }`}
                                           >
-                                            <i className={`${favorites.includes(item.timestamp) ? 'fas' : 'far'} fa-star`}></i>
+                                            <i className={`${favorites.includes(getToolKey(item)) ? 'fas' : 'far'} fa-star`}></i>
                                           </m.button>
                                         </div>
                                         <div className="text-xs text-gray-400 mt-1">

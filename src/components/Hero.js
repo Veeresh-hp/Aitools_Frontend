@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { m, LazyMotion, domAnimation, LayoutGroup } from 'framer-motion';
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
 import { FaTimes } from 'react-icons/fa';
@@ -58,12 +60,103 @@ const getColorClass = (categoryId) => {
     'short-clippers': 'text-rose-500',
     'faceless-video': 'text-zinc-600',
     'Portfolio': 'text-amber-600',
-    'text-humanizer-ai': 'text-purple-600',    
+    'text-humanizer-ai': 'text-purple-600',
   };
   return colorMap[categoryId] || 'text-gray-500 dark:text-gray-400';
 };
 
 const Hero = ({ openModal }) => {
+  const [init, setInit] = useState(false);
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => {
+      setInit(true);
+    });
+  }, []);
+
+  const particlesOptions = useMemo(
+    () => ({
+      background: {
+        color: {
+          value: "transparent",
+        },
+      },
+      fpsLimit: 120,
+      interactivity: {
+        events: {
+          onClick: {
+            enable: true,
+            mode: "push",
+          },
+          onHover: {
+            enable: true,
+            mode: "grab", // Changed to grab for connecting lines
+          },
+          resize: true,
+        },
+        modes: {
+          push: {
+            quantity: 4,
+          },
+          grab: {
+            distance: 200,
+            line_linked: {
+              opacity: 0.5,
+            },
+          },
+        },
+      },
+      particles: {
+        color: {
+          value: "#ffffff",
+        },
+        links: {
+          color: "#ffffff",
+          distance: 150,
+          enable: true,
+          opacity: 0.3,
+          width: 1,
+        },
+        move: {
+          direction: "none",
+          enable: true,
+          outModes: {
+            default: "bounce",
+          },
+          random: true, // More organic movement
+          speed: 2, // Slightly faster
+          straight: false,
+        },
+        number: {
+          density: {
+            enable: true,
+            area: 800,
+          },
+          value: 100, // Increased density
+        },
+        opacity: {
+          value: { min: 0.1, max: 0.5 }, // Twinkling effect
+          animation: {
+            enable: true,
+            speed: 1,
+            minimumValue: 0.1,
+            sync: false
+          }
+        },
+        shape: {
+          type: ["circle", "triangle"], // Mixed shapes
+        },
+        size: {
+          value: { min: 1, max: 4 },
+        },
+      },
+      detectRetina: true,
+    }),
+    [],
+  );
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
 
@@ -94,7 +187,7 @@ const Hero = ({ openModal }) => {
       tools: category.tools.filter((tool) => {
         const matchesSearch = searchQuery
           ? tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            tool.description.toLowerCase().includes(searchQuery.toLowerCase())
+          tool.description.toLowerCase().includes(searchQuery.toLowerCase())
           : true;
         const matchesFilter = activeFilter === 'all' || category.id === activeFilter;
         return matchesSearch && matchesFilter;
@@ -111,8 +204,8 @@ const Hero = ({ openModal }) => {
     { name: 'AI Scheduling', id: 'ai-scheduling' },
     { name: 'Data Visualization', id: 'data-visualization' },
     { name: 'Email Assistance', id: 'email-assistance' },
-    { name: 'Spreadsheet Tools', id: 'spreadsheet-tools'},
-    { name: 'Meeting Notes', id: 'meeting-notes'},
+    { name: 'Spreadsheet Tools', id: 'spreadsheet-tools' },
+    { name: 'Meeting Notes', id: 'meeting-notes' },
     { name: 'Presentation Tools', id: 'presentation-tools' },
     { name: 'Short Clippers', id: 'short-clippers' },
     { name: 'Marketing Tools', id: 'marketing-tools' },
@@ -129,19 +222,93 @@ const Hero = ({ openModal }) => {
     { name: 'Other Tools', id: 'other-tools' },
     { name: 'Utility Tools', id: 'utility-tools' },
     { name: 'Ai Portfolio', id: 'Portfolio' },
-    { name : 'Text Humanizer AI Tools', id : 'text-humanizer-ai'},
-    {name: 'AI Logo Generators',id : 'Logo Generators'},
-    { name: 'AI Productivity Tools', id : 'Productivity'},
-    { name: 'Social Media Tools', id: 'Social Media' },    
+    { name: 'Text Humanizer AI Tools', id: 'text-humanizer-ai' },
+    { name: 'AI Logo Generators', id: 'Logo Generators' },
+    { name: 'AI Productivity Tools', id: 'Productivity' },
+    { name: 'Social Media Tools', id: 'Social Media' },
   ];
 
   return (
     <LazyMotion features={domAnimation}>
       <div className="relative overflow-hidden bg-gradient-to-br from-pink-100 via-blue-100 to-emerald-100 dark:from-gray-800 dark:via-gray-900 dark:to-black min-h-screen">
-        {/* Floating Backgrounds */}
-        <div className="absolute -top-10 -left-10 w-72 h-72 bg-pink-300 opacity-20 rounded-full blur-3xl z-0 animate-pulse" />
-        <div className="absolute top-20 -right-20 w-96 h-96 bg-blue-300 opacity-20 rounded-full blur-3xl z-0 animate-pulse delay-1000" />
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-emerald-300 opacity-20 rounded-full blur-3xl z-0 animate-pulse delay-2000" />
+        {/* Particles Background */}
+        {init && (
+          <Particles
+            id="tsparticles"
+            options={particlesOptions}
+            className="absolute inset-0 z-0 pointer-events-none"
+          />
+        )}
+
+        {/* Moving Perspective Grid */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.4) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+            transform: 'perspective(500px) rotateX(20deg) scale(1.5)',
+            transformOrigin: 'top center',
+            animation: 'gridMove 20s linear infinite' // Needs global CSS for keyframes or inline
+          }}
+        />
+        <style>{`
+          @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 60px; }
+          }
+        `}</style>
+
+        {/* Floating Backgrounds with Hue Rotation and Color Shift */}
+        <m.div
+          animate={{
+            x: [0, 50, -50, 0],
+            y: [0, -30, 30, 0],
+            scale: [1, 1.2, 0.9, 1],
+            filter: ["hue-rotate(0deg)", "hue-rotate(90deg)", "hue-rotate(0deg)"],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            repeatType: "mirror",
+            ease: "easeInOut",
+          }}
+          className="absolute -top-10 -left-10 w-72 h-72 bg-pink-300 opacity-30 rounded-full blur-3xl z-0"
+        />
+        <m.div
+          animate={{
+            x: [0, -40, 40, 0],
+            y: [0, 40, -40, 0],
+            scale: [1, 1.1, 0.9, 1],
+            filter: ["hue-rotate(0deg)", "hue-rotate(-90deg)", "hue-rotate(0deg)"],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            repeatType: "mirror",
+            ease: "easeInOut",
+            delay: 1,
+          }}
+          className="absolute top-20 -right-20 w-96 h-96 bg-blue-300 opacity-30 rounded-full blur-3xl z-0"
+        />
+        <m.div
+          animate={{
+            x: [0, 60, -20, 0],
+            y: [0, -20, 50, 0],
+            scale: [1, 0.9, 1.1, 1],
+            filter: ["hue-rotate(0deg)", "hue-rotate(60deg)", "hue-rotate(0deg)"],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: "mirror",
+            ease: "easeInOut",
+            delay: 2,
+          }}
+          className="absolute bottom-0 left-1/3 w-96 h-96 bg-emerald-300 opacity-30 rounded-full blur-3xl z-0"
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/0 dark:from-white/5 dark:to-sky-700/5 backdrop-blur-sm pointer-events-none z-0" />
 
         {/* Hero Section */}
@@ -222,11 +389,10 @@ const Hero = ({ openModal }) => {
                 key={btn.id}
                 onClick={() => handleFilter(btn.id)}
                 whileTap={{ scale: 0.95 }}
-                className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
-                  activeFilter === btn.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${activeFilter === btn.id
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
               >
                 {btn.name}
               </m.button>

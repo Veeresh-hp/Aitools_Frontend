@@ -26,12 +26,7 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
     fetchApprovedTools();
   }, [API_URL]);
 
-  const handleSearch = () => setActiveFilter('all');
 
-  const handleFilter = (category) => {
-    setActiveFilter(category);
-    setSearchQuery('');
-  };
 
   // Convert approved tools from database to display format with NEW badge
   const convertedApprovedTools = approvedTools.map((tool) => ({
@@ -51,12 +46,12 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
     const categoryApprovedTools = convertedApprovedTools.filter(
       tool => tool.category === category.id
     );
-    
+
     console.log(`🔍 Category "${category.id}" (${category.name}): Found ${categoryApprovedTools.length} approved tools`);
     if (categoryApprovedTools.length > 0) {
       console.log(`   ✅ Adding tools:`, categoryApprovedTools.map(t => t.name));
     }
-    
+
     // If there are approved tools for this category, add them
     if (categoryApprovedTools.length > 0) {
       return {
@@ -64,7 +59,7 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
         tools: [...category.tools, ...categoryApprovedTools]
       };
     }
-    
+
     return category;
   });
 
@@ -93,7 +88,7 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
       tools: category.tools.filter((tool) => {
         const matchesSearch = searchQuery
           ? tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            tool.description.toLowerCase().includes(searchQuery.toLowerCase())
+          tool.description.toLowerCase().includes(searchQuery.toLowerCase())
           : true;
         const matchesFilter = activeFilter === 'all' || category.id === activeFilter;
         return matchesSearch && matchesFilter;
@@ -192,7 +187,7 @@ const ToolsSection = ({ openModal, searchQuery, setSearchQuery, activeFilter, se
           </m.div>
         ))}
       </LayoutGroup>
-    </LazyMotion>   
+    </LazyMotion>
   );
 };
 

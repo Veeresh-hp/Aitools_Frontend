@@ -3,13 +3,13 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { motion as m } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { 
-  Send, 
-  Mail, 
-  User, 
-  MessageSquare, 
-  Brain, 
-  Sparkles, 
+import {
+  Send,
+  Mail,
+  User,
+  MessageSquare,
+
+  Sparkles,
   Rocket,
   Github,
   Twitter,
@@ -101,8 +101,8 @@ const Contact = () => {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { 
-        duration: 0.8, 
+      transition: {
+        duration: 0.8,
         ease: "easeOut",
         delay: 0.5
       }
@@ -119,7 +119,7 @@ const Contact = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.1),transparent_50%)]" />
         <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30" />
-        
+
         {/* Animated mesh gradient overlay */}
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-xl animate-blob" />
@@ -134,10 +134,9 @@ const Contact = () => {
         {[...Array(12)].map((_, i) => (
           <m.div
             key={`circle-${i}`}
-            className={`absolute rounded-full border ${
-              i % 3 === 0 ? 'border-blue-400/20' : 
-              i % 3 === 1 ? 'border-purple-400/20' : 'border-pink-400/20'
-            }`}
+            className={`absolute rounded-full border ${i % 3 === 0 ? 'border-blue-400/20' :
+                i % 3 === 1 ? 'border-purple-400/20' : 'border-pink-400/20'
+              }`}
             style={{
               width: `${Math.random() * 80 + 40}px`,
               height: `${Math.random() * 80 + 40}px`,
@@ -162,7 +161,7 @@ const Contact = () => {
             }}
           />
         ))}
-        
+
         {/* Floating icons/symbols */}
         {[...Array(6)].map((_, i) => (
           <m.div
@@ -190,25 +189,25 @@ const Contact = () => {
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-16">
-        <m.div 
+        <m.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
           className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16"
         >
-          
+
           {/* LEFT COLUMN: Contact Form Card */}
           <div className="relative w-full max-w-md">
             {/* Enhanced outer glow with pulsing effect */}
             <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-3xl blur-2xl animate-pulse -z-10" />
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 rounded-3xl blur-xl -z-10" />
-            
+
             <m.div
               className="relative backdrop-blur-3xl border border-white/20 rounded-3xl shadow-2xl p-8 group overflow-hidden"
-              whileHover={{ 
-                y: -8, 
+              whileHover={{
+                y: -8,
                 rotateX: 2,
-                transition: { duration: 0.4, ease: "easeOut" } 
+                transition: { duration: 0.4, ease: "easeOut" }
               }}
               style={{
                 transformStyle: "preserve-3d",
@@ -221,11 +220,11 @@ const Contact = () => {
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#0d0e1b]/85 via-[#1b1430]/75 to-[#140d25]/85" />
               {/* Premium shine effect */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               <div className="relative z-10">
                 {/* Enhanced Header */}
                 <m.div variants={itemVariants} className="text-center mb-10">
-                  <m.div 
+                  <m.div
                     className="flex items-center justify-center space-x-4 mb-8"
                     whileHover={{ scale: 1.08, rotateY: 5 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
@@ -239,13 +238,13 @@ const Contact = () => {
                     </div>
                     <span className="font-black text-3xl bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent tracking-wider">TOUCH</span>
                   </m.div>
-                  
+
                   <h2 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mb-3 tracking-tight">Let's Connect</h2>
                   <p className="text-gray-400 text-base flex items-center justify-center gap-2 leading-relaxed">
-                    Share your thoughts and we'll get back to you 
+                    Share your thoughts and we'll get back to you
                     <Heart className="w-5 h-5 text-red-400 animate-pulse" />
                   </p>
-                  
+
                   {/* Decorative line */}
                   <div className="flex items-center justify-center mt-6">
                     <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent w-32" />
@@ -284,18 +283,18 @@ const Contact = () => {
                       <User className="text-emerald-400 w-5 h-5" /> Your Name
                     </label>
                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative group">
-                      <m.div 
-                        variants={glowVariants} 
-                        transition={{ duration: 0.4 }} 
-                        className="absolute inset-0 bg-gradient-to-r from-emerald-500/60 to-teal-500/60 rounded-2xl blur-lg pointer-events-none" 
+                      <m.div
+                        variants={glowVariants}
+                        transition={{ duration: 0.4 }}
+                        className="absolute inset-0 bg-gradient-to-r from-emerald-500/60 to-teal-500/60 rounded-2xl blur-lg pointer-events-none"
                       />
-                      <input 
-                        type="text" 
-                        name="name" 
-                        value={form.name} 
-                        onChange={handleChange} 
-                        className="relative w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-white placeholder-gray-400 transition-all duration-300 backdrop-blur-sm outline-none group-hover:bg-white/10 font-medium" 
-                        placeholder="Enter your full name" 
+                      <input
+                        type="text"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        className="relative w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-white placeholder-gray-400 transition-all duration-300 backdrop-blur-sm outline-none group-hover:bg-white/10 font-medium"
+                        placeholder="Enter your full name"
                         required
                       />
                       {/* Input shine effect */}
@@ -309,18 +308,18 @@ const Contact = () => {
                       <Mail className="text-blue-400 w-5 h-5" /> Email Address
                     </label>
                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative group">
-                      <m.div 
-                        variants={glowVariants} 
-                        transition={{ duration: 0.4 }} 
-                        className="absolute inset-0 bg-gradient-to-r from-blue-500/60 to-purple-500/60 rounded-2xl blur-lg pointer-events-none" 
+                      <m.div
+                        variants={glowVariants}
+                        transition={{ duration: 0.4 }}
+                        className="absolute inset-0 bg-gradient-to-r from-blue-500/60 to-purple-500/60 rounded-2xl blur-lg pointer-events-none"
                       />
-                      <input 
-                        type="email" 
-                        name="email" 
-                        value={form.email} 
-                        onChange={handleChange} 
-                        className="relative w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-400 transition-all duration-300 backdrop-blur-sm outline-none group-hover:bg-white/10 font-medium" 
-                        placeholder="your.email@example.com" 
+                      <input
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        className="relative w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-400 transition-all duration-300 backdrop-blur-sm outline-none group-hover:bg-white/10 font-medium"
+                        placeholder="your.email@example.com"
                         required
                       />
                       <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
@@ -333,18 +332,18 @@ const Contact = () => {
                       <MessageSquare className="text-purple-400 w-5 h-5" /> Your Message
                     </label>
                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative group">
-                      <m.div 
-                        variants={glowVariants} 
-                        transition={{ duration: 0.4 }} 
-                        className="absolute inset-0 bg-gradient-to-r from-purple-500/60 to-pink-500/60 rounded-2xl blur-lg pointer-events-none" 
+                      <m.div
+                        variants={glowVariants}
+                        transition={{ duration: 0.4 }}
+                        className="absolute inset-0 bg-gradient-to-r from-purple-500/60 to-pink-500/60 rounded-2xl blur-lg pointer-events-none"
                       />
-                      <textarea 
-                        name="message" 
-                        rows="5" 
-                        value={form.message} 
-                        onChange={handleChange} 
-                        className="relative w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-400 transition-all duration-300 backdrop-blur-sm outline-none resize-none group-hover:bg-white/10 font-medium leading-relaxed" 
-                        placeholder="Tell us what's on your mind..." 
+                      <textarea
+                        name="message"
+                        rows="5"
+                        value={form.message}
+                        onChange={handleChange}
+                        className="relative w-full px-5 py-4 bg-white/5 border border-white/20 rounded-2xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-400 transition-all duration-300 backdrop-blur-sm outline-none resize-none group-hover:bg-white/10 font-medium leading-relaxed"
+                        placeholder="Tell us what's on your mind..."
                         required
                       />
                       <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
@@ -353,23 +352,23 @@ const Contact = () => {
 
                   {/* Enhanced Submit Button */}
                   <m.div variants={itemVariants}>
-                    <m.button 
-                      type="submit" 
-                      disabled={isLoading} 
-                      className="group relative w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white font-bold py-5 rounded-2xl shadow-2xl hover:shadow-blue-500/40 transition-all duration-500 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transform-gpu" 
-                      whileHover={{ 
-                        scale: isLoading ? 1 : 1.02, 
+                    <m.button
+                      type="submit"
+                      disabled={isLoading}
+                      className="group relative w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white font-bold py-5 rounded-2xl shadow-2xl hover:shadow-blue-500/40 transition-all duration-500 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transform-gpu"
+                      whileHover={{
+                        scale: isLoading ? 1 : 1.02,
                         y: isLoading ? 0 : -3,
                         rotateX: isLoading ? 0 : 2
-                      }} 
+                      }}
                       whileTap={{ scale: isLoading ? 1 : 0.98 }}
                     >
                       {/* Button background animation */}
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                      
+
                       {/* Button shine effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                      
+
                       <span className="relative z-10 flex items-center justify-center gap-3 text-lg">
                         {isLoading ? (
                           <>
@@ -396,8 +395,8 @@ const Contact = () => {
                 <m.div variants={itemVariants} className="text-center mt-8">
                   <p className="text-gray-400 text-sm mb-4">Or reach out on social media</p>
                   <div className="flex justify-center gap-4">
-                    <m.a 
-                      href="#" 
+                    <m.a
+                      href="#"
                       className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-blue-400 hover:text-blue-300 hover:bg-white/10 transition-all duration-300"
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -405,8 +404,8 @@ const Contact = () => {
                       <Twitter className="w-4 h-4" />
                       <span className="text-xs">Twitter</span>
                     </m.a>
-                    <m.a 
-                      href="#" 
+                    <m.a
+                      href="#"
                       className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300"
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -421,7 +420,7 @@ const Contact = () => {
           </div>
 
           {/* RIGHT COLUMN: Extra Info */}
-          <m.div 
+          <m.div
             variants={sideInfoVariants}
             className="w-full max-w-md lg:max-w-sm text-center lg:text-left"
           >
@@ -489,9 +488,9 @@ const Contact = () => {
       </div>
 
       {/* Custom Toast Container */}
-      <ToastContainer 
-        position="bottom-right" 
-        autoClose={3000} 
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick

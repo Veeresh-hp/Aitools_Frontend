@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion as m } from 'framer-motion';
 import { useHistory } from 'react-router-dom';
-import { FaHome, FaRegBookmark, FaPlusSquare, FaThLarge, FaInfoCircle, FaEnvelope, FaSignInAlt, FaUserPlus, FaUser, FaSignOutAlt, FaShieldAlt, FaStar } from 'react-icons/fa';
+import { FaHome, FaRegBookmark, FaPlusSquare, FaThLarge, FaInfoCircle, FaEnvelope, FaSignInAlt, FaUserPlus, FaUser, FaSignOutAlt, FaShieldAlt, FaStar, FaClock } from 'react-icons/fa';
 import SidebarNavButton from './SidebarNavButton';
 import AccountMenu from './AccountMenu';
 import Logo from '../assets/logo.png';
@@ -230,6 +230,14 @@ const Sidebar = () => {
               label={isSidebarOpen ? 'Favorites' : ''}
               aria-label="Favorites"
               onClick={() => handleNavAction(1, () => history.push('/favorites'))}
+            />
+            <SidebarNavButton
+              ref={el => (navRefs.current[8] = el)} // Index 8 for History to avoid conflict
+              active={activeNav === 8}
+              icon={<FaClock />}
+              label={isSidebarOpen ? 'History' : ''}
+              aria-label="History"
+              onClick={() => handleNavAction(8, () => history.push('/history'))}
             />
             <SidebarNavButton
               ref={el => (navRefs.current[2] = el)}

@@ -45,7 +45,7 @@ const TiltCard = ({ children, className = '', ...rest }) => {
       window.addEventListener('deviceorientation', handleOrientation);
     }
     return () => window.removeEventListener('deviceorientation', handleOrientation);
-  }, []);
+  }, [rotateX, rotateY]);
 
   return (
     <m.div

@@ -5,6 +5,8 @@ import { FaArrowLeft, FaExternalLinkAlt, FaStar, FaBookmark, FaRegBookmark, FaCa
 import toolsData from '../data/toolsData';
 import { ToolDetailSkeleton } from './SkeletonLoader';
 import Breadcrumb from './Breadcrumb';
+import { addRefToUrl } from '../utils/linkUtils';
+import { addToHistory } from '../utils/historyUtils';
 
 const AccordionItem = ({ title, icon, children, isOpen, onClick }) => {
   return (
@@ -461,7 +463,7 @@ const ToolDetail = () => {
                   </Link>
                 )}
                 <div className="flex items-center gap-3 mb-3">
-                  <h1 className="text-4xl font-bold text-white">{tool.name}</h1>
+                  <h1 className="text-2xl md:text-4xl font-bold text-white">{tool.name}</h1>
                   {tool.pricing && (
                     <Link
                       to={`/?pricing=${(tool.pricing || 'freemium').toLowerCase().replace(' ', '-')}`}
@@ -484,9 +486,10 @@ const ToolDetail = () => {
               <div className="flex gap-3 flex-wrap mt-auto">
                 {tool.url && (
                   <a
-                    href={tool.url}
+                    href={addRefToUrl(tool.url)}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => addToHistory(tool)}
                     className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105 transition-all flex items-center gap-2"
                   >
                     Visit Site <FaExternalLinkAlt className="text-sm" />
@@ -614,9 +617,10 @@ const ToolDetail = () => {
               {/* Call to Action in Sidebar */}
               {tool.url && (
                 <a
-                  href={tool.url}
+                  href={addRefToUrl(tool.url)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => addToHistory(tool)}
                   className="mt-8 w-full block text-center py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
                 >
                   Visit Website

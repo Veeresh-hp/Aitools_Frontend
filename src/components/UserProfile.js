@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion as m, LazyMotion, domAnimation, AnimatePresence } from 'framer-motion';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  Briefcase, 
-  Globe, 
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Briefcase,
+  Globe,
   Camera,
   Edit3,
   Save,
@@ -20,12 +20,10 @@ import {
   Settings,
   Activity,
   Clock,
-  Star,
   TrendingUp,
   Award,
   Target,
   Heart,
-  Bookmark,
   Key,
   EyeOff,
   AlertTriangle,
@@ -33,9 +31,6 @@ import {
   LogOut,
   History,
   Palette,
-  Moon,
-  Sun,
-  Languages,
   Database,
   Download,
   Upload,
@@ -49,7 +44,7 @@ const UserProfile = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -65,8 +60,8 @@ const UserProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Default empty profile data
-  const defaultProfileData = {
+  // Default empty profile data - Memoized
+  const defaultProfileData = useMemo(() => ({
     firstName: '',
     lastName: '',
     email: '',
@@ -87,7 +82,7 @@ const UserProfile = () => {
       language: 'en',
       timezone: 'America/Los_Angeles'
     }
-  };
+  }), []);
 
   // Profile data state
   const [profileData, setProfileData] = useState(defaultProfileData);
@@ -110,7 +105,7 @@ const UserProfile = () => {
       const token = localStorage.getItem('token');
       const isLoggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
       const username = localStorage.getItem('username');
-      
+
       if (token && isLoggedInStatus && username) {
         setIsLoggedIn(true);
         loadUserProfile();
@@ -122,9 +117,9 @@ const UserProfile = () => {
     };
 
     checkAuthStatus();
-  }, []);
+  }, [defaultProfileData]); // Removed loadUserProfile from deps to avoid circular dep, it's defined below
 
-  const loadUserProfile = () => {
+  const loadUserProfile = useCallback(() => {
     try {
       // Load from localStorage if user is logged in
       const savedProfile = localStorage.getItem('userProfile');
@@ -158,11 +153,10 @@ const UserProfile = () => {
       setProfileData(defaultProfileData);
       setEditForm(defaultProfileData);
     }
-  };
+  }, [defaultProfileData]);
 
   const handleEdit = () => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
     setIsEditing(true);
@@ -171,7 +165,6 @@ const UserProfile = () => {
 
   const handleSave = async () => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
 
@@ -179,10 +172,10 @@ const UserProfile = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       setProfileData(editForm);
       localStorage.setItem('userProfile', JSON.stringify(editForm));
-      
+
       // Update username and email in localStorage if changed
       if (editForm.firstName) {
         localStorage.setItem('username', editForm.firstName);
@@ -190,7 +183,7 @@ const UserProfile = () => {
       if (editForm.email) {
         localStorage.setItem('userEmail', editForm.email);
       }
-      
+
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -208,7 +201,6 @@ const UserProfile = () => {
 
   const handleInputChange = (field, value) => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
     setEditForm(prev => ({
@@ -219,7 +211,6 @@ const UserProfile = () => {
 
   const handlePreferenceChange = (preference) => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
     const newPreferences = {
@@ -234,7 +225,6 @@ const UserProfile = () => {
 
   const handleAvatarUpload = (event) => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
     const file = event.target.files[0];
@@ -252,38 +242,37 @@ const UserProfile = () => {
 
   const validatePassword = () => {
     const errors = {};
-    
+
     if (!passwordForm.currentPassword) {
       errors.currentPassword = 'Current password is required';
     }
-    
+
     if (!passwordForm.newPassword) {
       errors.newPassword = 'New password is required';
     } else if (passwordForm.newPassword.length < 8) {
       errors.newPassword = 'Password must be at least 8 characters';
     }
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       errors.confirmPassword = 'Passwords do not match';
     }
-    
+
     setPasswordErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handlePasswordChange = async () => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
 
     if (!validatePassword()) return;
-    
+
     setIsLoading(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordModal(false);
       setSuccessMessage('Password changed successfully!');
@@ -297,7 +286,6 @@ const UserProfile = () => {
 
   const handleDeleteAccount = async () => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
 
@@ -305,7 +293,7 @@ const UserProfile = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Clear all data
       localStorage.clear();
       window.location.href = '/';
@@ -325,7 +313,6 @@ const UserProfile = () => {
 
   const handleViewHistory = () => {
     if (!isLoggedIn) {
-      setShowSignupPrompt(true);
       return;
     }
     window.location.href = '/history';
@@ -350,970 +337,488 @@ const UserProfile = () => {
     { id: 'security', label: 'Security', icon: Shield }
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
-  };
+  // --- Render Helpers ---
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+  const renderProfileTab = () => (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Personal Information</h2>
+          <p className="text-gray-400 text-sm mt-1">Manage your personal details and public profile</p>
+        </div>
+        {!isEditing ? (
+          <m.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleEdit}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            <Edit3 size={16} /> Edit Profile
+          </m.button>
+        ) : (
+          <div className="flex gap-3">
+            <m.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleCancel}
+              disabled={isLoading}
+              className="px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors border border-gray-600"
+            >
+              Cancel
+            </m.button>
+            <m.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleSave}
+              disabled={isLoading}
+              className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              {isLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={16} />}
+              Save Changes
+            </m.button>
+          </div>
+        )}
+      </div>
 
-  // If not logged in, show signup prompt immediately
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Avatar Section */}
+        <div className="lg:col-span-2 flex items-center gap-6 p-6 rounded-xl bg-white/5 border border-white/10">
+          <div className="relative group">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-700 border-2 border-white/20 shadow-xl">
+              {(isEditing ? editForm.avatar : profileData.avatar) ? (
+                <img src={isEditing ? editForm.avatar : profileData.avatar} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold text-3xl">
+                  {profileData.firstName?.[0]?.toUpperCase() || <User size={40} />}
+                </div>
+              )}
+            </div>
+            {isEditing && (
+              <label className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
+                <Camera size={24} className="text-white" />
+                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+              </label>
+            )}
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Profile Photo</h3>
+            <p className="text-gray-400 text-sm max-w-sm mt-1">Recommended: Square JPG, PNG, or GIF, at least 1000x1000 pixels.</p>
+          </div>
+        </div>
+
+        {/* Form Fields */}
+        {[
+          { label: 'First Name', key: 'firstName', type: 'text', placeholder: 'Jane' },
+          { label: 'Last Name', key: 'lastName', type: 'text', placeholder: 'Doe' },
+          { label: 'Email', key: 'email', type: 'email', icon: Mail },
+          { label: 'Phone', key: 'phone', type: 'tel', icon: Phone },
+          { label: 'Location', key: 'location', type: 'text', icon: MapPin },
+          { label: 'Website', key: 'website', type: 'url', icon: Globe },
+          { label: 'Company', key: 'company', type: 'text', icon: Briefcase },
+          { label: 'Position', key: 'position', type: 'text', icon: User }
+        ].map((field) => (
+          <div key={field.key} className="space-y-1.5">
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">{field.label}</label>
+            <div className="relative group">
+              {field.icon && (
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400 transition-colors">
+                  <field.icon size={16} />
+                </div>
+              )}
+              {isEditing ? (
+                <input
+                  type={field.type}
+                  value={editForm[field.key] || ''}
+                  onChange={(e) => handleInputChange(field.key, e.target.value)}
+                  className={`w-full bg-gray-900/50 border border-gray-700/50 rounded-lg py-2.5 ${field.icon ? 'pl-10' : 'pl-4'} pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-gray-600`}
+                  placeholder={field.placeholder}
+                />
+              ) : (
+                <div className={`w-full bg-gray-800/20 border border-white/5 rounded-lg py-2.5 ${field.icon ? 'pl-10' : 'pl-4'} pr-4 text-sm text-gray-300 min-h-[42px] flex items-center`}>
+                  {field.key === 'website' && profileData[field.key] ? (
+                    <a href={profileData[field.key]} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{profileData[field.key]}</a>
+                  ) : (
+                    profileData[field.key] || <span className="text-gray-600 italic">Not set</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <div className="lg:col-span-2 space-y-1.5">
+          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Bio</label>
+          {isEditing ? (
+            <textarea
+              value={editForm.bio || ''}
+              onChange={(e) => handleInputChange('bio', e.target.value)}
+              rows={4}
+              className="w-full bg-gray-900/50 border border-gray-700/50 rounded-lg p-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder-gray-600 resize-none"
+              placeholder="Tell us a little about yourself..."
+            />
+          ) : (
+            <div className="w-full bg-gray-800/20 border border-white/5 rounded-lg p-4 text-sm text-gray-300 min-h-[100px] whitespace-pre-wrap">
+              {profileData.bio || <span className="text-gray-600 italic">No bio provided.</span>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderActivityTab = () => (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-white">Activity & Stats</h2>
+        <p className="text-gray-400 text-sm mt-1">Overview of your usage and engagement</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Tools Used', value: stats.toolsUsed, icon: Target, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+          { label: 'Favorites', value: stats.favoriteTools, icon: Heart, color: 'text-pink-400', bg: 'bg-pink-500/10' },
+          { label: 'Time Saved', value: stats.timesSaved, icon: Clock, color: 'text-green-400', bg: 'bg-green-500/10' },
+          { label: 'Streak', value: `${stats.streakDays} Days`, icon: TrendingUp, color: 'text-orange-400', bg: 'bg-orange-500/10' }
+        ].map((stat, i) => (
+          <div key={i} className="p-5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`p-2 rounded-lg ${stat.bg} ${stat.color}`}>
+                <stat.icon size={20} />
+              </div>
+              <span className="text-sm text-gray-400 font-medium">{stat.label}</span>
+            </div>
+            <div className="text-2xl font-bold text-white pl-1">{stat.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Placeholder for future activity graph or list */}
+      <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center py-20">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800 mb-4">
+          <Activity className="text-gray-500" size={32} />
+        </div>
+        <h3 className="text-lg font-medium text-white">Recent Activity</h3>
+        <p className="text-gray-500 mt-2 max-w-sm mx-auto">Track your tool usage history and interactions here. Coming soon in the next update.</p>
+      </div>
+    </div>
+  );
+
+  const renderSettingsTab = () => (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-white">Settings & Preferences</h2>
+        <p className="text-gray-400 text-sm mt-1">Customize your experience</p>
+      </div>
+
+      <div className="grid gap-6">
+        {/* Notifications */}
+        <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Bell size={20} className="text-blue-400" /> Notifications
+          </h3>
+          <div className="space-y-4">
+            {[
+              { id: 'notifications', label: 'Push Notifications', desc: 'Receive updates about new tools and features' },
+              { id: 'newsletter', label: 'Email Newsletter', desc: 'Get weekly summaries and AI trends' }
+            ].map((item) => (
+              <div key={item.id} className="flex items-center justify-between">
+                <div>
+                  <div className="text-base font-medium text-gray-200">{item.label}</div>
+                  <div className="text-sm text-gray-500">{item.desc}</div>
+                </div>
+                <button
+                  onClick={() => handlePreferenceChange(item.id)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${editForm.preferences[item.id] ? 'bg-blue-600' : 'bg-gray-700'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editForm.preferences[item.id] ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Privacy */}
+        <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Lock size={20} className="text-purple-400" /> Privacy
+          </h3>
+          <div className="space-y-4">
+            {[
+              { id: 'publicProfile', label: 'Public Profile', desc: 'Allow others to see your profile and collections' },
+              { id: 'dataSharing', label: 'Data Sharing', desc: 'Share usage data to help us improve suggestions' }
+            ].map((item) => (
+              <div key={item.id} className="flex items-center justify-between">
+                <div>
+                  <div className="text-base font-medium text-gray-200">{item.label}</div>
+                  <div className="text-sm text-gray-500">{item.desc}</div>
+                </div>
+                <button
+                  onClick={() => handlePreferenceChange(item.id)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${editForm.preferences[item.id] ? 'bg-purple-600' : 'bg-gray-700'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editForm.preferences[item.id] ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSecurityTab = () => (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-white">Security</h2>
+        <p className="text-gray-400 text-sm mt-1">Manage your password and account security</p>
+      </div>
+
+      <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+        <h3 className="text-lg font-semibold text-white mb-6">Change Password</h3>
+        <div className="space-y-4 max-w-lg">
+          <div>
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Current Password</label>
+            <input
+              type="password"
+              className="w-full bg-gray-900/50 border border-gray-700/50 rounded-lg py-2.5 px-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+              placeholder="Enter current password"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">New Password</label>
+            <input
+              type="password"
+              className="w-full bg-gray-900/50 border border-gray-700/50 rounded-lg py-2.5 px-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+              placeholder="Enter new password"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Confirm New Password</label>
+            <input
+              type="password"
+              className="w-full bg-gray-900/50 border border-gray-700/50 rounded-lg py-2.5 px-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50"
+              placeholder="Confirm new password"
+            />
+          </div>
+          <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors mt-4">
+            Update Password
+          </button>
+        </div>
+      </div>
+
+      <div className="p-6 rounded-xl bg-red-500/5 border border-red-500/10">
+        <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
+        <p className="text-gray-400 text-sm mb-6">Once you delete your account, there is no going back. Please be certain.</p>
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+        >
+          <Trash2 size={16} /> Delete Account
+        </button>
+      </div>
+    </div>
+  );
+
+  // --- Main Render ---
+
   if (!isLoggedIn) {
     return (
-      <LazyMotion features={domAnimation}>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center">
-          <m.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-8 max-w-md w-full mx-4 text-center"
-          >
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-              <User size={32} className="text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Access Your Profile</h2>
-            <p className="text-gray-400 mb-8">
-              You need to sign up or log in to access your profile and manage your account settings.
-            </p>
-            <div className="flex gap-4">
-              <m.button
-                onClick={handleSignupRedirect}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <UserPlus size={18} />
-                Sign Up
-              </m.button>
-              <m.button
-                onClick={handleLoginRedirect}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <LogIn size={18} />
-                Log In
-              </m.button>
-            </div>
-          </m.div>
-        </div>
-      </LazyMotion>
-    );
+      <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center p-4">
+        <m.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-[#111827] border border-gray-800 rounded-2xl p-8 text-center shadow-2xl"
+        >
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <User size={32} className="text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-3">Welcome to AI Tools Hub</h2>
+          <p className="text-gray-400 mb-8">Please sign in to manage your profile and access exclusive features.</p>
+
+          <div className="space-y-3">
+            <button onClick={handleLoginRedirect} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+              Sign In
+            </button>
+            <button onClick={handleSignupRedirect} className="w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all border border-gray-700">
+              Create Account
+            </button>
+          </div>
+        </m.div>
+      </div>
+    )
   }
 
   return (
-    <LazyMotion features={domAnimation}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-        <style jsx>{`
-          .glass-card { 
-            background: rgba(15, 23, 42, 0.8); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); 
+    <div className="min-h-screen bg-[#0b0f19] text-gray-100 font-sans selection:bg-blue-500/30">
+      <style jsx>{`
+          /* Custom scrollbar for the sidebar/content */
+          ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
           }
-          .glass-input { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(10px); 
+          ::-webkit-scrollbar-track {
+            background: #111827; 
           }
-          .glass-input:focus { 
-            background: rgba(255, 255, 255, 0.1); 
-            border-color: rgba(59, 130, 246, 0.5); 
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); 
-            outline: none;
+          ::-webkit-scrollbar-thumb {
+            background: #374151; 
+            border-radius: 4px;
           }
-          .gradient-text { 
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            background-clip: text; 
+          ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563; 
           }
-          .stat-card:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2); 
-          }
-          .tab-active { 
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6); 
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); 
-          }
-          .scrollbar-thin::-webkit-scrollbar {
-            width: 6px;
-          }
-          .scrollbar-thin::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-          }
-          .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-            border-radius: 3px;
-          }
-        `}</style>
+       `}</style>
 
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <m.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-8"
-          >
-            {/* Success Message */}
-            <AnimatePresence>
-              {successMessage && (
-                <m.div
-                  initial={{ opacity: 0, y: -50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                  className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2"
-                >
-                  <CheckCircle size={20} />
-                  {successMessage}
-                </m.div>
-              )}
-            </AnimatePresence>
-
-            {/* Profile Header Card */}
-            <m.div variants={itemVariants} className="glass-card rounded-2xl p-6 lg:p-8">
-              <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
-                <div className="relative">
-                  <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1">
-                    <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
-                      {(isEditing ? editForm.avatar : profileData.avatar) ? (
-                        <img 
-                          src={isEditing ? editForm.avatar : profileData.avatar} 
-                          alt="Profile" 
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                      ) : (
-                        <User size={48} className="text-gray-400" />
-                      )}
-                    </div>
-                  </div>
-                  {isEditing && (
-                    <label className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-700 transition-colors">
-                      <Camera size={16} />
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleAvatarUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-
-                <div className="flex-1 text-center lg:text-left">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div>
-                      <h2 className="text-3xl lg:text-4xl font-bold">
-                        {displayValue(profileData.firstName, 'User')} {displayValue(profileData.lastName, '')}
-                      </h2>
-                      <p className="text-blue-400 text-lg lg:text-xl">{displayValue(profileData.position, 'No position set')}</p>
-                      <p className="text-gray-400">{displayValue(profileData.company, 'No company set')}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-3 justify-center lg:justify-end">
-                      {!isEditing ? (
-                        <>
-                          <m.button
-                            onClick={handleEdit}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl flex items-center gap-2 transition-colors"
-                          >
-                            <Edit3 size={18} />
-                            Edit Profile
-                          </m.button>
-                          <m.button
-                            onClick={handleViewHistory}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl flex items-center gap-2 transition-colors"
-                          >
-                            <History size={18} />
-                            View History
-                          </m.button>
-                        </>
-                      ) : (
-                        <div className="flex gap-2">
-                          <m.button
-                            onClick={handleSave}
-                            disabled={isLoading}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-green-600 hover:bg-green-700 px-4 py-3 rounded-xl flex items-center gap-2 transition-colors disabled:opacity-50"
-                          >
-                            {isLoading ? (
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                              <Save size={18} />
-                            )}
-                            {isLoading ? 'Saving...' : 'Save'}
-                          </m.button>
-                          <m.button
-                            onClick={handleCancel}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-gray-600 hover:bg-gray-700 px-4 py-3 rounded-xl flex items-center gap-2 transition-colors"
-                          >
-                            <X size={18} />
-                            Cancel
-                          </m.button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 lg:py-12">
+        {/* Success Toast */}
+        <AnimatePresence>
+          {successMessage && (
+            <m.div
+              initial={{ opacity: 0, y: -20, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: -20, x: '-50%' }}
+              className="fixed top-6 left-1/2 z-50 bg-green-500/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium"
+            >
+              <CheckCircle size={18} /> {successMessage}
             </m.div>
-            
-            {/* Header */}
-            <m.div variants={itemVariants} className="text-center mt-8">
-              <h1 className="text-4xl lg:text-5xl font-bold gradient-text mb-2">User Profile</h1>
-              <p className="text-gray-400 text-lg">Manage your account and preferences</p>
-            </m.div>
+          )}
+        </AnimatePresence>
 
-            {/* Stats Cards */}
-            <m.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-              {[
-                { label: 'Tools Used', value: stats.toolsUsed, icon: Target, color: 'from-blue-500 to-cyan-500' },
-                { label: 'Favorites', value: stats.favoriteTools, icon: Heart, color: 'from-pink-500 to-rose-500' },
-                { label: 'Time Saved', value: stats.timesSaved, icon: Clock, color: 'from-green-500 to-emerald-500' },
-                { label: 'Account', value: stats.accountType, icon: Award, color: 'from-purple-500 to-indigo-500' },
-                { label: 'Streak', value: `${stats.streakDays} days`, icon: TrendingUp, color: 'from-orange-500 to-yellow-500' }
-              ].map((stat, index) => (
-                <m.div
-                  key={stat.label}
-                  whileHover={{ scale: 1.05 }}
-                  className={`stat-card glass-card rounded-xl p-4 transition-all duration-300 cursor-pointer`}
-                >
-                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${stat.color} flex items-center justify-center mb-3`}>
-                    <stat.icon size={20} className="text-white" />
-                  </div>
-                  <div className="text-xl lg:text-2xl font-bold">{stat.value}</div>
-                  <div className="text-gray-400 text-sm">{stat.label}</div>
-                </m.div>
-              ))}
-            </m.div>
+        <div className="flex flex-col lg:flex-row gap-8">
 
-            {/* Tab Navigation */}
-            <m.div variants={itemVariants} className="flex flex-wrap gap-2 justify-center lg:justify-start">
-              {tabs.map((tab) => (
-                <m.button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 ${
-                    activeTab === tab.id 
-                      ? 'tab-active text-white' 
-                      : 'glass-card hover:bg-white/10 text-gray-300'
-                  }`}
-                >
-                  <tab.icon size={18} />
-                  {tab.label}
-                </m.button>
-              ))}
-            </m.div>
+          {/* Sidebar Navigation */}
+          <aside className="w-full lg:w-72 flex-shrink-0">
+            <div className="bg-[#111827] border border-gray-800 rounded-2xl p-6 sticky top-24">
 
-            {/* Tab Content */}
-            <m.div variants={itemVariants} className="glass-card rounded-2xl p-6 lg:p-8 min-h-[600px]">
-              {activeTab === 'profile' && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold flex items-center gap-2">
-                    <User size={24} />
-                    Personal Information
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">First Name</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.firstName}
-                          onChange={(e) => handleInputChange('firstName', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your first name"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {displayValue(profileData.firstName, 'Not provided')}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Last Name</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.lastName}
-                          onChange={(e) => handleInputChange('lastName', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your last name"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {displayValue(profileData.lastName, 'Not provided')}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                        <Mail size={16} />
-                        Email
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="email"
-                          value={editForm.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your email address"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {displayValue(profileData.email, 'Not provided')}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                        <Phone size={16} />
-                        Phone
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="tel"
-                          value={editForm.phone}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your phone number"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {displayValue(profileData.phone, 'Not provided')}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                        <MapPin size={16} />
-                        Location
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.location}
-                          onChange={(e) => handleInputChange('location', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your location"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {displayValue(profileData.location, 'Not provided')}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                        <Globe size={16} />
-                        Website
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="url"
-                          value={editForm.website}
-                          onChange={(e) => handleInputChange('website', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your website URL"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {profileData.website && profileData.website.trim() !== '' ? (
-                            <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                              {profileData.website}
-                            </a>
-                          ) : (
-                            'Not provided'
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                        <Briefcase size={16} />
-                        Company
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.company}
-                          onChange={(e) => handleInputChange('company', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your company"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {displayValue(profileData.company, 'Not provided')}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Position</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.position}
-                          onChange={(e) => handleInputChange('position', e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter your job position"
-                        />
-                      ) : (
-                        <div className="px-4 py-3 rounded-xl glass-input">
-                          {displayValue(profileData.position, 'Not provided')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Bio</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editForm.bio}
-                        onChange={(e) => handleInputChange('bio', e.target.value)}
-                        rows={4}
-                        className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all resize-none"
-                        placeholder="Tell us about yourself..."
-                      />
+              {/* User Mini Profile */}
+              <div className="text-center mb-8 pb-8 border-b border-gray-800">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px]">
+                  <div className="w-full h-full rounded-full bg-[#111827] flex items-center justify-center overflow-hidden">
+                    {profileData.avatar ? (
+                      <img src={profileData.avatar} alt={profileData.firstName} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="px-4 py-3 rounded-xl glass-input min-h-[100px]">
-                        {displayValue(profileData.bio, 'No bio provided')}
-                      </div>
+                      <span className="text-xl font-bold text-white">{profileData.firstName?.[0]?.toUpperCase()}</span>
                     )}
                   </div>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={16} />
-                      Member since {profileData.joinDate ? new Date(profileData.joinDate).toLocaleDateString() : 'N/A'}
-                    </div>
-                  </div>
                 </div>
-              )}
+                <h2 className="text-lg font-bold text-white truncate">{profileData.firstName} {profileData.lastName}</h2>
+                <p className="text-sm text-gray-500 truncate">{profileData.email}</p>
+                {profileData.position && <p className="text-xs text-blue-400 mt-1">{profileData.position}</p>}
+              </div>
 
-              {activeTab === 'activity' && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold flex items-center gap-2">
-                    <Activity size={24} />
-                    Recent Activity
-                  </h3>
-                  
-                  {recentActivity.length > 0 ? (
-                    <div className="space-y-4 max-h-96 overflow-y-auto scrollbar-thin">
-                      {recentActivity.map((activity) => (
-                        <div key={activity.id} className="flex items-center gap-4 p-4 rounded-xl glass-input hover:bg-white/10 transition-all">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                            <Activity size={18} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{activity.action}</div>
-                            <div className="text-sm text-gray-400">{activity.category}</div>
-                          </div>
-                          <div className="text-sm text-gray-400">{activity.time}</div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-gray-700 to-gray-600 flex items-center justify-center">
-                        <Activity size={32} className="text-gray-400" />
-                      </div>
-                      <h4 className="text-lg font-semibold text-white mb-2">No Activity Yet</h4>
-                      <p className="text-gray-400 mb-4">Start using AI tools to see your activity here</p>
-                    </div>
-                  )}
-                  
-                  <m.button
-                    onClick={handleViewHistory}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all flex items-center justify-center gap-2"
+              {/* Nav Links */}
+              <nav className="space-y-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                      }`}
                   >
-                    <History size={18} />
-                    View Full History
-                  </m.button>
-                </div>
-              )}
+                    <tab.icon size={18} />
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
 
-              {activeTab === 'preferences' && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold flex items-center gap-2">
-                    <Settings size={24} />
-                    Preferences & Settings
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    {[
-                      { key: 'notifications', label: 'Email Notifications', description: 'Receive updates about new tools and features', icon: Bell },
-                      { key: 'newsletter', label: 'Newsletter Subscription', description: 'Weekly digest of AI tools and trends', icon: Mail },
-                      { key: 'publicProfile', label: 'Public Profile', description: 'Make your profile visible to other users', icon: Eye },
-                      { key: 'dataSharing', label: 'Data Sharing', description: 'Share anonymous usage data to improve our service', icon: Database }
-                    ].map((pref) => (
-                      <div key={pref.key} className="flex items-center justify-between p-4 rounded-xl glass-input hover:bg-white/10 transition-all">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                            <pref.icon size={18} />
-                          </div>
-                          <div>
-                            <div className="font-medium">{pref.label}</div>
-                            <div className="text-sm text-gray-400">{pref.description}</div>
-                          </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={isEditing ? editForm.preferences[pref.key] : profileData.preferences[pref.key]}
-                            onChange={() => isEditing && handlePreferenceChange(pref.key)}
-                            className="sr-only peer"
-                            disabled={!isEditing}
-                          />
-                          <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+              {/* Logout */}
+              <div className="mt-8 pt-8 border-t border-gray-800">
+                <button
+                  onClick={() => setShowLogoutConfirm(true)}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <LogOut size={18} />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </aside>
 
-                  <div className="border-t border-white/10 pt-6">
-                    <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Palette size={20} />
-                      Theme & Language
-                    </h4>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Language</label>
-                        <select 
-                          value={editForm.preferences.language}
-                          onChange={(e) => isEditing && setEditForm(prev => ({...prev, preferences: {...prev.preferences, language: e.target.value}}))}
-                          disabled={!isEditing}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                        >
-                          <option value="en">English</option>
-                          <option value="es">Spanish</option>
-                          <option value="fr">French</option>
-                          <option value="de">German</option>
-                          <option value="zh">Chinese</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Timezone</label>
-                        <select 
-                          value={editForm.preferences.timezone}
-                          onChange={(e) => isEditing && setEditForm(prev => ({...prev, preferences: {...prev.preferences, timezone: e.target.value}}))}
-                          disabled={!isEditing}
-                          className="w-full px-4 py-3 rounded-xl glass-input text-white transition-all"
-                        >
-                          <option value="America/Los_Angeles">Pacific Time</option>
-                          <option value="America/Denver">Mountain Time</option>
-                          <option value="America/Chicago">Central Time</option>
-                          <option value="America/New_York">Eastern Time</option>
-                          <option value="Europe/London">GMT</option>
-                          <option value="Europe/Paris">CET</option>
-                          <option value="Asia/Tokyo">JST</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <m.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Download size={18} />
-                      Export Data
-                    </m.button>
-                    <m.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Upload size={18} />
-                      Import Data
-                    </m.button>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'security' && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold flex items-center gap-2">
-                    <Shield size={24} />
-                    Security Settings
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <m.button
-                      onClick={() => setShowPasswordModal(true)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl glass-input hover:bg-white/10 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-600 flex items-center justify-center">
-                          <Lock size={18} />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">Change Password</div>
-                          <div className="text-sm text-gray-400">Update your account password</div>
-                        </div>
-                      </div>
-                      <div className="text-gray-400">→</div>
-                    </m.button>
-
-                    <m.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl glass-input hover:bg-white/10 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                          <Shield size={18} />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">Two-Factor Authentication</div>
-                          <div className="text-sm text-gray-400">Add an extra layer of security</div>
-                        </div>
-                      </div>
-                      <div className="px-3 py-1 bg-green-600 text-xs rounded-full">Enabled</div>
-                    </m.button>
-
-                    <m.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl glass-input hover:bg-white/10 transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center">
-                          <Key size={18} />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">Login Sessions</div>
-                          <div className="text-sm text-gray-400">Manage your active sessions</div>
-                        </div>
-                      </div>
-                      <div className="text-gray-400">→</div>
-                    </m.button>
-
-                    <m.button
-                      onClick={() => setShowLogoutConfirm(true)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl glass-input hover:bg-yellow-900/20 transition-all text-yellow-400"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center">
-                          <LogOut size={18} />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">Logout</div>
-                          <div className="text-sm text-gray-400">Sign out of your account</div>
-                        </div>
-                      </div>
-                      <div className="text-gray-400">→</div>
-                    </m.button>
-
-                    <m.button
-                      onClick={() => setShowDeleteConfirm(true)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-between p-4 rounded-xl glass-input hover:bg-red-900/20 transition-all text-red-400"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
-                          <Trash2 size={18} />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">Delete Account</div>
-                          <div className="text-sm text-gray-400">Permanently delete your account and data</div>
-                        </div>
-                      </div>
-                      <div className="text-gray-400">→</div>
-                    </m.button>
-                  </div>
-                </div>
-              )}
+          {/* Main Content Area */}
+          <main className="flex-1 min-w-0">
+            <m.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-[#111827] border border-gray-800 rounded-2xl p-6 lg:p-10 min-h-[600px]"
+            >
+              {activeTab === 'profile' && renderProfileTab()}
+              {activeTab === 'activity' && renderActivityTab()}
+              {activeTab === 'preferences' && renderSettingsTab()}
+              {activeTab === 'security' && renderSecurityTab()}
             </m.div>
-          </m.div>
+          </main>
         </div>
-
-        {/* Password Change Modal */}
-        <AnimatePresence>
-          {showPasswordModal && (
-            <>
-              <m.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-                onClick={() => setShowPasswordModal(false)}
-              />
-              <m.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-              >
-                <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-6 max-w-md w-full">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <Lock size={20} />
-                      Change Password
-                    </h3>
-                    <button
-                      onClick={() => setShowPasswordModal(false)}
-                      className="text-gray-400 hover:text-white transition-colors"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-
-                  {passwordErrors.general && (
-                    <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg text-sm mb-4">
-                      {passwordErrors.general}
-                    </div>
-                  )}
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Current Password</label>
-                      <div className="relative">
-                        <input
-                          type={showPasswords.current ? 'text' : 'password'}
-                          value={passwordForm.currentPassword}
-                          onChange={(e) => setPasswordForm(prev => ({...prev, currentPassword: e.target.value}))}
-                          className="w-full px-4 py-3 pr-12 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter current password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords(prev => ({...prev, current: !prev.current}))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                        >
-                          {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                      {passwordErrors.currentPassword && (
-                        <p className="text-red-400 text-xs mt-1">{passwordErrors.currentPassword}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2">New Password</label>
-                      <div className="relative">
-                        <input
-                          type={showPasswords.new ? 'text' : 'password'}
-                          value={passwordForm.newPassword}
-                          onChange={(e) => setPasswordForm(prev => ({...prev, newPassword: e.target.value}))}
-                          className="w-full px-4 py-3 pr-12 rounded-xl glass-input text-white transition-all"
-                          placeholder="Enter new password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords(prev => ({...prev, new: !prev.new}))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                        >
-                          {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                      {passwordErrors.newPassword && (
-                        <p className="text-red-400 text-xs mt-1">{passwordErrors.newPassword}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Confirm New Password</label>
-                      <div className="relative">
-                        <input
-                          type={showPasswords.confirm ? 'text' : 'password'}
-                          value={passwordForm.confirmPassword}
-                          onChange={(e) => setPasswordForm(prev => ({...prev, confirmPassword: e.target.value}))}
-                          className="w-full px-4 py-3 pr-12 rounded-xl glass-input text-white transition-all"
-                          placeholder="Confirm new password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPasswords(prev => ({...prev, confirm: !prev.confirm}))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                        >
-                          {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                      {passwordErrors.confirmPassword && (
-                        <p className="text-red-400 text-xs mt-1">{passwordErrors.confirmPassword}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 mt-6">
-                    <m.button
-                      onClick={() => setShowPasswordModal(false)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-4 rounded-xl transition-all"
-                    >
-                      Cancel
-                    </m.button>
-                    <m.button
-                      onClick={handlePasswordChange}
-                      disabled={isLoading}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Changing...
-                        </>
-                      ) : (
-                        'Change Password'
-                      )}
-                    </m.button>
-                  </div>
-                </div>
-              </m.div>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* Delete Account Confirmation Modal */}
-        <AnimatePresence>
-          {showDeleteConfirm && (
-            <>
-              <m.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-                onClick={() => setShowDeleteConfirm(false)}
-              />
-              <m.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-              >
-                <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-6 max-w-md w-full">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
-                      <AlertTriangle size={32} className="text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-3">Delete Account?</h3>
-                    <p className="text-gray-400 mb-6 text-sm">
-                      This action is permanent and cannot be undone. All your data, history, and preferences will be permanently deleted.
-                    </p>
-                    <div className="flex gap-3">
-                      <m.button
-                        onClick={() => setShowDeleteConfirm(false)}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-4 rounded-xl transition-all"
-                      >
-                        Cancel
-                      </m.button>
-                      <m.button
-                        onClick={handleDeleteAccount}
-                        disabled={isLoading}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        {isLoading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Deleting...
-                          </>
-                        ) : (
-                          'Delete Account'
-                        )}
-                      </m.button>
-                    </div>
-                  </div>
-                </div>
-              </m.div>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* Logout Confirmation Modal */}
-        <AnimatePresence>
-          {showLogoutConfirm && (
-            <>
-              <m.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-                onClick={() => setShowLogoutConfirm(false)}
-              />
-              <m.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-              >
-                <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-2xl p-6 max-w-md w-full">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center">
-                      <LogOut size={32} className="text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-3">Logout?</h3>
-                    <p className="text-gray-400 mb-6 text-sm">
-                      Are you sure you want to sign out of your account?
-                    </p>
-                    <div className="flex gap-3">
-                      <m.button
-                        onClick={() => setShowLogoutConfirm(false)}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-4 rounded-xl transition-all"
-                      >
-                        Cancel
-                      </m.button>
-                      <m.button
-                        onClick={handleLogout}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="flex-1 bg-gradient-to-r from-yellow-600 to-orange-700 hover:from-yellow-700 hover:to-orange-800 text-white font-semibold py-3 px-4 rounded-xl transition-all"
-                      >
-                        Logout
-                      </m.button>
-                    </div>
-                  </div>
-                </div>
-              </m.div>
-            </>
-          )}
-        </AnimatePresence>
       </div>
-    </LazyMotion>
+
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <m.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#1f2937] border border-gray-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl"
+            >
+              <h3 className="text-xl font-bold text-white mb-2">Sign Out?</h3>
+              <p className="text-gray-400 mb-6">Are you sure you want to sign out of your account?</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <m.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#1f2937] border border-gray-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl"
+            >
+              <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mb-4">
+                <AlertTriangle size={24} />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Delete Account?</h3>
+              <p className="text-gray-400 mb-6 text-sm">This action cannot be undone. All your data, saved tools, and preferences will be permanently removed.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
+                >
+                  {isLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Delete Info'}
+                </button>
+              </div>
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

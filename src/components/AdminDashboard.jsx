@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaSync, FaExclamationTriangle, FaCheck, FaTimes, FaSpinner, FaEye, FaStar, FaEdit } from 'react-icons/fa';
 import api from '../utils/api';
 
+import { addRefToUrl } from '../utils/linkUtils';
+
 const AdminDashboard = () => {
+
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
   const [pendingTools, setPendingTools] = useState([]);
@@ -359,7 +362,7 @@ const AdminDashboard = () => {
                               {tool.name}
                             </h3>
                             <a
-                              href={tool.url}
+                              href={addRefToUrl(tool.url)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1 mb-3"

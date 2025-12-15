@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { m, AnimatePresence } from 'framer-motion';
 import { FaExternalLinkAlt, FaBookmark, FaRegBookmark, FaTimes, FaStar, FaChartLine, FaDollarSign, FaTag, FaUsers, FaGlobe, FaLink, FaCopy, FaCheck } from 'react-icons/fa';
+import { addRefToUrl } from '../utils/linkUtils';
 
 const ToolDetailModal = ({ tool, onClose }) => {
   const getToolKey = () => (tool && (tool.url || tool.name || tool.id)) || null;
@@ -69,7 +70,7 @@ const ToolDetailModal = ({ tool, onClose }) => {
   };
 
   console.log('🎯 ToolDetailModal rendering, tool:', tool);
-  
+
   if (!tool) {
     console.log('⚠️ Tool is null, not rendering modal');
     return null;
@@ -90,21 +91,21 @@ const ToolDetailModal = ({ tool, onClose }) => {
       style={{ zIndex: 99999 }}
       onClick={onClose}
     >
-          <div className="relative max-w-5xl w-full">
-            {/* Glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-xl opacity-30" />
-            
-            {/* Modal content */}
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-purple-500/30 overflow-hidden max-h-[90vh] overflow-y-auto scrollbar-hide"
-              role="dialog"
-              aria-modal="true"
-              style={{
-                scrollbarWidth: 'none', /* Firefox */
-                msOverflowStyle: 'none', /* IE and Edge */
-              }}
-            >
+      <div className="relative max-w-5xl w-full">
+        {/* Glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-xl opacity-30" />
+
+        {/* Modal content */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-purple-500/30 overflow-hidden max-h-[90vh] overflow-y-auto scrollbar-hide"
+          role="dialog"
+          aria-modal="true"
+          style={{
+            scrollbarWidth: 'none', /* Firefox */
+            msOverflowStyle: 'none', /* IE and Edge */
+          }}
+        >
           {/* Close Button */}
           <button
             onClick={onClose}
@@ -118,17 +119,17 @@ const ToolDetailModal = ({ tool, onClose }) => {
           <div className="relative h-72 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 overflow-hidden">
             {/* Animated gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 animate-gradient-x" />
-          
+
             {tool.image ? (
-              <img 
-                src={tool.image} 
-                alt={tool.name} 
-                className="w-full h-full object-cover opacity-90" 
-                onError={(e) => { 
+              <img
+                src={tool.image}
+                alt={tool.name}
+                className="w-full h-full object-cover opacity-90"
+                onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.parentElement.classList.add('flex', 'items-center', 'justify-center');
                   e.target.parentElement.innerHTML = `<div class="text-6xl text-white/50">${tool.name.charAt(0)}</div>`;
-                }} 
+                }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -136,7 +137,7 @@ const ToolDetailModal = ({ tool, onClose }) => {
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-            
+
             {/* Tool Name Overlay */}
             <div className="absolute bottom-6 left-6 right-6">
               <div className="flex items-start justify-between">
@@ -160,11 +161,10 @@ const ToolDetailModal = ({ tool, onClose }) => {
                 </div>
                 <button
                   onClick={toggleBookmark}
-                  className={`p-3 rounded-full backdrop-blur-md transition-all ${
-                    saved 
-                      ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/50' 
+                  className={`p-3 rounded-full backdrop-blur-md transition-all ${saved
+                      ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/50'
                       : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
+                    }`}
                 >
                   {saved ? <FaBookmark className="w-5 h-5" /> : <FaRegBookmark className="w-5 h-5" />}
                 </button>
@@ -222,8 +222,8 @@ const ToolDetailModal = ({ tool, onClose }) => {
                       'Creative Projects',
                       'Professional Use'
                     ]).map((useCase, i) => (
-                      <span 
-                        key={i} 
+                      <span
+                        key={i}
                         className="px-4 py-2 rounded-lg bg-cyan-500/20 text-cyan-300 text-sm font-medium border border-cyan-500/30"
                       >
                         {useCase}
@@ -280,7 +280,7 @@ const ToolDetailModal = ({ tool, onClose }) => {
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {tags.map((tag, i) => (
-                      <span 
+                      <span
                         key={i}
                         className="px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-sm border border-pink-500/30"
                       >
@@ -311,7 +311,7 @@ const ToolDetailModal = ({ tool, onClose }) => {
             {/* Action Buttons */}
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <a
-                href={tool.url || tool.link}
+                href={addRefToUrl(tool.url || tool.link)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-bold text-lg shadow-lg shadow-purple-500/50 transition-all hover:scale-105"
@@ -319,7 +319,7 @@ const ToolDetailModal = ({ tool, onClose }) => {
                 <FaExternalLinkAlt />
                 Visit {tool.name}
               </a>
-              
+
               <button
                 onClick={copyToClipboard}
                 className="px-6 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-xl font-semibold border border-white/20 transition-all flex items-center gap-2"
@@ -330,11 +330,10 @@ const ToolDetailModal = ({ tool, onClose }) => {
 
               <button
                 onClick={toggleBookmark}
-                className={`px-6 py-4 rounded-xl font-semibold transition-all flex items-center gap-2 ${
-                  saved
+                className={`px-6 py-4 rounded-xl font-semibold transition-all flex items-center gap-2 ${saved
                     ? 'bg-yellow-500 hover:bg-yellow-600 text-black'
                     : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
-                }`}
+                  }`}
               >
                 {saved ? <FaBookmark /> : <FaRegBookmark />}
                 {saved ? 'Saved' : 'Save'}
@@ -342,11 +341,11 @@ const ToolDetailModal = ({ tool, onClose }) => {
             </div>
           </div>
           {/* Close Modal content div */}
-          </div>
-          {/* Close wrapper div */}
         </div>
-        {/* Close outer div */}
-      </div>,
+        {/* Close wrapper div */}
+      </div>
+      {/* Close outer div */}
+    </div>,
     document.body
   );
 };

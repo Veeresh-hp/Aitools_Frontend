@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { motion as m } from 'framer-motion';
@@ -13,18 +13,18 @@ const InteractiveBackground = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
-    
+
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
     const particles = [];
     const particleCount = 80;
-    
+
     class Particle {
       constructor() {
         this.x = Math.random() * canvas.width;
@@ -35,54 +35,54 @@ const InteractiveBackground = () => {
         this.opacity = Math.random() * 0.5 + 0.2;
         this.hue = Math.random() * 60 + 200;
       }
-      
+
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        
+
         const dx = mousePos.current.x - this.x;
         const dy = mousePos.current.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance < 100) {
           const force = (100 - distance) / 100;
           this.vx += dx * force * 0.001;
           this.vy += dy * force * 0.001;
         }
-        
+
         if (this.x < 0) this.x = canvas.width;
         if (this.x > canvas.width) this.x = 0;
         if (this.y < 0) this.y = canvas.height;
         if (this.y > canvas.height) this.y = 0;
-        
+
         this.vx *= 0.99;
         this.vy *= 0.99;
       }
-      
+
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity})`;
         ctx.fill();
-        
+
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity * 0.1})`;
         ctx.fill();
       }
     }
-    
+
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
-    
+
     const drawConnections = () => {
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < 120) {
             const opacity = (120 - distance) / 120 * 0.2;
             ctx.beginPath();
@@ -95,7 +95,7 @@ const InteractiveBackground = () => {
         }
       }
     };
-    
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach(particle => {
@@ -105,15 +105,15 @@ const InteractiveBackground = () => {
       drawConnections();
       animationId.current = requestAnimationFrame(animate);
     };
-    
+
     animate();
-    
+
     const handleMouseMove = (e) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
     };
-    
+
     window.addEventListener('mousemove', handleMouseMove);
-    
+
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('mousemove', handleMouseMove);
@@ -148,7 +148,7 @@ const Signup = () => {
   const history = useHistory();
   const API_URL = process.env.REACT_APP_API_URL || 'https://ai-tools-hub-backend-u2v6.onrender.com';
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-  
+
   // Create a ref for the Google button container
   const googleButtonRef = useRef(null);
 
@@ -200,45 +200,45 @@ const Signup = () => {
       setIsLoading(false);
     }
   };
-  
-  const handleGoogleSuccess = async (credentialResponse) => {
-  //     // ADD THIS LINE to print the entire response object
-  //   console.log("Google Success Response:", credentialResponse); 
-                     
-  
-  //  ---- these above and below code will display the google token in console ----
-  
-  
-  // // ADD THIS LINE to print just the token string
-  // console.log("Your Google ID Token:", credentialResponse.credential); 
+
+  const handleGoogleSuccess = useCallback(async (credentialResponse) => {
+    //     // ADD THIS LINE to print the entire response object
+    //   console.log("Google Success Response:", credentialResponse); 
+
+
+    //  ---- these above and below code will display the google token in console ----
+
+
+    // // ADD THIS LINE to print just the token string
+    // console.log("Your Google ID Token:", credentialResponse.credential); 
     setIsLoading(true);
     try {
-        const res = await axios.post(`${API_URL}/api/auth/google-login`, {
-            token: credentialResponse.credential,
-        });
+      const res = await axios.post(`${API_URL}/api/auth/google-login`, {
+        token: credentialResponse.credential,
+      });
 
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem('username', res.data.user.username);
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', res.data.user.email);
-        history.push('/');
-        window.location.reload();
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem('username', res.data.user.username);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', res.data.user.email);
+      history.push('/');
+      window.location.reload();
 
     } catch (err) {
-        console.error("Google login failed:", err);
-        setErrors({
-            general: err.response?.data?.error || 'Google login failed. Please try again.',
-        });
+      console.error("Google login failed:", err);
+      setErrors({
+        general: err.response?.data?.error || 'Google login failed. Please try again.',
+      });
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-  };
-  
-  const handleGoogleError = () => {
-      console.log("❌ Google Login Failed");
-      setErrors({ general: 'Google login failed. Please try again.' });
-  };
-  
+  }, [API_URL, history]);
+
+  const handleGoogleError = useCallback(() => {
+    console.log("❌ Google Login Failed");
+    setErrors({ general: 'Google login failed. Please try again.' });
+  }, []);
+
   useEffect(() => {
     if (!googleClientId) {
       console.error("Google Client ID is missing. Please set REACT_APP_GOOGLE_CLIENT_ID in your .env file.");
@@ -246,39 +246,39 @@ const Signup = () => {
     }
 
     if (window.google && window.google.accounts) {
-        window.google.accounts.id.initialize({
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleSuccess
+      });
+      window.google.accounts.id.renderButton(
+        googleButtonRef.current,
+        { theme: "filled_black", shape: "pill", width: "300" }
+      );
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (window.google && googleButtonRef.current) {
+          window.google.accounts.id.initialize({
             client_id: googleClientId,
             callback: handleGoogleSuccess
-        });
-        window.google.accounts.id.renderButton(
+          });
+          window.google.accounts.id.renderButton(
             googleButtonRef.current,
             { theme: "filled_black", shape: "pill", width: "300" }
-        );
-    } else {
-        const script = document.createElement("script");
-        script.src = "https://accounts.google.com/gsi/client";
-        script.async = true;
-        script.defer = true;
-        script.onload = () => {
-            if (window.google && googleButtonRef.current) {
-                window.google.accounts.id.initialize({
-                    client_id: googleClientId,
-                    callback: handleGoogleSuccess
-                });
-                window.google.accounts.id.renderButton(
-                    googleButtonRef.current,
-                    { theme: "filled_black", shape: "pill", width: "300" }
-                );
-            }
-        };
-        script.onerror = handleGoogleError;
-        document.body.appendChild(script);
+          );
+        }
+      };
+      script.onerror = handleGoogleError;
+      document.body.appendChild(script);
 
-        return () => {
-            document.body.removeChild(script);
-        };
+      return () => {
+        document.body.removeChild(script);
+      };
     }
-  }, [googleClientId]);
+  }, [googleClientId, handleGoogleSuccess, handleGoogleError]);
 
   // --- Animation Variants (no changes needed) ---
   const glowVariants = {
@@ -314,9 +314,9 @@ const Signup = () => {
             key={i}
             className={`absolute ${i % 2 === 0 ? 'w-16 h-16 rounded-full' : 'w-12 h-12 rotate-45'} border border-white/10`}
             style={{
-              background: i % 3 === 0 
+              background: i % 3 === 0
                 ? 'linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))'
-                : i % 3 === 1 
+                : i % 3 === 1
                   ? 'linear-gradient(45deg, rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.1))'
                   : 'linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(59, 130, 246, 0.1))'
             }}
@@ -340,9 +340,9 @@ const Signup = () => {
           />
         ))}
       </div>
-      
+
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-16">
-        <m.div 
+        <m.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -356,7 +356,7 @@ const Signup = () => {
             >
               <div className="relative z-10">
                 <m.div variants={itemVariants} className="text-center mb-8">
-                  <m.div 
+                  <m.div
                     className="flex items-center justify-center space-x-3 mb-6"
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.2 }}
@@ -388,58 +388,58 @@ const Signup = () => {
 
                 <form onSubmit={handleSignup} className="space-y-6">
                   <m.div variants={itemVariants}>
-                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                       <Mail className="text-blue-400 w-4 h-4" /> Email Address
-                     </label>
-                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
-                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-blue-500/80 to-purple-500/80 rounded-xl blur-md pointer-events-none" />
-                       <input type="email" name="email" value={formData.email} onChange={handleChange} autoComplete="email" className={`relative w-full px-4 py-3 bg-white/10 border rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.email ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Enter your email address" />
-                       {errors.email && ( <m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.email} </m.p> )}
-                     </m.div>
-                   </m.div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <Mail className="text-blue-400 w-4 h-4" /> Email Address
+                    </label>
+                    <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
+                      <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-blue-500/80 to-purple-500/80 rounded-xl blur-md pointer-events-none" />
+                      <input type="email" name="email" value={formData.email} onChange={handleChange} autoComplete="email" className={`relative w-full px-4 py-3 bg-white/10 border rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${errors.email ? 'border-red-500/50' : 'border-white/20'}`} placeholder="Enter your email address" />
+                      {errors.email && (<m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.email} </m.p>)}
+                    </m.div>
+                  </m.div>
 
-                   <m.div variants={itemVariants}>
-                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                       <User className="text-green-400 w-4 h-4" /> Username
-                     </label>
-                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
-                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-green-500/80 to-teal-500/80 rounded-xl blur-md pointer-events-none" />
-                       <input type="text" name="username" value={formData.username} onChange={handleChange} autoComplete="username" className={`relative w-full px-4 py-3 bg-white/10 border rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.username ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Choose a unique username" />
-                       {errors.username && ( <m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.username} </m.p> )}
-                     </m.div>
-                   </m.div>
+                  <m.div variants={itemVariants}>
+                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <User className="text-green-400 w-4 h-4" /> Username
+                    </label>
+                    <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
+                      <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-green-500/80 to-teal-500/80 rounded-xl blur-md pointer-events-none" />
+                      <input type="text" name="username" value={formData.username} onChange={handleChange} autoComplete="username" className={`relative w-full px-4 py-3 bg-white/10 border rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${errors.username ? 'border-red-500/50' : 'border-white/20'}`} placeholder="Choose a unique username" />
+                      {errors.username && (<m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.username} </m.p>)}
+                    </m.div>
+                  </m.div>
 
-                   <m.div variants={itemVariants}>
-                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                       <Lock className="text-purple-400 w-4 h-4" /> Password
-                     </label>
-                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
-                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-purple-500/80 to-pink-500/80 rounded-xl blur-md pointer-events-none" />
-                       <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} autoComplete="new-password" className={`relative w-full px-4 py-3 pr-12 bg-white/10 border rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.password ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Create a secure password" />
-                       <m.button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors z-10" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                       </m.button>
-                       {errors.password && ( <m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.password} </m.p> )}
-                     </m.div>
-                   </m.div>
+                  <m.div variants={itemVariants}>
+                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <Lock className="text-purple-400 w-4 h-4" /> Password
+                    </label>
+                    <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
+                      <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-purple-500/80 to-pink-500/80 rounded-xl blur-md pointer-events-none" />
+                      <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} autoComplete="new-password" className={`relative w-full px-4 py-3 pr-12 bg-white/10 border rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${errors.password ? 'border-red-500/50' : 'border-white/20'}`} placeholder="Create a secure password" />
+                      <m.button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors z-10" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </m.button>
+                      {errors.password && (<m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.password} </m.p>)}
+                    </m.div>
+                  </m.div>
 
-                   <m.div variants={itemVariants}>
-                     <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                       <Lock className="text-pink-400 w-4 h-4" /> Confirm Password
-                     </label>
-                     <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
-                       <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-pink-500/80 to-red-500/80 rounded-xl blur-md pointer-events-none" />
-                       <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} autoComplete="new-password" className={`relative w-full px-4 py-3 pr-12 bg-white/10 border rounded-xl focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${ errors.confirmPassword ? 'border-red-500/50' : 'border-white/20' }`} placeholder="Confirm your password" />
-                       <m.button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors z-10" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                       </m.button>
-                       {errors.confirmPassword && ( <m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.confirmPassword} </m.p> )}
-                     </m.div>
-                   </m.div>
+                  <m.div variants={itemVariants}>
+                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <Lock className="text-pink-400 w-4 h-4" /> Confirm Password
+                    </label>
+                    <m.div initial="rest" whileHover="hover" whileFocus="focus" animate="rest" className="relative">
+                      <m.div variants={glowVariants} transition={{ duration: 0.3 }} className="absolute inset-0 bg-gradient-to-r from-pink-500/80 to-red-500/80 rounded-xl blur-md pointer-events-none" />
+                      <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} autoComplete="new-password" className={`relative w-full px-4 py-3 pr-12 bg-white/10 border rounded-xl focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 text-white placeholder-gray-500 transition-all duration-300 backdrop-blur-sm outline-none ${errors.confirmPassword ? 'border-red-500/50' : 'border-white/20'}`} placeholder="Confirm your password" />
+                      <m.button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors z-10" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </m.button>
+                      {errors.confirmPassword && (<m.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs mt-2 flex items-center gap-1"> <div className="w-1 h-1 bg-red-400 rounded-full" /> {errors.confirmPassword} </m.p>)}
+                    </m.div>
+                  </m.div>
                   <m.div variants={itemVariants}>
                     <m.button type="submit" disabled={isLoading} className="group relative w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all duration-300 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed" whileHover={{ scale: isLoading ? 1 : 1.02, y: isLoading ? 0 : -2 }} whileTap={{ scale: isLoading ? 1 : 0.98 }}>
                       <span className="relative z-10 flex items-center justify-center gap-2">
-                        {isLoading ? ( <> <Loader2 className="w-5 h-5 animate-spin" /> Creating Account... </> ) : ( <> <Rocket className="w-5 h-5" /> Create Account </> )}
+                        {isLoading ? (<> <Loader2 className="w-5 h-5 animate-spin" /> Creating Account... </>) : (<> <Rocket className="w-5 h-5" /> Create Account </>)}
                       </span>
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </m.button>
@@ -467,7 +467,7 @@ const Signup = () => {
             </m.div>
           </div>
 
-          <m.div 
+          <m.div
             variants={sideInfoVariants}
             className="w-full max-w-md lg:max-w-sm text-center lg:text-left"
           >

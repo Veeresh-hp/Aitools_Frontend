@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { motion as m, LazyMotion, domAnimation } from 'framer-motion';
@@ -73,7 +73,7 @@ const Login = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
-    if (errors.general) setErrors((prev) => ({...prev, general: ''}));
+    if (errors.general) setErrors((prev) => ({ ...prev, general: '' }));
   };
 
   const validateForm = () => {
@@ -91,7 +91,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    
+
     showLoader();
     setIsLoading(true);
     try {
@@ -135,38 +135,38 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleGoogleSuccess = useCallback(async (credentialResponse) => {
     setIsLoading(true);
     showLoader();
     try {
-        const res = await axios.post(`${API_URL}/api/auth/google-login`, {
-            token: credentialResponse.credential,
-        });
+      const res = await axios.post(`${API_URL}/api/auth/google-login`, {
+        token: credentialResponse.credential,
+      });
 
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem('username', res.data.user.username);
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', res.data.user.email);
-        localStorage.setItem('isAdmin', res.data.user.role === 'admin' ? 'true' : 'false');
-        history.push('/');
-        window.location.reload();
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem('username', res.data.user.username);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', res.data.user.email);
+      localStorage.setItem('isAdmin', res.data.user.role === 'admin' ? 'true' : 'false');
+      history.push('/');
+      window.location.reload();
 
     } catch (err) {
-        console.error("Google login failed:", err);
-        setErrors({
-            general: err.response?.data?.error || 'Google login failed. Please try again.',
-        });
+      console.error("Google login failed:", err);
+      setErrors({
+        general: err.response?.data?.error || 'Google login failed. Please try again.',
+      });
     } finally {
-        setIsLoading(false);
-        hideLoader();
+      setIsLoading(false);
+      hideLoader();
     }
-  };
-  
-  const handleGoogleError = () => {
-      console.log("❌ Google Login Failed");
-      setErrors({ general: 'Google login failed. Please try again.' });
-  };
-  
+  }, [API_URL, history, showLoader, hideLoader]);
+
+  const handleGoogleError = useCallback(() => {
+    console.log("❌ Google Login Failed");
+    setErrors({ general: 'Google login failed. Please try again.' });
+  }, []);
+
   useEffect(() => {
     if (!googleClientId) {
       console.error("Google Client ID is missing. Please set REACT_APP_GOOGLE_CLIENT_ID in your .env file.");
@@ -174,39 +174,39 @@ const Login = () => {
     }
 
     if (window.google && window.google.accounts) {
-        window.google.accounts.id.initialize({
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleSuccess
+      });
+      window.google.accounts.id.renderButton(
+        googleButtonRef.current,
+        { theme: "filled_black", shape: "pill", width: "300" }
+      );
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (window.google && googleButtonRef.current) {
+          window.google.accounts.id.initialize({
             client_id: googleClientId,
             callback: handleGoogleSuccess
-        });
-        window.google.accounts.id.renderButton(
+          });
+          window.google.accounts.id.renderButton(
             googleButtonRef.current,
-            { theme: "filled_black", shape: "pill", width: "300" } 
-        );
-    } else {
-        const script = document.createElement("script");
-        script.src = "https://accounts.google.com/gsi/client";
-        script.async = true;
-        script.defer = true;
-        script.onload = () => {
-            if (window.google && googleButtonRef.current) {
-                window.google.accounts.id.initialize({
-                    client_id: googleClientId,
-                    callback: handleGoogleSuccess
-                });
-                window.google.accounts.id.renderButton(
-                    googleButtonRef.current,
-                    { theme: "filled_black", shape: "pill", width: "300" } 
-                );
-            }
-        };
-        script.onerror = handleGoogleError;
-        document.body.appendChild(script);
+            { theme: "filled_black", shape: "pill", width: "300" }
+          );
+        }
+      };
+      script.onerror = handleGoogleError;
+      document.body.appendChild(script);
 
-        return () => {
-            document.body.removeChild(script);
-        };
+      return () => {
+        document.body.removeChild(script);
+      };
     }
-  }, [googleClientId]);
+  }, [googleClientId, handleGoogleSuccess, handleGoogleError]);
 
   return (
     <LazyMotion features={domAnimation}>
@@ -254,9 +254,8 @@ const Login = () => {
                     name="identifier"
                     value={formData.identifier}
                     onChange={handleChange}
-                    className={`w-full pl-12 pr-4 py-3 border rounded-lg text-base text-gray-100 bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors ${
-                      errors.identifier ? 'border-red-500/50' : 'border-white/10'
-                    }`}
+                    className={`w-full pl-12 pr-4 py-3 border rounded-lg text-base text-gray-100 bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors ${errors.identifier ? 'border-red-500/50' : 'border-white/10'
+                      }`}
                     placeholder="e.g., ai_explorer"
                   />
                 </div>
@@ -275,9 +274,8 @@ const Login = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full pl-12 pr-12 py-3 border rounded-lg text-base text-gray-100 bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors ${
-                      errors.password ? 'border-red-500/50' : 'border-white/10'
-                    }`}
+                    className={`w-full pl-12 pr-12 py-3 border rounded-lg text-base text-gray-100 bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors ${errors.password ? 'border-red-500/50' : 'border-white/10'
+                      }`}
                     placeholder="Enter your password"
                   />
                   <button
@@ -322,11 +320,11 @@ const Login = () => {
                 )}
               </m.button>
             </form>
-            
+
             <div className="relative flex items-center my-6">
-                <div className="flex-grow border-t border-white/20"></div>
-                <span className="flex-shrink mx-4 text-gray-400 text-xs">OR</span>
-                <div className="flex-grow border-t border-white/20"></div>
+              <div className="flex-grow border-t border-white/20"></div>
+              <span className="flex-shrink mx-4 text-gray-400 text-xs">OR</span>
+              <div className="flex-grow border-t border-white/20"></div>
             </div>
 
             {/* This div is the target for the Google button */}

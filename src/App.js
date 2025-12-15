@@ -30,6 +30,8 @@ const UserProfile = lazy(() => import('./components/UserProfile'));
 const ToolDetail = lazy(() => import('./components/ToolDetail'));
 const Upgrade = lazy(() => import('./components/Upgrade'));
 const Help = lazy(() => import('./components/Help'));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./components/TermsOfService'));
 
 
 // --- LOADER COMPONENT ---
@@ -37,7 +39,7 @@ const Help = lazy(() => import('./components/Help'));
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
     {/* The path should be absolute from the 'public' folder */}
-    <img src="/ailogo.gif" alt="Loading..." style={{ width: '150px' }}/>
+    <img src="/ailogo.gif" alt="Loading..." style={{ width: '150px' }} />
   </div>
 );
 
@@ -51,7 +53,7 @@ function App() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
-  const openModal = () => setIsModalOpen(true);
+
   const closeModal = () => setIsModalOpen(false);
 
   return (
@@ -59,48 +61,50 @@ function App() {
       <div className="App min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <Router>
           <LoadingProvider>
-          {!isMobile && <Sidebar />}
+            {!isMobile && <Sidebar />}
             <main className="flex-grow pb-24 md:pb-0">
-            {/* The <Suspense> component wraps your routes.
+              {/* The <Suspense> component wraps your routes.
               It shows the 'fallback' UI (your PageLoader) whenever a component inside it is not yet loaded.
             */}
-            <Suspense fallback={<PageLoader />}>
-              <Switch>
-                {/* Tool Detail Route - Must be before "/" route */}
-                <Route path="/tools/:category/:toolSlug" component={ToolDetail} />
-                
-                <Route path="/" exact component={Home} />
-                <Route path="/login" component={Login} />
-                <Route path="/signup" component={Signup} />
-                <Route path="/about" component={About} />
+              <Suspense fallback={<PageLoader />}>
+                <Switch>
+                  {/* Tool Detail Route - Must be before "/" route */}
+                  <Route path="/tools/:category/:toolSlug" component={ToolDetail} />
+
+                  <Route path="/" exact component={Home} />
+                  <Route path="/login" component={Login} />
+                  <Route path="/signup" component={Signup} />
+                  <Route path="/about" component={About} />
                   <Route path="/favorites" component={Favorites} />
-                <Route path="/contact" component={Contact} />
-                <Route path="/history" component={HistoryPage} />
-                <Route path="/reset-password" component={ResetPassword} />
-                <Route path="/admin/newsletter" component={AdminDashboard} />
-                <Route path="/admin" component={AdminDashboard} />
-                <Route path="/add-tool" component={AddTool} />
+                  <Route path="/contact" component={Contact} />
+                  <Route path="/history" component={HistoryPage} />
+                  <Route path="/reset-password" component={ResetPassword} />
+                  <Route path="/admin/newsletter" component={AdminDashboard} />
+                  <Route path="/admin" component={AdminDashboard} />
+                  <Route path="/add-tool" component={AddTool} />
                   <Route path="/upgrade" component={Upgrade} />
                   <Route path="/help" component={Help} />
+                  <Route path="/privacy" component={PrivacyPolicy} />
+                  <Route path="/terms" component={TermsOfService} />
 
-                {/* 2. CORRECTED THE ROUTE FOR THE PROFILE PAGE
+                  {/* 2. CORRECTED THE ROUTE FOR THE PROFILE PAGE
                   - The path is now "/profile" to match your Header links.
                   - It now correctly points to the UserProfile component.
                 */}
-                <Route path="/profile" component={UserProfile} />
+                  <Route path="/profile" component={UserProfile} />
 
-                {/* This was the old, incorrect route which I've removed: */}
-                {/* <Route path="/UserProfile" component={AdminDashboard} /> */}
+                  {/* This was the old, incorrect route which I've removed: */}
+                  {/* <Route path="/UserProfile" component={AdminDashboard} /> */}
 
-              </Switch>
-            </Suspense>
-          </main>
-          <MobileBottomNav />
-          {isModalOpen && <ComingSoonModal closeModal={closeModal} />}
-          <Footer />
-        </LoadingProvider>
-      </Router>
-    </div>
+                </Switch>
+              </Suspense>
+            </main>
+            <MobileBottomNav />
+            {isModalOpen && <ComingSoonModal closeModal={closeModal} />}
+            <Footer />
+          </LoadingProvider>
+        </Router>
+      </div>
     </ThemeProvider>
   );
 }

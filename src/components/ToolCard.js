@@ -2,6 +2,8 @@ import React from 'react';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import { FaExternalLinkAlt, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { useHistory, Link } from 'react-router-dom';
+import { addRefToUrl } from '../utils/linkUtils';
+import { addToHistory } from '../utils/historyUtils';
 
 const ToolCard = ({ tool, openModal }) => {
   const history = useHistory();
@@ -31,12 +33,10 @@ const ToolCard = ({ tool, openModal }) => {
     }
   };
 
-  const handleGetToolClick = (e) => {
-    e.stopPropagation();
-  };
+
 
   // Bookmark (save) state: persist bookmarks in localStorage under 'ai_bookmarks'
-  const getToolKey = () => tool.url || tool.name || tool.id;
+  const getToolKey = React.useCallback(() => tool.url || tool.name || tool.id, [tool.url, tool.name, tool.id]);
   const [saved, setSaved] = React.useState(false);
 
   React.useEffect(() => {
@@ -48,7 +48,7 @@ const ToolCard = ({ tool, openModal }) => {
     } catch (err) {
       // ignore
     }
-  }, [tool.url, tool.name, tool.id]);
+  }, [getToolKey]);
 
   const toggleBookmark = (e) => {
     e.stopPropagation();
@@ -123,34 +123,7 @@ const ToolCard = ({ tool, openModal }) => {
     }
   };
 
-  const getIconColor = (category) => {
-    const colors = {
-      chatbots: 'text-violet-400',
-      'image-generators': 'text-pink-400',
-      'music-generators': 'text-green-400',
-      'data-analysis': 'text-teal-400',
-      'ai-diagrams': 'text-indigo-400',
-      'ai-coding-assistants': 'text-blue-400',
-      'writing-tools': 'text-blue-400',
-      'meeting-notes': 'text-yellow-400',
-      'data-visualization': 'text-teal-400',
-      'ai-scheduling': 'text-yellow-400',
-      'spreadsheet-tools': 'text-emerald-400',
-      'email-assistance': 'text-green-400',
-      'video-generators': 'text-red-400',
-      'utility-tools': 'text-gray-400',
-      'marketing-tools': 'text-orange-400',
-      'voice-tools': 'text-yellow-400',
-      'presentation-tools': 'text-cyan-400',
-      'website-builders': 'text-emerald-400',
-      'gaming-tools': 'text-fuchsia-400',
-      'short-clippers': 'text-rose-400',
-      'faceless-video': 'text-zinc-400',
-      'portfolio-tools': 'text-amber-400',
-      'text-humanizer-ai': 'text-purple-400',
-    };
-    return colors[tool.category] || 'text-blue-400';
-  };
+
 
   return (
     <LazyMotion features={domAnimation}>
@@ -203,10 +176,10 @@ const ToolCard = ({ tool, openModal }) => {
           {/* Badge - Top Left */}
           {(tool.isAiToolsChoice || tool.badge || tool.isNew) && (
             <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${tool.isAiToolsChoice
-                ? 'bg-yellow-500 text-white font-bold border border-yellow-400 shadow-yellow-500/20'
-                : tool.isNew
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
-                  : getBadgeClass(tool.badge)
+              ? 'bg-yellow-500 text-white font-bold border border-yellow-400 shadow-yellow-500/20'
+              : tool.isNew
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
+                : getBadgeClass(tool.badge)
               }`}>
               {tool.isAiToolsChoice ? 'Admin Choice' : (tool.isNew ? '🎉 NEW' : tool.badge)}
             </span>
@@ -286,10 +259,11 @@ const ToolCard = ({ tool, openModal }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
+              addToHistory(tool); // Add to history
               try {
-                window.open(tool.url, '_blank', 'noopener,noreferrer');
+                window.open(addRefToUrl(tool.url), '_blank', 'noopener,noreferrer');
               } catch (err) {
-                window.location.href = tool.url;
+                window.location.href = addRefToUrl(tool.url);
               }
             }}
             className="absolute bottom-3 right-3 p-0 text-white hover:text-blue-300 transition-colors z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 rounded"

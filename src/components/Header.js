@@ -28,8 +28,7 @@ import {
   faSignOutAlt,
   faCog,
   faShieldAlt,
-  faBell,
-  faBookmark,
+
   faChartLine,
   faGlobe,
   faDesktop,
@@ -43,19 +42,20 @@ import {
   faExternalLinkAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { motion as m, LazyMotion, domAnimation, LayoutGroup, AnimatePresence } from 'framer-motion';
+import { addRefToUrl } from '../utils/linkUtils';
 import Logo from '../assets/logo.png';
 import PageWrapper from './PageWrapper';
 import toolsData from '../data/toolsData'; // Import tools data for search
 
 const Header = () => {
-  const { isDarkMode, toggleDarkMode } = useContext(ThemeContext);
+  const { } = useContext(ThemeContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileToolsDropdownOpen, setIsMobileToolsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
-  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('isAdmin') === 'true');
+  const [isAdmin] = useState(() => localStorage.getItem('isAdmin') === 'true');
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
@@ -156,9 +156,9 @@ const Header = () => {
     if (!query.trim()) return { categories: [], tools: [] };
 
     const searchQuery = query.toLowerCase();
-    
+
     // Search categories
-    const matchedCategories = categories.filter(cat => 
+    const matchedCategories = categories.filter(cat =>
       cat.name.toLowerCase().includes(searchQuery)
     );
 
@@ -189,17 +189,17 @@ const Header = () => {
   const handleToolClick = (tool) => {
     // Handle cases where link might be undefined or null
     const toolLink = tool.link || tool.url || '#';
-    
-    addToHistory(tool.name, toolLink);
-    
+
+    addToHistory(tool);
+
     // Check if link exists and is a string before using startsWith
     if (toolLink && typeof toolLink === 'string' && toolLink.startsWith('http')) {
-      window.open(toolLink, '_blank', 'noopener,noreferrer');
+      window.open(addRefToUrl(toolLink), '_blank', 'noopener,noreferrer');
     } else if (toolLink && toolLink !== '#') {
       history.push(toolLink);
     }
     // If no valid link, just close the search (could also show a message)
-    
+
     setIsSearchOpen(false);
     setSearchTerm('');
   };
@@ -209,11 +209,11 @@ const Header = () => {
     { name: 'AI Video Generators', id: 'video-generators', icon: faVideo },
     { name: 'AI Coding Assistants', id: 'ai-coding-assistants', icon: faCode },
     { name: 'AI Writing Tools', id: 'writing-tools', icon: faPen },
-    { name: 'AI Meeting Notes', id: 'meeting-notes', icon: faMicrophone},
-    { name: 'AI Spreadsheet Tools', id: 'spreadsheet-tools', icon: faDatabase},
-    { name: 'Email Assistance', id: 'email-assistance', icon: faEnvelope},
-    { name: 'AI Scheduling', id: 'ai-scheduling', icon: faCalendarAlt},
-    { name: 'AI Data Visualization', id: 'data-visualization', icon: faChartBar},
+    { name: 'AI Meeting Notes', id: 'meeting-notes', icon: faMicrophone },
+    { name: 'AI Spreadsheet Tools', id: 'spreadsheet-tools', icon: faDatabase },
+    { name: 'Email Assistance', id: 'email-assistance', icon: faEnvelope },
+    { name: 'AI Scheduling', id: 'ai-scheduling', icon: faCalendarAlt },
+    { name: 'AI Data Visualization', id: 'data-visualization', icon: faChartBar },
     { name: 'AI Presentation Tools', id: 'presentation-tools', icon: faDesktop },
     { name: 'AI Short Clippers', id: 'short-clippers', icon: faVideo },
     { name: 'AI Marketing Tools', id: 'marketing-tools', icon: faChartLine },
@@ -493,11 +493,11 @@ const Header = () => {
                 <FontAwesomeIcon icon={faUser} className="text-lg" />
               </m.button>
               {/* Add Tool button - visible to everyone (logged in or not) */}
-              <m.button 
-                onClick={() => history.push('/add-tool')} 
-                whileHover={{ scale: 1.05, y: -2 }} 
-                whileTap={{ scale: 0.95 }} 
-                className="ml-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 flex items-center gap-2" 
+              <m.button
+                onClick={() => history.push('/add-tool')}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="ml-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 flex items-center gap-2"
                 aria-label="Add Tool"
               >
                 <FontAwesomeIcon icon={faTools} className="w-4 h-4" />
@@ -515,19 +515,19 @@ const Header = () => {
                 <div className="dropdown-glass rounded-2xl p-6">
                   <div className="flex items-center gap-4 mb-6">
                     <FontAwesomeIcon icon={faSearch} className="text-blue-400 text-xl" />
-                    <input 
-                      type="text" 
-                      placeholder="Search AI tools and categories..." 
-                      autoFocus 
-                      className="flex-1 bg-transparent text-white text-xl placeholder-gray-400 focus:outline-none" 
-                      value={searchTerm} 
-                      onChange={(e) => setSearchTerm(e.target.value)} 
+                    <input
+                      type="text"
+                      placeholder="Search AI tools and categories..."
+                      autoFocus
+                      className="flex-1 bg-transparent text-white text-xl placeholder-gray-400 focus:outline-none"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <m.button onClick={() => setIsSearchOpen(false)} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="text-gray-400 hover:text-white transition-colors">
                       <FontAwesomeIcon icon={faTimes} className="text-xl" />
                     </m.button>
                   </div>
-                  
+
                   {searchTerm && (
                     <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-h-96 overflow-y-auto hide-scrollbar">
                       {/* Tools Results */}
@@ -570,7 +570,7 @@ const Header = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Categories Results */}
                       {searchResults.categories.length > 0 && (
                         <div>
@@ -582,10 +582,10 @@ const Header = () => {
                             {searchResults.categories.map((cat, index) => (
                               <m.button
                                 key={cat.id}
-                                onClick={(e) => { 
-                                  handleCategoryClick(e, cat.id); 
-                                  setIsSearchOpen(false); 
-                                  setSearchTerm(''); 
+                                onClick={(e) => {
+                                  handleCategoryClick(e, cat.id);
+                                  setIsSearchOpen(false);
+                                  setSearchTerm('');
                                 }}
                                 whileHover={{ x: 4, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
                                 whileTap={{ scale: 0.98 }}
@@ -601,12 +601,12 @@ const Header = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* No Results */}
                       {searchResults.tools.length === 0 && searchResults.categories.length === 0 && (
-                        <m.div 
-                          initial={{ opacity: 0 }} 
-                          animate={{ opacity: 1 }} 
+                        <m.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
                           className="text-center py-8"
                         >
                           <FontAwesomeIcon icon={faSearch} className="text-gray-600 text-3xl mb-4" />
@@ -618,7 +618,7 @@ const Header = () => {
                       )}
                     </m.div>
                   )}
-                  
+
                   {/* Default state when no search term */}
                   {!searchTerm && (
                     <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -629,16 +629,16 @@ const Header = () => {
                           Find specific tools like ChatGPT, Midjourney, or browse by category
                         </p>
                       </div>
-                      
+
                       <div>
                         <h4 className="text-gray-400 text-sm font-semibold mb-3">Popular Categories</h4>
                         <div className="grid grid-cols-2 gap-2">
                           {categories.slice(0, 6).map((cat) => (
                             <m.button
                               key={cat.id}
-                              onClick={(e) => { 
-                                handleCategoryClick(e, cat.id); 
-                                setIsSearchOpen(false); 
+                              onClick={(e) => {
+                                handleCategoryClick(e, cat.id);
+                                setIsSearchOpen(false);
                               }}
                               whileHover={{ x: 4, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
                               whileTap={{ scale: 0.98 }}
@@ -777,7 +777,7 @@ const Header = () => {
                               <m.div whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
                                 <FontAwesomeIcon icon={faUser} className="w-5 text-center" />
                               </m.div>
-                               Profile
+                              Profile
                             </Link>
                           </m.div>
                         </m.li>
@@ -814,7 +814,7 @@ const Header = () => {
                         </m.li>
                       </>
                     )}
-                    
+
                     {/* Add Tool Button - visible to everyone */}
                     <m.li role="menuitem" variants={menuItemVariants} initial="closed" animate="open" custom={mainNavItems.length + 6}>
                       <m.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-4">

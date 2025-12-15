@@ -5,7 +5,7 @@ const HeroHeading = () => {
   // Get username from localStorage
   const username = localStorage.getItem('username') || localStorage.getItem('userEmail') || '';
   const isLoggedIn = !!username;
-  
+
   // Get time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();

@@ -3,6 +3,8 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
 import FuseNamespace from 'fuse.js';
 import { Player } from '@lottiefiles/react-lottie-player';
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
 import ToolDetailModal from './ToolDetailModal';
@@ -11,6 +13,7 @@ import MobileCategoryTabs from './MobileCategoryTabs';
 import MobileTopNav from './MobileTopNav';
 import MobileSortMenu from './MobileSortMenu';
 import HeroHeading from './HeroHeading';
+import ChatBot from './ChatBot';
 
 // Derived category IDs (fallback if utility not present)
 const CATEGORY_IDS = toolsData.map(c => c.id);
@@ -439,6 +442,89 @@ const Home = () => {
 
     const [showAllCategories, setShowAllCategories] = useState(false);
     const [showAllStickyCategories, setShowAllStickyCategories] = useState(false);
+
+    // --- Particles Init ---
+    const [init, setInit] = useState(false);
+    useEffect(() => {
+        initParticlesEngine(async (engine) => {
+            await loadSlim(engine);
+        }).then(() => {
+            setInit(true);
+        });
+    }, []);
+
+    const particlesOptions = useMemo(
+        () => ({
+            background: {
+                color: {
+                    value: "transparent",
+                },
+            },
+            fpsLimit: 120,
+            interactivity: {
+                events: {
+                    onClick: {
+                        enable: true,
+                        mode: "push",
+                    },
+                    onHover: {
+                        enable: true,
+                        mode: "repulse",
+                    },
+                    resize: true,
+                },
+                modes: {
+                    push: {
+                        quantity: 4,
+                    },
+                    repulse: {
+                        distance: 200,
+                        duration: 0.4,
+                    },
+                },
+            },
+            particles: {
+                color: {
+                    value: "#ffffff",
+                },
+                links: {
+                    color: "#ffffff",
+                    distance: 150,
+                    enable: true,
+                    opacity: 0.15, // Slightly lower opacity for global background
+                    width: 1,
+                },
+                move: {
+                    direction: "none",
+                    enable: true,
+                    outModes: {
+                        default: "bounce",
+                    },
+                    random: false,
+                    speed: 0.8, // Slightly slower speed
+                    straight: false,
+                },
+                number: {
+                    density: {
+                        enable: true,
+                        area: 800,
+                    },
+                    value: 60, // Slightly fewer particles
+                },
+                opacity: {
+                    value: 0.2,
+                },
+                shape: {
+                    type: "circle",
+                },
+                size: {
+                    value: { min: 1, max: 2 },
+                },
+            },
+            detectRetina: true,
+        }),
+        [],
+    );
 
     const location = useLocation();
     const history = useHistory();
@@ -924,8 +1010,7 @@ const Home = () => {
                     isNew: true,
                     category: normalizedCategory,
                     dateAdded: safeTime,
-                    category: normalizedCategory,
-                    dateAdded: safeTime,
+
                     pricing: tool.pricing || 'Freemium',
                     isAiToolsChoice: tool.isAiToolsChoice || false,
                 };
@@ -1079,7 +1164,7 @@ const Home = () => {
                 history.replace({ pathname: location.pathname, search: params.toString(), hash: location.hash });
             }
         }
-    }, [searchQuery, activeFilter, activePricing, sortBy, isMobile]);
+    }, [searchQuery, activeFilter, activePricing, sortBy, isMobile, history, location.search, location.pathname, location.hash]);
 
     const updatePage = useCallback((next) => {
         if (isMobile) return;
@@ -1224,19 +1309,84 @@ const Home = () => {
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-600/15 via-transparent to-transparent" />
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-cyan-600/10 via-transparent to-transparent" />
 
-                        {/* Subtle grid pattern */}
-                        <div className="absolute inset-0 opacity-[0.03]" style={{
-                            backgroundImage: `
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-              `,
-                            backgroundSize: '50px 50px'
-                        }} />
+                        {/* Subtle grid pattern - REPLACED with Moving Perspective Grid */}
+                        <div
+                            className="absolute inset-0 z-0 pointer-events-none opacity-10"
+                            style={{
+                                backgroundImage: `
+                                linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+                                linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px)
+                                `,
+                                backgroundSize: '60px 60px',
+                                transform: 'perspective(500px) rotateX(20deg) scale(1.5)',
+                                transformOrigin: 'top center',
+                                animation: 'gridMove 20s linear infinite'
+                            }}
+                        />
+                        <style>{`
+                            @keyframes gridMove {
+                                0% { background-position: 0 0; }
+                                100% { background-position: 0 60px; }
+                            }
+                        `}</style>
 
-                        {/* Animated gradient orbs */}
-                        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl animate-pulse" />
-                        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-                        <div className="absolute top-2/3 left-2/3 w-80 h-80 bg-cyan-600/12 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+                        {/* Animated gradient orbs - Enhanced with Framer Motion & Color Shift */}
+                        <m.div
+                            animate={{
+                                x: [0, 50, -50, 0],
+                                y: [0, -30, 30, 0],
+                                scale: [1, 1.2, 0.9, 1],
+                                filter: ["hue-rotate(0deg)", "hue-rotate(90deg)", "hue-rotate(0deg)"],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                repeatType: "mirror",
+                                ease: "easeInOut",
+                            }}
+                            className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl"
+                        />
+                        <m.div
+                            animate={{
+                                x: [0, -40, 40, 0],
+                                y: [0, 40, -40, 0],
+                                scale: [1, 1.1, 0.9, 1],
+                                filter: ["hue-rotate(0deg)", "hue-rotate(-90deg)", "hue-rotate(0deg)"],
+                            }}
+                            transition={{
+                                duration: 18,
+                                repeat: Infinity,
+                                repeatType: "mirror",
+                                ease: "easeInOut",
+                                delay: 1,
+                            }}
+                            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl"
+                        />
+                        <m.div
+                            animate={{
+                                x: [0, 60, -20, 0],
+                                y: [0, -20, 50, 0],
+                                scale: [1, 0.9, 1.1, 1],
+                                filter: ["hue-rotate(0deg)", "hue-rotate(60deg)", "hue-rotate(0deg)"],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                repeatType: "mirror",
+                                ease: "easeInOut",
+                                delay: 2,
+                            }}
+                            className="absolute top-2/3 left-2/3 w-80 h-80 bg-cyan-600/12 rounded-full blur-3xl"
+                        />
+
+                        {/* Particles Layer */}
+                        {init && (
+                            <Particles
+                                id="tsparticles"
+                                options={particlesOptions}
+                                className="absolute inset-0 z-0 pointer-events-none"
+                            />
+                        )}
                     </div >
 
                     {/* Sidebar has been moved to a global component (src/components/Sidebar.jsx) so it appears on every route */}
@@ -1864,10 +2014,15 @@ const Home = () => {
                             <main className="w-full max-w-5xl">
                                 {/* Carousels Section - Only show when no search query (now treated as part of What's New) */}
                                 {!searchQuery && activeFilter === 'all' && (
-                                    <div className="relative pt-2 sm:pt-8 pb-6 sm:pb-8 space-y-4 sm:space-y-6 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
+                                    <m.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true, margin: "-50px" }}
+                                        transition={{ duration: 0.5 }}
+                                        className="relative pt-2 sm:pt-8 pb-6 sm:pb-8 space-y-4 sm:space-y-6 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent"
+                                    >
                                         {/* Subtle background accent - only on mobile */}
                                         {isMobile && <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.03] to-transparent pointer-events-none" />}
-                                        {/* Latest Tools Carousel - Sorted by Date - Hidden when viewing Picks only */}
                                         {/* Latest Tools Carousel - Sorted by Date */}
                                         <div className="relative -mb-2 sm:mb-0">
                                             {/* Decorative line accent */}
@@ -1906,7 +2061,7 @@ const Home = () => {
                                                 />
                                             </div>
                                         )}
-                                    </div>
+                                    </m.div>
                                 )}
 
                                 {/* Category Filter Buttons - Hidden on Mobile (replaced by tabs) */}
@@ -1951,12 +2106,20 @@ const Home = () => {
                                                     );
                                                 })}
                                             </div>
+
                                         </div>
                                     </section>
                                 )}
 
                                 {/* Tools Grid Section */}
-                                <section id="tools" className="relative px-4 sm:px-6 lg:px-8 py-12">
+                                <m.section
+                                    id="tools"
+                                    className="relative px-4 sm:px-6 lg:px-8 py-12"
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, margin: "-50px" }}
+                                    transition={{ duration: 0.6 }}
+                                >
                                     {/* Breadcrumb Navigation */}
                                     {activeFilter !== 'all' && (
                                         <div className="max-w-7xl mx-auto mb-6 relative">
@@ -2237,7 +2400,7 @@ const Home = () => {
                                                                                     <div className="flex-1 min-w-0">
                                                                                         <div className="flex items-start justify-between gap-3">
                                                                                             <h3 className="text-lg font-semibold text-white truncate">{tool.name}</h3>
-                                                                                            {tool.dateAdded && (<span className="text-xs text-gray-400 whitespace-nowrap">{new Date(tool.dateAdded).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>)}
+                                                                                            {tool.dateAdded && (<span className="text-xs text-gray-400 whitespace-nowrap">{new Date(tool.dateAdded).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>)}
                                                                                         </div>
                                                                                         <p className="mt-1 text-sm text-gray-300 line-clamp-2">{tool.description}</p>
                                                                                         <div className="mt-3 flex items-center gap-2 flex-wrap">
@@ -2271,112 +2434,55 @@ const Home = () => {
                                                             })()}
                                                         </div>
                                                     )}
-
-                                                    {activeFilter !== 'all' && filteredTools.map(category => (
-                                                        <div key={category.id} className="mb-12" data-category={category.id}>
-                                                            <div className="flex items-center gap-3 mb-8 px-2 relative">
-                                                                <div className="w-1 h-10 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg shadow-blue-500/50" />
-                                                                <h2 className="text-3xl font-bold text-white">{category.name}</h2>
-                                                                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-transparent" />
-                                                            </div>
-                                                            {(() => {
-                                                                const catTools = category.tools.filter(tool => tool && tool.name);
-                                                                const total = catTools.length;
-                                                                const displayedCat = isMobile ? catTools.slice(0, mobileVisibleCount) : catTools;
-                                                                if (viewMode === 'grid') {
-                                                                    return (
-                                                                        <>
-                                                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                                                {displayedCat.map((tool, idx) => (
-                                                                                    <div key={tool.name || `tool-${idx}`}>
-                                                                                        <ToolCard tool={tool} openModal={openModal} />
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                            {isMobile && mobileVisibleCount < total && (
-                                                                                <div className="mt-8 flex justify-center">
-                                                                                    <button onClick={loadMoreMobile} className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-medium backdrop-blur-md border border-white/20 hover:border-white/30 transition-all">Load More ({Math.min(mobileVisibleCount + PAGE_SIZE, total)}/{total})</button>
-                                                                                </div>
-                                                                            )}
-                                                                        </>
-                                                                    );
-                                                                }
-                                                                return (
-                                                                    <>
-                                                                        <div className="space-y-4">
-                                                                            {displayedCat.map((tool, idx) => (
-                                                                                <article key={tool.name || `tool-${idx}`} className="flex items-start gap-5 p-4 rounded-xl bg-gray-900/40 border border-white/10 hover:border-blue-500/30 hover:bg-white/5 transition-all cursor-pointer" onClick={() => navigateToTool(tool)}>
-                                                                                    <div className="w-48 h-28 flex-shrink-0 overflow-hidden rounded-lg bg-black/30">
-                                                                                        <img src={getImageSrc(tool) || ''} alt={tool.name} className="w-full h-full object-cover" loading="lazy" />
-                                                                                    </div>
-                                                                                    <div className="flex-1 min-w-0">
-                                                                                        <div className="flex items-start justify-between gap-3">
-                                                                                            <h3 className="text-lg font-semibold text-white truncate">{tool.name}</h3>
-                                                                                            {tool.dateAdded && (<span className="text-xs text-gray-400 whitespace-nowrap">{new Date(tool.dateAdded).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>)}
-                                                                                        </div>
-                                                                                        <p className="mt-1 text-sm text-gray-300 line-clamp-2">{tool.description}</p>
-                                                                                    </div>
-                                                                                </article>
-                                                                            ))}
-                                                                        </div>
-                                                                        {isMobile && mobileVisibleCount < total && (
-                                                                            <div className="mt-8 flex justify-center">
-                                                                                <button onClick={loadMoreMobile} className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-medium backdrop-blur-md border border-white/20 hover:border-white/30 transition-all">Load More ({Math.min(mobileVisibleCount + PAGE_SIZE, total)}/{total})</button>
-                                                                            </div>
-                                                                        )}
-                                                                    </>
-                                                                );
-                                                            })()}
-                                                        </div>
-                                                    ))}
                                                 </>
                                             )}
                                         </div>
                                     </div>
-                                </section>
+                                </m.section>
                             </main>
-                        </div >
-                        {/* End of centered content wrapper */}
-                    </div >
-                </div >
-            </LazyMotion >
+                        </div>
+                    </div>
+                </div>
 
-            {/* Tool Detail Modal */}
-            {
-                selectedTool && (
-                    <ToolDetailModal tool={selectedTool} onClose={closeModal} />
-                )
-            }
 
-            {/* Scroll to Top Button */}
-            {
-                showScrollTop && (
-                    <m.button
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={scrollToTop}
-                        className="fixed bottom-8 right-8 z-50 p-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-                        aria-label="Scroll to top"
-                    >
-                        <svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                {/* Tool Detail Modal */}
+                {
+                    selectedTool && (
+                        <ToolDetailModal tool={selectedTool} onClose={closeModal} />
+                    )
+                }
+
+                {/* Scroll to Top Button */}
+                {
+                    showScrollTop && (
+                        <m.button
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={scrollToTop}
+                            className="fixed bottom-8 right-8 z-50 p-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                            aria-label="Scroll to top"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 10l7-7m0 0l7 7m-7-7v18"
-                            />
-                        </svg>
-                    </m.button>
-                )
-            }
+                            <svg
+                                className="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 10l7-7m0 0l7 7m-7-7v18"
+                                />
+                            </svg>
+                        </m.button>
+                    )
+                }
+            </LazyMotion>
+            <ChatBot />
         </>
     );
 };

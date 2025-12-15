@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // 1. Import Link
 import { motion as m } from 'framer-motion';
-import { Brain, Sparkles, Users, Target, Rocket, Heart, Star, Zap, Shield, Code } from 'lucide-react';
+import { Brain, Sparkles, Users, Target, Rocket, Heart, Zap, Shield, Code } from 'lucide-react';
 
 const About = () => {
   const [hoveredFeature, setHoveredFeature] = useState(null);
@@ -113,7 +113,7 @@ const About = () => {
             </div>
             <h1 className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent mb-6">About Our Mission</h1>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-              Empowering creativity and productivity through cutting-edge AI tools, 
+              Empowering creativity and productivity through cutting-edge AI tools,
               carefully curated for innovators, creators, and dreamers worldwide.
             </p>
           </m.div>
@@ -148,18 +148,18 @@ const About = () => {
                   </h2>
                   <div className="space-y-4 text-gray-300 leading-relaxed">
                     <p>
-                      <span className="font-semibold text-blue-400">AI Tools Hub</span> began as a passion project 
-                      to democratize access to artificial intelligence. We recognized that while AI technology 
+                      <span className="font-semibold text-blue-400">AI Tools Hub</span> began as a passion project
+                      to democratize access to artificial intelligence. We recognized that while AI technology
                       was advancing rapidly, finding and evaluating quality tools remained a challenge.
                     </p>
                     <p>
-                      Our platform bridges this gap by curating, testing, and presenting the most innovative 
-                      AI-powered solutions available today. From intelligent chatbots to advanced image 
+                      Our platform bridges this gap by curating, testing, and presenting the most innovative
+                      AI-powered solutions available today. From intelligent chatbots to advanced image
                       generators, we continuously explore tools that can transform workflows and inspire creativity.
                     </p>
                     <p>
-                      Built and maintained by <span className="font-semibold text-purple-400">Veeresh H P</span>, 
-                      a passionate technologist dedicated to making AI accessible to everyone. We believe artificial 
+                      Built and maintained by <span className="font-semibold text-purple-400">Veeresh H P</span>,
+                      a passionate technologist dedicated to making AI accessible to everyone. We believe artificial
                       intelligence should be understandable, beneficial, and available to all.
                     </p>
                   </div>
@@ -178,18 +178,18 @@ const About = () => {
                   </h2>
                   <div className="space-y-4 text-gray-300 leading-relaxed">
                     <p>
-                      We envision a world where AI tools are not just accessible, but seamlessly integrated 
-                      into creative and professional workflows. Our mission extends beyond simple curation—we 
+                      We envision a world where AI tools are not just accessible, but seamlessly integrated
+                      into creative and professional workflows. Our mission extends beyond simple curation—we
                       aim to educate, inspire, and empower.
                     </p>
                     <p>
-                      Whether you're a developer seeking automation tools, a designer exploring generative AI, 
-                      a marketer leveraging data insights, or simply curious about artificial intelligence, 
+                      Whether you're a developer seeking automation tools, a designer exploring generative AI,
+                      a marketer leveraging data insights, or simply curious about artificial intelligence,
                       we're here to guide your journey.
                     </p>
                     <p>
-                      Join us as we continue expanding our library, sharing insights, and helping navigate 
-                      the evolving landscape of AI—one innovative tool at a time. The future is intelligent, 
+                      Join us as we continue expanding our library, sharing insights, and helping navigate
+                      the evolving landscape of AI—one innovative tool at a time. The future is intelligent,
                       and it starts here.
                     </p>
                   </div>
@@ -235,11 +235,11 @@ const About = () => {
               <div className="relative z-10">
                 <h2 className="text-4xl font-bold text-white mb-4">Ready to Explore the Future?</h2>
                 <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                  Join thousands of creators, developers, and innovators who trust AI Tools Hub 
+                  Join thousands of creators, developers, and innovators who trust AI Tools Hub
                   to discover the next generation of intelligent solutions.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  
+
                   {/* 2. Wrap the button with Link */}
                   <Link to="/">
                     <m.button
@@ -254,7 +254,7 @@ const About = () => {
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </m.button>
                   </Link>
-                  
+
                   <m.button
                     className="flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 border-2 border-white/20 text-white font-semibold rounded-2xl hover:bg-white/5 transition-all duration-300 backdrop-blur-sm"
                     whileHover={{ scale: 1.05 }}
@@ -271,7 +271,7 @@ const About = () => {
           {/* Footer Quote */}
           <m.div variants={itemVariants} className="text-center mt-16">
             <blockquote className="text-xl italic text-gray-400 max-w-3xl mx-auto">
-              "The best way to predict the future is to create it. AI Tools Hub is our contribution 
+              "The best way to predict the future is to create it. AI Tools Hub is our contribution
               to building a more intelligent, creative, and productive tomorrow."
             </blockquote>
             <p className="text-purple-400 font-semibold mt-4">— Veeresh H P, Founder</p>

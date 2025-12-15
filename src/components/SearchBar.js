@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import Fuse from 'fuse.js';
 
-const SearchBar = ({ toolsData, setSearchQuery, setActiveFilter, setSuggestions, searchQuery, isSearchFocused, setIsSearchFocused, activeSuggestionIndex, setActiveSuggestionIndex }) => {
+const SearchBar = ({ toolsData, setSearchQuery, setActiveFilter, setSuggestions, suggestions, searchQuery, isSearchFocused, setIsSearchFocused, activeSuggestionIndex, setActiveSuggestionIndex }) => {
   const debounceRef = useRef(null);
 
   const toolList = toolsData.flatMap(category =>
