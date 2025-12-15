@@ -298,14 +298,85 @@ const ToolDetail = () => {
         console.error('Error checking bookmark:', err);
       }
       setLoading(false);
+      setLoading(false);
     } else {
+      // Fallback: Check if it's a locally saved bookmark that isn't in the database
+      // This handles "placeholder" tools created in Favorites.jsx
       if (initialFetchDone) {
-        setTool(null);
-        setRelatedTools([]);
-        setLoading(false);
+        let bookmarkTool = null;
+        try {
+            const rawBookmarks = localStorage.getItem('ai_bookmarks');
+            const bookmarks = rawBookmarks ? JSON.parse(rawBookmarks) : [];
+            
+            for (const key of bookmarks) {
+                // Logic must match Favorites.jsx placeholder generation
+                const isUrl = /^https?:\/\//.test(key);
+                let name = key;
+                let image = undefined;
+                
+                if (isUrl) {
+                    try {
+                        const urlObj = new URL(key);
+                        const host = urlObj.hostname.replace('www.', '');
+                        let hostName = host.split('.')[0];
+                        hostName = hostName.charAt(0).toUpperCase() + hostName.slice(1);
+                        
+                        // Check if this bookmark's derived slug matches the requested toolSlug
+                        if (toSlug(hostName) === toolSlug) {
+                             name = hostName;
+                             image = `https://image.thum.io/get/width/600/crop/600/noanimate/${key}`;
+                             
+                             bookmarkTool = {
+                                 name: name,
+                                 description: 'Saved item from your bookmarks.',
+                                 shortDescription: 'Saved bookmark',
+                                 url: key,
+                                 image: image,
+                                 category: 'utility-tools',
+                                 pricing: 'Unknown',
+                                 dateAdded: Date.now(),
+                                 hashtags: ['bookmark']
+                             };
+                             break;
+                        }
+                    } catch {}
+                } else {
+                    // Handle non-URL keys (names)
+                    if (toSlug(key) === toolSlug) {
+                        bookmarkTool = {
+                            name: key,
+                             description: 'Saved item from your bookmarks.',
+                             shortDescription: 'Saved bookmark',
+                             url: '#', // No URL known
+                             category: 'utility-tools',
+                             pricing: 'Unknown',
+                             dateAdded: Date.now(),
+                             hashtags: ['bookmark']
+                        };
+                        break;
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("Error searching bookmarks fallback:", err);
+        }
+
+        if (bookmarkTool) {
+             setTool({
+                ...bookmarkTool,
+                category: 'Utility Tools',
+                categoryId: 'utility-tools'
+            });
+            setSaved(true); // It's strictly from bookmarks, so it is saved
+            setLoading(false);
+        } else {
+            setTool(null);
+            setRelatedTools([]);
+            setLoading(false);
+        }
       }
     }
-  }, [category, toolSlug, mergedToolsData, initialFetchDone]);
+  }, [category, toolSlug, mergedToolsData, initialFetchDone, toSlug]);
 
   const toggleBookmark = () => {
     try {

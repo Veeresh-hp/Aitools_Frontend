@@ -564,7 +564,12 @@ const Home = () => {
     const [sortBy, setSortBy] = useState('date-added');
     // Pagination & progressive loading
     const PAGE_SIZE = 30;
-    const [page, setPage] = useState(1); // desktop pagination current page
+    const [page, setPage] = useState(() => {
+        if (typeof window === 'undefined') return 1;
+        const params = new URLSearchParams(window.location.search || '');
+        const p = parseInt(params.get('page'), 10);
+        return (p && !isNaN(p) && p > 0) ? p : 1;
+    }); // desktop pagination current page
     const [mobileVisibleCount, setMobileVisibleCount] = useState(PAGE_SIZE); // mobile progressive load
     const debounceRef = useRef(null);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
@@ -893,8 +898,23 @@ const Home = () => {
         if (hour < 18) return 'Good afternoon';
         return 'Good evening';
     };
-    // Fetch approved tools from backend - NON-BLOCKING
-    const [approvedTools, setApprovedTools] = useState([]);
+    // Fetch approved tools from backend - NON-BLOCKING with Stale-While-Revalidate Cache
+    const [approvedTools, setApprovedTools] = useState(() => {
+        try {
+            const cached = typeof localStorage !== 'undefined' ? localStorage.getItem('cached_tools_data') : null;
+            return cached ? JSON.parse(cached) : [];
+        } catch {
+            return [];
+        }
+    });
+    const [isLoading, setIsLoading] = useState(() => {
+        try {
+            return !localStorage.getItem('cached_tools_data');
+        } catch {
+            return true;
+        }
+    });
+
     // Robust API base: env var, else auto-detect for Vercel hosts, else localhost
     const API_URL = useMemo(() => {
         const envUrl = process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL.trim();
@@ -948,7 +968,6 @@ const Home = () => {
             const url = `${base}?t=${tick}`;
             try {
                 let res = await fetch(url, {
-                    priority: 'low',
                     cache: 'no-store',
                     headers: { 'Cache-Control': 'no-cache' }
                 });
@@ -962,12 +981,18 @@ const Home = () => {
                 if (res.ok && json.tools && Array.isArray(json.tools)) {
                     const validTools = json.tools.filter(tool => tool && tool.name);
                     setApprovedTools(validTools);
+                    // Update cache
+                    localStorage.setItem('cached_tools_data', JSON.stringify(validTools));
                 } else {
-                    setApprovedTools([]);
+                    // If fetch fails but we have cache, keep cache (don't wipe it)
+                    if (approvedTools.length === 0) setApprovedTools([]);
                 }
             } catch (err) {
                 console.error('Failed to fetch approved tools:', err);
-                setApprovedTools([]);
+                // Keep cache if exists
+                if (approvedTools.length === 0) setApprovedTools([]);
+            } finally {
+                setIsLoading(false);
             }
         };
         // Fetch immediately without delay
@@ -1136,7 +1161,10 @@ const Home = () => {
         if (!id) return;
         if (id === 'all') {
             setActiveFilter('all');
-            setTimeout(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50);
+            setTimeout(() => {
+                const toolsEl = document.getElementById('tools');
+                if (toolsEl) toolsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
             return;
         }
         if (id === 'choice') {
@@ -1154,7 +1182,16 @@ const Home = () => {
         }
     }, [location.hash, mergedToolsData]);
 
+    // Ref to track if it's the first mount to avoid resetting page from URL
+    const isFirstRun = useRef(true);
+
     useEffect(() => {
+        // Skip the first run to allow state initialization from URL
+        if (isFirstRun.current) {
+            isFirstRun.current = false;
+            return;
+        }
+
         setPage(1);
         setMobileVisibleCount(PAGE_SIZE);
         if (!isMobile) {
@@ -1164,7 +1201,7 @@ const Home = () => {
                 history.replace({ pathname: location.pathname, search: params.toString(), hash: location.hash });
             }
         }
-    }, [searchQuery, activeFilter, activePricing, sortBy, isMobile, history, location.search, location.pathname, location.hash]);
+    }, [searchQuery, activeFilter, activePricing, sortBy, isMobile]);
 
     const updatePage = useCallback((next) => {
         if (isMobile) return;
@@ -1586,7 +1623,7 @@ const Home = () => {
                                                     return (
                                                         <button
                                                             key={id}
-                                                            onClick={() => setActiveFilter(id)}
+                                                            onClick={() => setActiveFilter(activeFilter === id ? 'all' : id)}
                                                             className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap transition-all ${isAll ? 'sticky left-0 z-20' : ''
                                                                 } ${activeFilter === id
                                                                     ? 'bg-white text-black shadow-lg shadow-white/25'
@@ -1953,7 +1990,8 @@ const Home = () => {
                                     setActiveFilter(id);
                                     setTimeout(() => {
                                         if (id === 'all') {
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            const toolsEl = document.getElementById('tools');
+                                            if (toolsEl) toolsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                         } else {
                                             const el = document.querySelector(`[data-category="${id}"]`);
                                             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1994,7 +2032,8 @@ const Home = () => {
                                         setActiveFilter(id);
                                         setTimeout(() => {
                                             if (id === 'all') {
-                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                const toolsEl = document.getElementById('tools');
+                                                if (toolsEl) toolsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                             } else {
                                                 const el = document.querySelector(`[data-category="${id}"]`);
                                                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2092,9 +2131,12 @@ const Home = () => {
                                                         <button
                                                             key={id}
                                                             onClick={() => {
-                                                                setActiveFilter(id);
-                                                                const el = document.querySelector(`[data-category="${id}"]`);
-                                                                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                                const next = activeFilter === id ? 'all' : id;
+                                                                setActiveFilter(next);
+                                                                if (next !== 'all') {
+                                                                    const el = document.querySelector(`[data-category="${id}"]`);
+                                                                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                                }
                                                             }}
                                                             className={`px-5 py-3 text-sm font-medium rounded-full transition-all duration-300 border ${activeFilter === id
                                                                 ? 'bg-white text-blue-900 border-white shadow-lg scale-105'
@@ -2112,13 +2154,9 @@ const Home = () => {
                                 )}
 
                                 {/* Tools Grid Section */}
-                                <m.section
+                                <section
                                     id="tools"
                                     className="relative px-4 sm:px-6 lg:px-8 py-12"
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, margin: "-50px" }}
-                                    transition={{ duration: 0.6 }}
                                 >
                                     {/* Breadcrumb Navigation */}
                                     {activeFilter !== 'all' && (
@@ -2228,7 +2266,26 @@ const Home = () => {
 
                                         {/* Tools Grid */}
                                         <div>
-                                            {isMobile && activeFilter === 'all' ? (
+                                            {isLoading ? (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {[...Array(6)].map((_, i) => (
+                                                        <div key={i} className="bg-gray-900/40 rounded-xl overflow-hidden border border-white/5 h-full flex flex-col">
+                                                            <div className="h-48 bg-white/5 animate-pulse" />
+                                                            <div className="p-5 space-y-4 flex-1">
+                                                                <div className="h-6 bg-white/5 rounded w-3/4 animate-pulse" />
+                                                                <div className="space-y-2">
+                                                                    <div className="h-4 bg-white/5 rounded w-full animate-pulse" />
+                                                                    <div className="h-4 bg-white/5 rounded w-2/3 animate-pulse" />
+                                                                </div>
+                                                                <div className="pt-4 flex items-center gap-2">
+                                                                    <div className="h-6 w-16 bg-white/5 rounded-full animate-pulse" />
+                                                                    <div className="h-6 w-16 bg-white/5 rounded-full animate-pulse" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : isMobile && activeFilter === 'all' ? (
                                                 // What's New (renamed from For You; uses 'all' id)
                                                 (() => {
                                                     let allNew = [...newTools];
@@ -2326,89 +2383,35 @@ const Home = () => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    {activeFilter === 'all' && (
-                                                        <div className="mb-12">
-                                                            <div className="flex items-center gap-3 mb-8 px-2 relative">
-                                                                <div className="w-1 h-10 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg shadow-blue-500/50" />
-                                                                <h2 className="text-3xl font-bold text-white">All AI Tools</h2>
-                                                                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-transparent" />
-                                                            </div>
-                                                            {(() => {
-                                                                const allTools = allToolsFlatSorted;
-                                                                const total = allTools.length;
-                                                                let displayed = allTools;
-                                                                if (isMobile) {
-                                                                    displayed = allTools.slice(0, mobileVisibleCount);
-                                                                } else {
-                                                                    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-                                                                    const currentPage = Math.min(page, totalPages);
-                                                                    const start = (currentPage - 1) * PAGE_SIZE;
-                                                                    const end = start + PAGE_SIZE;
-                                                                    displayed = allTools.slice(start, end);
-                                                                }
-                                                                if (viewMode === 'grid') {
-                                                                    return (
-                                                                        <>
-                                                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                                                {displayed.map((tool, idx) => (
-                                                                                    <div key={`${tool.name}-${tool.dateAdded || idx}`}>
-                                                                                        <ToolCard tool={tool} openModal={openModal} />
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                            {isMobile && mobileVisibleCount < total && (
-                                                                                <div className="mt-8 flex justify-center">
-                                                                                    <button onClick={loadMoreMobile} className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-medium backdrop-blur-md border border-white/20 hover:border-white/30 transition-all">Load More ({Math.min(mobileVisibleCount + PAGE_SIZE, total)}/{total})</button>
-                                                                                </div>
-                                                                            )}
-                                                                            {!isMobile && total > PAGE_SIZE && (
-                                                                                <div className="mt-10 flex items-center justify-center gap-2 flex-wrap">
-                                                                                    <button onClick={() => updatePage(Math.max(1, page - 1))} disabled={page === 1} aria-label="Previous page" className={`px-3 py-2 rounded-lg text-sm border transition-colors ${page === 1 ? 'border-white/10 text-gray-500 cursor-not-allowed' : 'border-white/20 hover:border-white/40 hover:bg-white/10 text-white'}`}>Prev</button>
-                                                                                    {buildPageList(Math.ceil(total / PAGE_SIZE), page).map((p, i) => (
-                                                                                        p === '…' ? (
-                                                                                            <span key={`dots-${i}`} className="px-2 py-2 text-sm text-gray-400">…</span>
-                                                                                        ) : (
-                                                                                            <button key={`page-${p}`} onClick={() => updatePage(p)} aria-current={p === page ? 'page' : undefined} className={`px-3 py-2 rounded-lg text-sm border transition-colors ${p === page ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-blue-500/60 shadow-lg' : 'border-white/20 text-white hover:bg-white/10 hover:border-white/40'}`}>{p}</button>
-                                                                                        )
-                                                                                    ))}
-                                                                                    <button onClick={() => updatePage(Math.min(Math.ceil(total / PAGE_SIZE), page + 1))} disabled={page >= Math.ceil(total / PAGE_SIZE)} aria-label="Next page" className={`px-3 py-2 rounded-lg text-sm border transition-colors ${page >= Math.ceil(total / PAGE_SIZE) ? 'border-white/10 text-gray-500 cursor-not-allowed' : 'border-white/20 hover:border-white/40 hover:bg-white/10 text-white'}`}>Next</button>
-                                                                                </div>
-                                                                            )}
-                                                                        </>
-                                                                    );
-                                                                }
+                                                    <div className="mb-12">
+                                                        <div className="flex items-center gap-3 mb-8 px-2 relative">
+                                                            <div className="w-1 h-10 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg shadow-blue-500/50" />
+                                                            <h2 className="text-3xl font-bold text-white">
+                                                                {activeFilter === 'all' ? 'All AI Tools' : labelFor(activeFilter)}
+                                                            </h2>
+                                                            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-transparent" />
+                                                        </div>
+                                                        {(() => {
+                                                            const allTools = allToolsFlatSorted;
+                                                            const total = allTools.length;
+                                                            let displayed = allTools;
+                                                            if (isMobile) {
+                                                                displayed = allTools.slice(0, mobileVisibleCount);
+                                                            } else {
+                                                                const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+                                                                const currentPage = Math.min(page, totalPages);
+                                                                const start = (currentPage - 1) * PAGE_SIZE;
+                                                                const end = start + PAGE_SIZE;
+                                                                displayed = allTools.slice(start, end);
+                                                            }
+                                                            if (viewMode === 'grid') {
                                                                 return (
                                                                     <>
-                                                                        <div className="space-y-4">
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                                                             {displayed.map((tool, idx) => (
-                                                                                <article key={`${tool.name}-${tool.dateAdded || idx}`} className="flex items-start gap-5 p-4 rounded-xl bg-gray-900/40 border border-white/10 hover:border-blue-500/30 hover:bg-white/5 transition-all cursor-pointer" onClick={() => navigateToTool(tool)}>
-                                                                                    <div className="w-48 h-28 flex-shrink-0 overflow-hidden rounded-lg bg-black/30">
-                                                                                        {(() => {
-                                                                                            const src = getImageSrc(tool);
-                                                                                            if (!src) { return (<div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Image</div>); }
-                                                                                            return (
-                                                                                                <img src={src} alt={tool.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => {
-                                                                                                    try {
-                                                                                                        const current = e.currentTarget.getAttribute('src') || '';
-                                                                                                        if (current.includes('/images/')) { e.currentTarget.onerror = null; e.currentTarget.src = current.replace('/images/', '/Images/'); }
-                                                                                                        else { e.currentTarget.style.display = 'none'; }
-                                                                                                    } catch { }
-                                                                                                }} />
-                                                                                            );
-                                                                                        })()}
-                                                                                    </div>
-                                                                                    <div className="flex-1 min-w-0">
-                                                                                        <div className="flex items-start justify-between gap-3">
-                                                                                            <h3 className="text-lg font-semibold text-white truncate">{tool.name}</h3>
-                                                                                            {tool.dateAdded && (<span className="text-xs text-gray-400 whitespace-nowrap">{new Date(tool.dateAdded).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>)}
-                                                                                        </div>
-                                                                                        <p className="mt-1 text-sm text-gray-300 line-clamp-2">{tool.description}</p>
-                                                                                        <div className="mt-3 flex items-center gap-2 flex-wrap">
-                                                                                            {tool.badge && (<span className="px-2 py-0.5 text-xs rounded-md bg-white/10 border border-white/20 text-gray-200">{tool.badge}</span>)}
-                                                                                            {tool.category && (<span className="px-2 py-0.5 text-xs rounded-md bg-white/10 border border-white/20 text-gray-200">{tool.category.replace(/-/g, ' ')}</span>)}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </article>
+                                                                                <div key={`${tool.name}-${tool.dateAdded || idx}`}>
+                                                                                    <ToolCard tool={tool} openModal={openModal} />
+                                                                                </div>
                                                                             ))}
                                                                         </div>
                                                                         {isMobile && mobileVisibleCount < total && (
@@ -2431,14 +2434,68 @@ const Home = () => {
                                                                         )}
                                                                     </>
                                                                 );
-                                                            })()}
-                                                        </div>
-                                                    )}
+                                                            }
+                                                            return (
+                                                                <>
+                                                                    <div className="space-y-4">
+                                                                        {displayed.map((tool, idx) => (
+                                                                            <article key={`${tool.name}-${tool.dateAdded || idx}`} className="flex items-start gap-5 p-4 rounded-xl bg-gray-900/40 border border-white/10 hover:border-blue-500/30 hover:bg-white/5 transition-all cursor-pointer" onClick={() => navigateToTool(tool)}>
+                                                                                <div className="w-48 h-28 flex-shrink-0 overflow-hidden rounded-lg bg-black/30">
+                                                                                    {(() => {
+                                                                                        const src = getImageSrc(tool);
+                                                                                        if (!src) { return (<div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Image</div>); }
+                                                                                        return (
+                                                                                            <img src={src} alt={tool.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => {
+                                                                                                try {
+                                                                                                    const current = e.currentTarget.getAttribute('src') || '';
+                                                                                                    if (current.includes('/images/')) { e.currentTarget.onerror = null; e.currentTarget.src = current.replace('/images/', '/Images/'); }
+                                                                                                    else { e.currentTarget.style.display = 'none'; }
+                                                                                                } catch { }
+                                                                                            }} />
+                                                                                        );
+                                                                                    })()}
+                                                                                </div>
+                                                                                <div className="flex-1 min-w-0">
+                                                                                    <div className="flex items-start justify-between gap-3">
+                                                                                        <h3 className="text-lg font-semibold text-white truncate">{tool.name}</h3>
+                                                                                        {tool.dateAdded && (<span className="text-xs text-gray-400 whitespace-nowrap">{new Date(tool.dateAdded).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>)}
+                                                                                    </div>
+                                                                                    <p className="mt-1 text-sm text-gray-300 line-clamp-2">{tool.description}</p>
+                                                                                    <div className="mt-3 flex items-center gap-2 flex-wrap">
+                                                                                        {tool.badge && (<span className="px-2 py-0.5 text-xs rounded-md bg-white/10 border border-white/20 text-gray-200">{tool.badge}</span>)}
+                                                                                        {tool.category && (<span className="px-2 py-0.5 text-xs rounded-md bg-white/10 border border-white/20 text-gray-200">{tool.category.replace(/-/g, ' ')}</span>)}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </article>
+                                                                        ))}
+                                                                    </div>
+                                                                    {isMobile && mobileVisibleCount < total && (
+                                                                        <div className="mt-8 flex justify-center">
+                                                                            <button onClick={loadMoreMobile} className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-medium backdrop-blur-md border border-white/20 hover:border-white/30 transition-all">Load More ({Math.min(mobileVisibleCount + PAGE_SIZE, total)}/{total})</button>
+                                                                        </div>
+                                                                    )}
+                                                                    {!isMobile && total > PAGE_SIZE && (
+                                                                        <div className="mt-10 flex items-center justify-center gap-2 flex-wrap">
+                                                                            <button onClick={() => updatePage(Math.max(1, page - 1))} disabled={page === 1} aria-label="Previous page" className={`px-3 py-2 rounded-lg text-sm border transition-colors ${page === 1 ? 'border-white/10 text-gray-500 cursor-not-allowed' : 'border-white/20 hover:border-white/40 hover:bg-white/10 text-white'}`}>Prev</button>
+                                                                            {buildPageList(Math.ceil(total / PAGE_SIZE), page).map((p, i) => (
+                                                                                p === '…' ? (
+                                                                                    <span key={`dots-${i}`} className="px-2 py-2 text-sm text-gray-400">…</span>
+                                                                                ) : (
+                                                                                    <button key={`page-${p}`} onClick={() => updatePage(p)} aria-current={p === page ? 'page' : undefined} className={`px-3 py-2 rounded-lg text-sm border transition-colors ${p === page ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-blue-500/60 shadow-lg' : 'border-white/20 text-white hover:bg-white/10 hover:border-white/40'}`}>{p}</button>
+                                                                                )
+                                                                            ))}
+                                                                            <button onClick={() => updatePage(Math.min(Math.ceil(total / PAGE_SIZE), page + 1))} disabled={page >= Math.ceil(total / PAGE_SIZE)} aria-label="Next page" className={`px-3 py-2 rounded-lg text-sm border transition-colors ${page >= Math.ceil(total / PAGE_SIZE) ? 'border-white/10 text-gray-500 cursor-not-allowed' : 'border-white/20 hover:border-white/40 hover:bg-white/10 text-white'}`}>Next</button>
+                                                                        </div>
+                                                                    )}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </div>
                                                 </>
                                             )}
                                         </div>
                                     </div>
-                                </m.section>
+                                </section>
                             </main>
                         </div>
                     </div>
