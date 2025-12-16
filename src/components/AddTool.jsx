@@ -16,6 +16,20 @@ const AddTool = ({ historyProp }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState([]);
   const [customCategory, setCustomCategory] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = React.useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const token = localStorage.getItem('token');
   const isLoggedIn = !!token;
@@ -31,6 +45,7 @@ const AddTool = ({ historyProp }) => {
         ]);
       } catch (err) {
         console.error('Failed to fetch categories', err);
+        setMessage(`⚠️ Failed to load categories: ${err.message || 'Server error'}`);
       }
     };
     fetchCategories();
@@ -167,20 +182,64 @@ const AddTool = ({ historyProp }) => {
               </div>
             </div>
 
-            <div>
+            <div className="relative" ref={dropdownRef}>
               <label className="text-sm font-semibold text-gray-300 mb-2 block">Select Category *</label>
-              <select
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 rounded-lg bg-gray-700/40 border border-white/20 text-white focus:bg-gray-700/60 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all appearance-none cursor-pointer"
-              >
-                <option value="">-- Choose a category --</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setIsDropdownOpen(true);
+                    if (e.target.value === '') {
+                        setForm(prev => ({ ...prev, category: '' }));
+                    }
+                  }}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  placeholder="-- Search or choose a category --"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-700/40 border border-white/20 text-white placeholder-gray-400 focus:bg-gray-700/60 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all pr-10"
+                />
+                <span 
+                    className={`absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                >
+                    ▼
+                </span>
+              </div>
+
+              {isDropdownOpen && (
+                <div className="absolute z-50 w-full mt-2 rounded-xl bg-[#1a1d3a] border border-white/10 shadow-2xl max-h-80 overflow-y-auto sidebar-scrollbar backdrop-blur-md">
+                  <div className="p-1 flex flex-col gap-1">
+                    {categories
+                      .filter(cat => cat.name.toLowerCase().includes(searchTerm.toLowerCase()) || cat.id === 'custom')
+                      .map(cat => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setForm({ ...form, category: cat.id });
+                          setSearchTerm(cat.name);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-2 ${
+                          form.category === cat.id 
+                            ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
+                            : 'hover:bg-white/5 text-gray-300 hover:text-white border border-transparent'
+                        }`}
+                      >
+                        {cat.id === 'custom' ? (
+                          <span className="font-semibold text-blue-400">{cat.name}</span>
+                        ) : (
+                          <span>{cat.name}</span>
+                        )}
+                        {form.category === cat.id && <span className="ml-auto text-blue-400">✓</span>}
+                      </button>
+                    ))}
+                    {categories.filter(cat => cat.name.toLowerCase().includes(searchTerm.toLowerCase()) || cat.id === 'custom').length === 0 && (
+                        <div className="px-3 py-2 text-gray-500 text-sm text-center">No categories found</div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -192,11 +251,11 @@ const AddTool = ({ historyProp }) => {
                 required
                 className="w-full px-4 py-3 rounded-lg bg-gray-700/40 border border-white/20 text-white focus:bg-gray-700/60 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all appearance-none cursor-pointer"
               >
-                <option value="Free">Free</option>
-                <option value="Freemium">Freemium</option>
-                <option value="Paid">Paid</option>
-                <option value="Free Trial">Free Trial</option>
-                <option value="Contact">Contact for Pricing</option>
+                <option value="Free" className="bg-gray-800 text-white">Free</option>
+                <option value="Freemium" className="bg-gray-800 text-white">Freemium</option>
+                <option value="Paid" className="bg-gray-800 text-white">Paid</option>
+                <option value="Free Trial" className="bg-gray-800 text-white">Free Trial</option>
+                <option value="Contact" className="bg-gray-800 text-white">Contact for Pricing</option>
               </select>
             </div>
 

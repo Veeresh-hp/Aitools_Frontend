@@ -231,14 +231,7 @@ const Sidebar = () => {
               aria-label="Favorites"
               onClick={() => handleNavAction(1, () => history.push('/favorites'))}
             />
-            <SidebarNavButton
-              ref={el => (navRefs.current[8] = el)} // Index 8 for History to avoid conflict
-              active={activeNav === 8}
-              icon={<FaClock />}
-              label={isSidebarOpen ? 'History' : ''}
-              aria-label="History"
-              onClick={() => handleNavAction(8, () => history.push('/history'))}
-            />
+
             <SidebarNavButton
               ref={el => (navRefs.current[2] = el)}
               active={activeNav === 2}
