@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion as m } from 'framer-motion';
 import { useHistory } from 'react-router-dom';
 import { FaHome, FaRegBookmark, FaPlusSquare, FaInfoCircle, FaEnvelope, FaShieldAlt, FaStar } from 'react-icons/fa';
@@ -22,7 +22,7 @@ const Sidebar = () => {
   // detect login/admin info from localStorage on mount
   useEffect(() => {
     const storedLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const storedUsername = localStorage.getItem('username') || 'User';
+
     const storedEmail = localStorage.getItem('email') || '';
     const adminFlag = localStorage.getItem('isAdmin') === 'true';
     const envAdmin = process.env.REACT_APP_ADMIN_EMAIL;
