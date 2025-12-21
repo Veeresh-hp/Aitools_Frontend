@@ -272,6 +272,22 @@ const ToolDetail = () => {
       }
     }
 
+    // FALLBACK: If tool not found in specific category (or category wasn't found), search EVERYWHERE
+    if (!foundTool) {
+       for (const cat of mergedToolsData) {
+        if (!cat || !Array.isArray(cat.tools)) continue;
+        const tool = cat.tools.find(t => {
+          if (!t || !t.name || typeof t.name !== 'string') return false;
+          return toSlug(t.name) === toolSlug;
+        });
+        if (tool) {
+          foundTool = tool;
+          foundCategory = cat; // Update category to the correct one
+          break;
+        }
+      }
+    }
+
     if (foundTool && foundCategory) {
       setTool({
         ...foundTool,
@@ -433,30 +449,59 @@ const ToolDetail = () => {
 
   if (!tool) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="mb-8">
-            <div className="text-8xl mb-4">🔍</div>
-            <h1 className="text-6xl font-bold text-gray-300 mb-4">404</h1>
-            <h2 className="text-3xl font-bold text-white mb-4">Tool Not Found</h2>
-            <p className="text-gray-400 text-lg mb-2">The tool you're looking for doesn't exist or has been removed.</p>
-            <p className="text-gray-500 text-sm mb-8">
-              This could be because:
-              <br />• The tool URL is incorrect
-              <br />• The tool has been moved or deleted
-              <br />• The tool is pending approval
+      <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
+        {/* Cinematic Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#FF6B00] blur-[150px] opacity-10 rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 pointer-events-none" />
+
+        <div className="relative z-10 text-center max-w-lg mx-auto px-6">
+          <m.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8"
+          >
+            {/* Animated Icon Container */}
+            <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                 <div className="absolute inset-0 bg-[#FF6B00]/20 blur-xl rounded-full animate-pulse" />
+                 <div className="relative w-full h-full bg-[#12121A] border border-white/10 rounded-full flex items-center justify-center shadow-2xl">
+                    <span className="text-4xl">🔍</span>
+                 </div>
+            </div>
+
+            <h1 className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 mb-2 tracking-tighter">404</h1>
+            <h2 className="text-3xl font-bold text-white mb-6">Tool Not Found</h2>
+            
+            <p className="text-gray-400 text-lg mb-8 leading-relaxed font-light">
+              The tool you're looking for doesn't exist or has been removed from our database.
             </p>
-          </div>
+
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 text-left backdrop-blur-md">
+                <p className="text-gray-400 text-sm font-medium mb-3 uppercase tracking-wider">Possible Reasons:</p>
+                <ul className="space-y-2 text-gray-300 text-sm">
+                    <li className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00]" /> URL might be incorrect
+                    </li>
+                    <li className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00]" /> Tool was removed or deprecated
+                    </li>
+                    <li className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00]" /> It is pending approval
+                    </li>
+                </ul>
+            </div>
+          </m.div>
+
           <div className="flex gap-4 justify-center">
             <button
               onClick={() => history.push('/')}
-              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              className="px-8 py-3.5 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-all transform hover:scale-105 shadow-lg shadow-white/10 flex items-center gap-2"
             >
-              ← Back to Home
+              <FaArrowLeft /> Back to Home
             </button>
             <button
               onClick={() => history.goBack()}
-              className="px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-semibold shadow-lg transition-all duration-200"
+              className="px-8 py-3.5 bg-white/10 text-white border border-white/10 rounded-full font-bold hover:bg-white/20 transition-all backdrop-blur-md"
             >
               Go Back
             </button>
@@ -479,13 +524,22 @@ const ToolDetail = () => {
   const faqs = generateFAQs(tool);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Breadcrumb */}
-      <div className="bg-gray-800/50 border-b border-gray-700">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div className="min-h-screen bg-black text-white relative selection:bg-orange-500/30">
+        
+      {/* Cinematic Background Glows */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#FF6B00] blur-[180px] opacity-10 rounded-full pointer-events-none z-0" />
+      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-purple-900 blur-[150px] opacity-10 rounded-full pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 pointer-events-none z-0" />
+
+      {/* Navbar Placeholder space (if needed) */}
+      <div className="h-20" />
+
+      {/* Breadcrumb Area */}
+      <div className="relative z-10 border-b border-white/5 bg-black/20 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Breadcrumb
             items={[
-              { label: tool.category, link: `/#${tool.categoryId}` },
+              { label: tool.category, link: `/#${tool.categoryId || 'all'}` },
               { label: tool.name }
             ]}
           />
@@ -493,274 +547,209 @@ const ToolDetail = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tool Header Card */}
-        <div className="bg-gray-800 rounded-2xl p-8 mb-8 border border-gray-700 shadow-xl">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Tool Image & Badges Column */}
-            <div className="w-full lg:w-1/3 shrink-0 flex flex-col gap-4">
-              <div className="rounded-xl overflow-hidden border border-gray-700 shadow-lg">
-                {tool.image ? (
-                  <img
-                    src={tool.image}
-                    alt={tool.name}
-                    className="w-full h-auto block"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `<div class="text-gray-500 text-4xl font-bold flex items-center justify-center w-full aspect-video bg-gray-900/50">${tool.name.charAt(0).toUpperCase()}</div>`;
-                    }}
-                  />
-                ) : (
-                  <div className="text-gray-500 text-4xl font-bold w-full aspect-video flex items-center justify-center bg-gray-900/50">
-                    {tool.dateAdded && (
-                      <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 flex items-center gap-1.5">
-                        <FaCalendar className="text-xs" /> {new Date(tool.dateAdded).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        {/* --- Header Card --- */}
+        <div className="bg-[#12121A] rounded-3xl p-6 md:p-8 mb-10 border border-white/10 shadow-2xl relative overflow-hidden group">
+          {/* Subtle sheen effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          
+          <div className="flex flex-col md:flex-row gap-8 relative z-10">
+            {/* Left: Image */}
+            <div className="w-full md:w-1/3 shrink-0">
+               <div className="rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black/50 aspect-video relative group/image">
+                 {tool.image ? (
+                   <img
+                     src={tool.image}
+                     alt={tool.name}
+                     className="w-full h-full object-cover transition-transform duration-700 group-hover/image:scale-105"
+                     onError={(e) => {
+                       e.target.style.display = 'none';
+                       e.target.nextSibling.style.display = 'flex';
+                     }}
+                   />
+                 ) : null}
+                 <div className="hidden absolute inset-0 text-white/20 text-5xl font-bold items-center justify-center bg-[#1A1A24]" style={{ display: tool.image ? 'none' : 'flex' }}>
+                    {tool.name.charAt(0).toUpperCase()}
+                 </div>
+               </div>
             </div>
 
-            {/* Tool Info - Concise Top Section */}
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="mb-4">
-                {tool.category && (
-                  <Link
-                    to={`/#${tool.categoryId || tool.category.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="text-blue-400 text-sm font-medium mb-2 inline-block hover:underline"
-                  >
-                    {tool.category}
-                  </Link>
-                )}
-                <div className="flex items-center gap-3 mb-3">
-                  <h1 className="text-2xl md:text-4xl font-bold text-white">{tool.name}</h1>
+            {/* Right: Info & Actions */}
+            <div className="flex-1 flex flex-col">
+               <div className="flex items-center gap-3 mb-4">
+                  <span className="text-[#FF6B00] text-sm font-bold tracking-wider uppercase">{tool.category}</span>
                   {tool.pricing && (
-                    <Link
-                      to={`/?pricing=${(tool.pricing || 'freemium').toLowerCase().replace(' ', '-')}`}
-                      className={`px-3 py-1 text-xs font-medium rounded-full border ${tool.pricing === 'Free' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                        tool.pricing === 'Paid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                          'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                        } hover:scale-105 transition-transform`}
-                    >
-                      {tool.pricing}
-                    </Link>
+                    <span className={`px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-full border ${
+                        tool.pricing === 'Free' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 
+                        tool.pricing === 'Paid' ? 'text-rose-400 border-rose-500/30 bg-rose-500/10' : 
+                        'text-amber-400 border-amber-500/30 bg-amber-500/10'
+                    }`}>
+                        {tool.pricing}
+                    </span>
                   )}
-                </div>
-                <p className="text-gray-300 text-lg leading-relaxed line-clamp-2">
-                  {tool.shortDescription || tool.description}
-                </p>
-              </div>
+               </div>
 
+               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">{tool.name}</h1>
+               <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-2xl">
+                 {tool.shortDescription || tool.description}
+               </p>
 
-
-              <div className="flex gap-3 flex-wrap mt-auto">
-                {tool.url && (
-                  <a
-                    href={addRefToUrl(tool.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => addToHistory(tool)}
-                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105 transition-all flex items-center gap-2"
-                  >
-                    Visit Site <FaExternalLinkAlt className="text-sm" />
-                  </a>
-                )}
-                <button
-                  onClick={toggleBookmark}
-                  className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 border ${saved
-                    ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50 hover:bg-yellow-500/30'
-                    : 'bg-gray-700/50 text-white border-gray-600 hover:bg-gray-700 hover:border-gray-500'
-                    }`}
-                >
-                  {saved ? <FaBookmark /> : <FaRegBookmark />}
-                  {saved ? 'Saved' : 'Save'}
-                </button>
-                <button
-                  onClick={copyLink}
-                  className="px-6 py-3 bg-gray-700/50 text-white rounded-xl font-bold border border-gray-600 hover:bg-gray-700 hover:border-gray-500 transition-all"
-                >
-                  Share
-                </button>
-              </div>
+               <div className="mt-auto flex flex-wrap gap-4">
+                 {tool.url && (
+                   <a
+                     href={addRefToUrl(tool.url)}
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     onClick={() => addToHistory(tool)}
+                     className="px-6 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-transform active:scale-95 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                   >
+                     Visit Site <FaExternalLinkAlt className="text-sm" />
+                   </a>
+                 )}
+                 <button
+                    onClick={toggleBookmark}
+                    className={`px-6 py-3 rounded-full font-bold transition-all border flex items-center gap-2 ${saved 
+                        ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/50' 
+                        : 'bg-white/5 text-white border-white/10 hover:bg-white/10'}`}
+                 >
+                    {saved ? <FaBookmark /> : <FaRegBookmark />}
+                    {saved ? 'Saved' : 'Save'}
+                 </button>
+                 <button
+                   onClick={copyLink}
+                   className="px-6 py-3 bg-white/5 text-white border border-white/10 rounded-full font-bold hover:bg-white/10 transition-all"
+                 >
+                   Share
+                 </button>
+               </div>
             </div>
           </div>
         </div>
 
-        {/* Content Grid: About (Left) & Info (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-
-          {/* Left Column: About & FAQ */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* About Section */}
-            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
-              <div className="flex items-center gap-3 mb-6">
-                <FaInfoCircle className="text-2xl text-blue-400" />
-                <h2 className="text-2xl font-bold text-white">About {tool.name}</h2>
-              </div>
-              <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed whitespace-pre-line">
-                {tool.description || "No detailed description available."}
-              </div>
-
-              {/* Tags */}
-              {(tool.hashtags && tool.hashtags.length > 0) && (
-                <div className="mt-8 pt-6 border-t border-gray-700">
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <FaTag className="text-blue-400" /> Features & Tags
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {tool.hashtags.map((tag, index) => (
-                      <span key={index} className="px-3 py-1.5 bg-gray-700/50 text-blue-300 rounded-lg text-sm border border-gray-600 hover:bg-gray-700 transition-colors">
-                        {tag.startsWith('#') ? tag : `#${tag}`}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* FAQ Section */}
-            <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
-              <div className="flex items-center gap-3 mb-6">
-                <FaQuestionCircle className="text-2xl text-blue-400" />
-                <h2 className="text-2xl font-bold text-white">Questions & Answers</h2>
-              </div>
-              <div className="flex flex-col">
-                {faqs.map((faq, index) => (
-                  <FAQItem key={index} question={faq.question} answer={faq.answer} />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Additional Info Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 sticky top-4">
-              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <FaList className="text-blue-400" /> Tool Information
-              </h3>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg">
-                  <div className="flex items-center gap-3 text-gray-400">
-                    <FaGlobe />
-                    <span>Category</span>
-                  </div>
-                  <span className="font-medium text-white capitalize">{tool.category}</span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg">
-                  <div className="flex items-center gap-3 text-gray-400">
-                    <FaDollarSign />
-                    <span>Pricing</span>
-                  </div>
-                  <Link
-                    to={`/?pricing=${(tool.pricing || 'freemium').toLowerCase().replace(' ', '-')}`}
-                    className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
-                  >
-                    {tool.pricing || 'Unknown'}
-                  </Link>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg">
-                  <div className="flex items-center gap-3 text-gray-400">
-                    <FaCalendar />
-                    <span>Added On</span>
-                  </div>
-                  <span className="font-medium text-white">
-                    {new Date(tool.dateAdded).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg">
-                  <div className="flex items-center gap-3 text-gray-400">
-                    <FaDesktop />
-                    <span>Platform</span>
-                  </div>
-                  <span className="font-medium text-white">Web</span>
-                </div>
-              </div>
-
-              {/* Call to Action in Sidebar */}
-              {tool.url && (
-                <a
-                  href={addRefToUrl(tool.url)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => addToHistory(tool)}
-                  className="mt-8 w-full block text-center py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
-                >
-                  Visit Website
-                </a>
-              )}
-            </div>
-          </div>
-
-        </div>
-
-        {/* Related Tools Section */}
-        {relatedTools.length > 0 && (
-          <div className="mt-16 border-t border-gray-800 pt-12">
-            <h2 className="text-3xl font-bold mb-8 text-center">More Tools Like This</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {relatedTools.map((relatedTool) => {
-                const relatedSlug = relatedTool.name.toLowerCase()
-                  .replace(/[^a-z0-9\s-]/g, '')
-                  .replace(/\s+/g, '-')
-                  .replace(/-+/g, '-');
-
-                return (
-                  <Link
-                    key={relatedTool.name}
-                    to={`/tools/${tool.categoryId}/${relatedSlug}`}
-                    className="group bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-blue-500/50 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-blue-900/20"
-                  >
-                    <div className="h-48 overflow-hidden bg-gray-900 flex items-center justify-center relative">
-                      {relatedTool.image ? (
-                        <img
-                          src={relatedTool.image}
-                          alt={relatedTool.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.parentElement.innerHTML = `<div class="text-gray-600 text-4xl font-bold">${relatedTool.name.charAt(0).toUpperCase()}</div>`;
-                          }}
-                        />
-                      ) : (
-                        <div className="text-gray-600 text-4xl font-bold">
-                          {relatedTool.name.charAt(0).toUpperCase()}
+        {/* --- Content Grid --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Left Column: About & FAQ */}
+            <div className="lg:col-span-2 space-y-8">
+                {/* About Card */}
+                <div className="bg-[#12121A] rounded-3xl p-8 border border-white/10 relative overflow-hidden">
+                     <div className="absolute top-0 right-0 p-8 opacity-5">
+                        <FaInfoCircle className="text-9xl text-white" />
+                     </div>
+                     <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <FaInfoCircle className="text-[#FF6B00]" /> About {tool.name}
+                     </h3>
+                     <div className="prose prose-invert max-w-none text-gray-300 leading-7 font-light">
+                        {tool.description || tool.shortDescription || "No detailed description available."}
+                     </div>
+                     
+                     {/* Tags */}
+                      {(tool.hashtags && tool.hashtags.length > 0) && (
+                        <div className="mt-8 pt-6 border-t border-white/5">
+                            <div className="flex flex-wrap gap-2">
+                                {tool.hashtags.map((tag, i) => (
+                                    <span key={i} className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-sm text-gray-400">#{tag.replace('#','')}</span>
+                                ))}
+                            </div>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60"></div>
+                </div>
+
+                {/* FAQ Card */}
+                <div className="bg-[#12121A] rounded-3xl p-8 border border-white/10">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <FaQuestionCircle className="text-[#FF6B00]" /> Questions & Answers
+                    </h3>
+                    <div className="space-y-1">
+                        {faqs.map((faq, idx) => (
+                            <FAQItem key={idx} question={faq.question} answer={faq.answer} />
+                        ))}
                     </div>
-                    <div className="p-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-xl font-bold group-hover:text-blue-400 transition-colors">
-                          {relatedTool.name}
-                        </h3>
-                        {relatedTool.pricing && (
-                          <span className="px-2 py-1 text-xs font-bold rounded bg-gray-700 text-gray-300">
-                            {relatedTool.pricing}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-400 line-clamp-2 mb-4">
-                        {relatedTool.shortDescription || relatedTool.description}
-                      </p>
-                      <div className="text-blue-400 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                        View Details <FaArrowLeft className="rotate-180" />
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+                </div>
             </div>
-          </div>
+
+            {/* Right Column: Sidebar Meta */}
+            <div className="lg:col-span-1">
+                <div className="bg-[#12121A] rounded-3xl p-6 border border-white/10 sticky top-24">
+                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <FaList className="text-[#FF6B00]" /> Tool Information
+                    </h3>
+                    
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
+                            <span className="text-gray-400 flex items-center gap-2"><FaGlobe className="text-xs" /> Category</span>
+                            <span className="text-white font-medium capitalize">{tool.category}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
+                            <span className="text-gray-400 flex items-center gap-2"><FaDollarSign className="text-xs" /> Pricing</span>
+                            <span className={`font-medium ${
+                                tool.pricing === 'Free' ? 'text-emerald-400' : 
+                                tool.pricing === 'Paid' ? 'text-rose-400' : 'text-amber-400'
+                            }`}>{tool.pricing || 'Unknown'}</span>
+                        </div>
+                         <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
+                            <span className="text-gray-400 flex items-center gap-2"><FaCalendar className="text-xs" /> Added On</span>
+                            <span className="text-white font-medium">{new Date(tool.dateAdded).toLocaleDateString()}</span>
+                        </div>
+                         <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
+                            <span className="text-gray-400 flex items-center gap-2"><FaDesktop className="text-xs" /> Platform</span>
+                            <span className="text-white font-medium">Web</span>
+                        </div>
+                    </div>
+
+                    {tool.url && (
+                        <a
+                           href={addRefToUrl(tool.url)}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           onClick={() => addToHistory(tool)}
+                           className="mt-8 block w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-center rounded-xl transition-colors shadow-lg shadow-blue-900/20"
+                        >
+                            Visit Website
+                        </a>
+                    )}
+                </div>
+            </div>
+        </div>
+
+        {/* --- Related Tools --- */}
+        {relatedTools.length > 0 && (
+             <div className="mt-20">
+                <div className="flex items-center gap-4 mb-10">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+                    <h2 className="text-3xl font-bold text-white">More Tools Like This</h2>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {relatedTools.map((t) => {
+                         const tSlug = t.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+                         return (
+                            <Link 
+                                key={t.name}
+                                to={`/tools/${tool.categoryId}/${tSlug}`}
+                                className="group bg-[#12121A] rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all hover:-translate-y-1 block"
+                            >
+                                <div className="aspect-video bg-black/50 relative overflow-hidden">
+                                     {t.image ? (
+                                        <img src={t.image} alt={t.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                                     ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white/20">{t.name[0]}</div>
+                                     )}
+                                     <div className="absolute inset-0 bg-gradient-to-t from-[#12121A] to-transparent opacity-80" />
+                                </div>
+                                <div className="p-4 relative">
+                                    <h4 className="text-white font-bold text-lg mb-1 truncate group-hover:text-blue-400 transition-colors">{t.name}</h4>
+                                    <p className="text-gray-500 text-xs line-clamp-2">{t.shortDescription}</p>
+                                </div>
+                            </Link>
+                         );
+                    })}
+                </div>
+             </div>
         )}
+
       </div>
     </div>
   );

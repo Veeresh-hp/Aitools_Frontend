@@ -14,6 +14,9 @@ import './index.css';
 import Sidebar from './components/Sidebar';
 import MobileBottomNav from './components/MobileBottomNav';
 import Favorites from './components/Favorites';
+import NewsletterPopup from './components/NewsletterPopup';
+
+import CinematicLoader from './components/CinematicLoader';
 
 // --- LAZY-LOADED PAGE COMPONENTS ---
 const Home = lazy(() => import('./components/Home'));
@@ -28,6 +31,7 @@ const AddTool = lazy(() => import('./components/AddTool'));
 // 1. LAZY-LOAD THE USERPROFILE COMPONENT
 const UserProfile = lazy(() => import('./components/UserProfile'));
 const ToolDetail = lazy(() => import('./components/ToolDetail'));
+const ShowcasePage = lazy(() => import('./components/ShowcasePage'));
 const Upgrade = lazy(() => import('./components/Upgrade'));
 const Help = lazy(() => import('./components/Help'));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
@@ -46,6 +50,7 @@ const PageLoader = () => (
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -58,10 +63,12 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div className="App min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <div className="App min-h-screen flex flex-col bg-black text-white transition-colors duration-300">
+        {initialLoad && <CinematicLoader onComplete={() => setInitialLoad(false)} />}
         <Router>
           <LoadingProvider>
             {!isMobile && <Sidebar />}
+            <NewsletterPopup />
             <main className="flex-grow pb-24 md:pb-0">
               {/* The <Suspense> component wraps your routes.
               It shows the 'fallback' UI (your PageLoader) whenever a component inside it is not yet loaded.
@@ -78,6 +85,7 @@ function App() {
                   <Route path="/favorites" component={Favorites} />
                   <Route path="/contact" component={Contact} />
                   <Route path="/history" component={HistoryPage} />
+                  <Route path="/showcase" component={ShowcasePage} />
                   <Route path="/reset-password" component={ResetPassword} />
                   <Route path="/admin/newsletter" component={AdminDashboard} />
                   <Route path="/admin" component={AdminDashboard} />

@@ -1,257 +1,175 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { FaHome, FaSearch, FaPlus, FaUser, FaHeart, FaEnvelope, FaInfoCircle, FaHistory, FaCheck, FaChevronDown } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { motion as m } from 'framer-motion';
+import { FaHome, FaPlus, FaUser, FaHeart, FaEnvelope } from 'react-icons/fa';
 import AccountMenu from './AccountMenu';
-
-// Mobile bottom navigation bar styled per provided design reference.
-// Appears only on screens < 768px.
-// Central action button (Add) elevated with purple theme.
-
-const QUICK_KEY = 'mobileQuickSlot';
-const QUICK_OPTIONS = {
-  favorites: { key: 'favorites', label: 'Favorites', to: '/favorites', icon: <FaHeart /> },
-  contact:   { key: 'contact',   label: 'Contact',   to: '/contact',   icon: <FaEnvelope /> },
-  about:     { key: 'about',     label: 'About',     to: '/about',     icon: <FaInfoCircle /> },
-  history:   { key: 'history',   label: 'History',   to: '/history',   icon: <FaHistory /> },
-};
-
-const baseItems = [
-  { key: 'home', label: 'Home', icon: <FaHome />, to: '/' },
-  { key: 'search', label: 'Search', icon: <FaSearch />, action: 'search' }, // custom action
-  { key: 'add', label: 'Add', icon: <FaPlus />, to: '/add-tool', center: true },
-  // slot replaced by dynamic quick action
-  { key: 'quick' },
-  { key: 'profile', label: 'Profile', icon: <FaUser />, to: '/profile' }
-];
 
 export default function MobileBottomNav() {
   const history = useHistory();
   const location = useLocation();
-  const [showQuickSheet, setShowQuickSheet] = useState(false);
-  const firstOptionRef = useRef(null);
-  const optionRefs = useRef([]);
-  const quickBtnRef = useRef(null);
-  const navigatingRef = useRef(false);
-  const [quickKey, setQuickKey] = useState(() => {
-    try {
-      return localStorage.getItem(QUICK_KEY) || 'favorites';
-    } catch { return 'favorites'; }
-  });
-  const activePath = location.pathname;
+  const [activeIndex, setActiveIndex] = useState(0);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  const quick = QUICK_OPTIONS[quickKey] || QUICK_OPTIONS.favorites;
+  // Configuration for the menu items matching app routes
+  const menuItems = [
+    { name: 'Home', icon: <FaHome size={22} />, path: '/' },
+    { name: 'Favorites', icon: <FaHeart size={22} />, path: '/favorites' },
+    { name: 'Add', icon: <FaPlus size={22} />, path: '/add-tool' },
+    { name: 'Contact', icon: <FaEnvelope size={22} />, path: '/contact' },
+    { name: 'Profile', isProfile: true, path: '/profile' }, // Profile uses AccountMenu
+  ];
 
-  const navigateTo = useCallback((to) => {
-    try {
-      history.push(to);
-    } catch {}
-    // Fallback: if route didn't change soon, force navigation
-    setTimeout(() => {
-      try {
-        if (window.location.pathname !== to) {
-          window.location.assign(to);
-        }
-      } catch {}
-    }, 150);
-  }, [history]);
-
-  const selectQuickAndNavigate = useCallback((opt) => {
-    if (!opt) return;
-    if (navigatingRef.current) return;
-    navigatingRef.current = true;
-    setQuickKey(opt.key);
-    try { localStorage.setItem(QUICK_KEY, opt.key); } catch {}
-    // Close first for better mobile UX, then navigate on next tick
-    setShowQuickSheet(false);
-    setTimeout(() => {
-      navigateTo(opt.to);
-      navigatingRef.current = false;
-    }, 120);
-  }, [navigateTo]);
-
-  const handleSearch = useCallback(() => {
-    // Navigate to home first if not already there
-    if (location.pathname !== '/') {
-      history.push('/');
-      // Wait for navigation, then scroll to search bar
-      setTimeout(() => {
-        const searchInput = document.getElementById('hero-search-input');
-        if (searchInput) {
-          searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setTimeout(() => searchInput.focus(), 300);
-        } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }, 200);
-    } else {
-      // Already on home page, just scroll to search
-      const searchInput = document.getElementById('hero-search-input');
-      if (searchInput) {
-        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => searchInput.focus(), 300);
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-  }, [location.pathname, history]);
-
-  const handleExploreTools = useCallback(() => {
-    // Navigate to home and scroll to explore section
-    history.push('/');
-    setTimeout(() => {
-      const el = document.querySelector('[data-category="all"]') || document.querySelector('[class*="Browse"]');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 200);
-  }, [history]);
-
-  // Close menu if route changed by any means
   useEffect(() => {
-    if (showQuickSheet) setShowQuickSheet(false);
-  }, [location.pathname, showQuickSheet]);
+    const currentPath = location.pathname;
+    const index = menuItems.findIndex(item => {
+      // Exact match for root, startsWith for others
+      if (item.path === '/') return currentPath === '/';
+      return currentPath.startsWith(item.path);
+    });
+    // If no match (e.g. /history), we might want to unselect or maybe default to none? 
+    // But for now, existing logic sets to 0 if not found which might be misleading.
+    // Let's keep existing logic but arguably 0 is fallback.
+    if (index !== -1) setActiveIndex(index);
+    else setActiveIndex(0); 
+  }, [location.pathname]);
 
-  // Body scroll lock when popover open
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    if (showQuickSheet) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = prev || '';
-    return () => { document.body.style.overflow = prev || ''; };
-  }, [showQuickSheet]);
-
-  // Focus first option on open
-  useEffect(() => {
-    if (showQuickSheet && firstOptionRef.current) {
-      firstOptionRef.current.focus();
-    }
-  }, [showQuickSheet]);
-
-  // keyboard navigation inside menu
-  const onMenuKeyDown = (e) => {
-    if (!showQuickSheet) return;
-    const refs = optionRefs.current.filter(Boolean);
-    const idx = refs.findIndex((r) => r === document.activeElement);
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      setShowQuickSheet(false);
-      if (quickBtnRef.current) quickBtnRef.current.focus();
-      return;
-    }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      const next = refs[(idx + 1 + refs.length) % refs.length];
-      next && next.focus();
-    }
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      const prev = refs[(idx - 1 + refs.length) % refs.length];
-      prev && prev.focus();
-    }
-    if (e.key === 'Home') {
-      e.preventDefault();
-      refs[0] && refs[0].focus();
-    }
-    if (e.key === 'End') {
-      e.preventDefault();
-      refs[refs.length - 1] && refs[refs.length - 1].focus();
-    }
+  const handleNavigation = (index, path) => {
+    setActiveIndex(index);
+    history.push(path);
   };
 
-  // Only render UI on mobile; hooks above must run unconditionally for all renders
+  // Calculate mask position for "Dip" effect
+  // 5 items -> each is 20% width. Center is at 10%, 30%, 50%, 70%, 90%.
+  const maskPosition = `${activeIndex * 20 + 10}%`;
+
+  // Scroll visibility logic
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Simple threshold to avoid jitter
+      if (Math.abs(currentScrollY - lastScrollY.current) < 10) return;
+
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        // Scrolling DOWN -> Hide
+        setIsVisible(false);
+      } else {
+        // Scrolling UP -> Show
+        setIsVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   if (!isMobile) return null;
 
+  const activeItem = menuItems[activeIndex];
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-3 pointer-events-none">
-      <nav
-        className="relative w-[94%] max-w-xl rounded-3xl bg-white/90 dark:bg-white/10 backdrop-blur-xl shadow-lg flex items-center justify-between px-4 py-2 pointer-events-auto border border-gray-300/40 dark:border-white/10"
-        role="navigation"
-        aria-label="Mobile bottom navigation"
-      >
-        {baseItems.map(item => {
-          // build dynamic quick item
-          if (item.key === 'quick') {
-            const isActive = activePath.startsWith(quick.to);
-            const baseClasses = 'flex flex-col items-center justify-center flex-1 text-xs font-medium select-none';
-            const activeClasses = isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-600 dark:text-gray-300';
-            return (
-              <div key="quick" className="flex-1 flex items-center justify-center relative">
-                <button
-                  ref={quickBtnRef}
-                  onClick={() => navigateTo(quick.to)}
-                  onTouchStart={() => navigateTo(quick.to)}
-                  aria-label={`Open ${quick.label}`}
-                  className={`${baseClasses} ${activeClasses} h-full py-2 transition-colors`}
-                >
-                  <span className={`text-xl mb-1 ${isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-gray-300'}`}>{quick.icon}</span>
-                  <span>{quick.label}</span>
-                  {isActive && (
-                    <span className="mt-1 h-1 w-10 rounded-full bg-gray-300 dark:bg-white/20" />
-                  )}
-                </button>
-                {/* Removed quick-action dropdown trigger per request */}
-              </div>
-            );
-          }
-          const isActive = item.action 
-            ? false // Custom actions don't have an "active" state
-            : (item.to === '/'
-              ? activePath === '/'
-              : activePath.startsWith(item.to));
-          const baseClasses = 'flex flex-col items-center justify-center flex-1 text-xs font-medium select-none';
-          const activeClasses = isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-600 dark:text-gray-300';
+    <div 
+        className={`fixed bottom-0 left-0 right-0 z-50 flex justify-center items-end bg-transparent pointer-events-none px-2 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : 'translate-y-[120%]'}`}
+    >
+      {/* Structural Wrapper - No Mask */}
+      <div className="relative w-full max-w-md mx-auto pointer-events-auto">
+        
+        {/* Floating Active Button - Sibling to bar so it's NOT masked */}
+        <div 
+            className="absolute bottom-[40px] left-0 h-14 w-[20%] z-50 flex justify-center transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none"
+            style={{ transform: `translateX(${activeIndex * 100}%)` }}
+        >
+             <div className={`w-14 h-14 bg-[#FF6B00] rounded-full shadow-lg shadow-orange-500/40 flex items-center justify-center text-white ${activeItem.isProfile ? 'pointer-events-auto' : ''}`}>
+                 {activeItem.isProfile ? (
+                     <div className="flex items-center justify-center w-full h-full">
+                        <AccountMenu compact={true} transparent={true} />
+                     </div>
+                 ) : (
+                     activeItem.icon
+                 )}
+             </div>
+        </div>
 
-          if (item.center) {
-            return (
-              <div key={item.key} className="flex-1 flex items-center justify-center relative">
-                <m.button
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => history.push(item.to)}
-                  aria-label={item.label}
-                  className="relative -mt-10 w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white shadow-xl flex items-center justify-center ring-4 ring-white dark:ring-[#1a1d3a]"
-                >
-                  <span className="text-2xl">{item.icon}</span>
-                </m.button>
-              </div>
-            );
-          }
+        {/* 
+          Main Bar Container - MASK APPLIED HERE 
+          This contains the white background and the menu list.
+        */}
+        <div 
+          className="relative w-full bg-[#0F0F0F] border-t border-white/10 h-[70px] rounded-t-[20px] shadow-[0_-5px_20px_rgba(0,0,0,0.5)] flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+          style={{
+            WebkitMaskImage: `radial-gradient(circle 38px at ${maskPosition} 0px, transparent 96%, black 100%)`,
+            maskImage: `radial-gradient(circle 38px at ${maskPosition} 0px, transparent 96%, black 100%)`
+          }}
+        >
+          {/* The Menu List */}
+          <ul className="grid grid-cols-5 w-full h-full relative z-20">
+            {menuItems.map((item, i) => {
+              const isActive = i === activeIndex;
+              
+              // If this is the Profile item
+              if (item.isProfile) {
+                return (
+                    <li key={i} className="relative w-full h-full flex items-center justify-center group">
+                        {/* If inactive, show AccountMenu which handles its own click */}
+                        <div 
+                            className={`transition-all duration-300 transform ${isActive ? 'opacity-0 scale-50 pointer-events-none' : 'opacity-100 scale-100'}`}
+                        >
+                            <AccountMenu compact={true} transparent={true} />
+                        </div>
+                        
+                        {/* Label logic - same as buttons */}
+                         <span
+                            className={`
+                              absolute text-[11px] font-semibold tracking-wide transition-all duration-300 transform pointer-events-none
+                              ${isActive 
+                                ? 'opacity-100 translate-y-[20px] text-[#FF6B00]' 
+                                : 'opacity-0 translate-y-[20px]'}
+                            `}
+                          >
+                            {item.name}
+                          </span>
+                    </li>
+                );
+              }
 
-          // Use AccountMenu for profile item
-          if (item.key === 'profile') {
-            return (
-              <div key={item.key} className="flex-1 flex items-center justify-center">
-                <div className="w-full h-full flex items-center justify-center py-2">
-                  <AccountMenu compact={true} />
-                </div>
-              </div>
-            );
-          }
+              return (
+                <li key={i} className="relative w-full h-full flex items-center justify-center group">
+                  <button
+                    className="flex flex-col items-center justify-center w-full h-full focus:outline-none pt-4"
+                    onClick={() => handleNavigation(i, item.path)}
+                  >
+                    <span
+                      className={`
+                        absolute transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] z-40
+                        ${isActive 
+                          ? 'opacity-0 scale-50' 
+                          : 'transform translate-y-0 text-gray-400 group-hover:text-[#FF6B00] opacity-100 scale-100'}
+                      `}
+                    >
+                      {item.icon}
+                    </span>
+                    
+                    <span
+                      className={`
+                        absolute text-[11px] font-semibold tracking-wide transition-all duration-300 transform
+                        ${isActive 
+                          ? 'opacity-100 translate-y-[12px] text-[#FF6B00]' 
+                          : 'opacity-0 translate-y-[20px]'}
+                      `}
+                    >
+                      {item.name}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
-          return (
-            <button
-              key={item.key}
-              onClick={() => {
-                if (item.action === 'search') {
-                  handleSearch();
-                } else if (item.to) {
-                  history.push(item.to);
-                }
-              }}
-              aria-label={item.label}
-              className={`${baseClasses} ${activeClasses} h-full py-2 transition-colors`}
-            >
-              <span className={`text-xl mb-1 ${isActive ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-gray-300'}`}>{item.icon}</span>
-              <span>{item.label}</span>
-              {isActive && (
-                <span className="mt-1 h-1 w-10 rounded-full bg-gray-300 dark:bg-white/20" />
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Quick selection popover removed per request */}
+      </div>
     </div>
   );
 }

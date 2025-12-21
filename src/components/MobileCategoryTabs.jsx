@@ -5,8 +5,6 @@ export default function MobileCategoryTabs({ categories = [], activeId = 'all', 
   const listRef = useRef(null);
   const activeRef = useRef(null);
 
-  const [headerOffset, setHeaderOffset] = useState(80);
-
   // Auto-scroll active tab into view
   useEffect(() => {
     const el = activeRef.current;
@@ -19,28 +17,17 @@ export default function MobileCategoryTabs({ categories = [], activeId = 'all', 
     }
   }, [activeId]);
 
-  // Measure header height for proper offset
-  useEffect(() => {
-    const computeHeader = () => {
-      const header = document.querySelector('header');
-      const h = header ? Math.round(header.getBoundingClientRect().height) : 80;
-      setHeaderOffset(h);
-    };
-    computeHeader();
-    window.addEventListener('resize', computeHeader);
-    return () => window.removeEventListener('resize', computeHeader);
-  }, []);
-
   if (!categories || categories.length === 0) return null;
 
   return (
-    <div className="md:hidden block w-full">
+    <div 
+      className="md:hidden block w-full sticky z-40 backdrop-blur-md bg-black border-b border-white/5" 
+      style={{ top: '64px' }}
+    >
       <nav
         id="mobile-category-tabs"
-        className="sticky z-40 backdrop-blur-md bg-gradient-to-b from-[#0a0e27]/60 to-[#0a0e27]/40 border-b border-white/5"
         role="tablist"
         aria-label="Browse categories"
-        style={{ top: headerOffset }}
       >
         <div className="px-3 py-2 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div
@@ -57,9 +44,9 @@ export default function MobileCategoryTabs({ categories = [], activeId = 'all', 
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => onSelect(c.id)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-150 border ${
+                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 border ${
                     isActive
-                      ? 'bg-blue-600/40 text-white border-blue-500/50'
+                      ? 'bg-[#FF6B00] text-white border-orange-500 shadow-lg shadow-orange-500/20'
                       : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:text-white'
                   }`}
                   style={{ WebkitTapHighlightColor: 'transparent' }}
@@ -70,6 +57,8 @@ export default function MobileCategoryTabs({ categories = [], activeId = 'all', 
             })}
           </div>
         </div>
+        {/* Fade Indicator */}
+        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#0a0e27] to-transparent pointer-events-none" />
       </nav>
     </div>
   );

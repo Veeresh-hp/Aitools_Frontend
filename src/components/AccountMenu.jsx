@@ -1,7 +1,9 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { useHistory } from 'react-router-dom';
 import { motion as m, AnimatePresence } from 'framer-motion';
-import { FaCrown, FaUser, FaQuestionCircle, FaSignOutAlt, FaHistory, FaArrowLeft } from 'react-icons/fa';
+import { FaCrown, FaUser, FaQuestionCircle, FaSignOutAlt, FaHistory } from 'react-icons/fa';
+import AuthModal from './AuthModal';
 
 function getInitials(nameOrEmail) {
   if (!nameOrEmail) return 'U';
@@ -11,7 +13,7 @@ function getInitials(nameOrEmail) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-const AccountMenu = ({ compact = false }) => {
+const AccountMenu = ({ compact = false, fromSidebar = false, onOpenChange, transparent = false }) => {
   const history = useHistory();
   const [open, setOpen] = React.useState(false);
   const [focusedIndex, setFocusedIndex] = React.useState(0);
@@ -25,10 +27,8 @@ const AccountMenu = ({ compact = false }) => {
   });
 
   React.useEffect(() => {
-    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, []);
+    if (onOpenChange) onOpenChange(open);
+  }, [open, onOpenChange]);
 
   const setLastUsed = (key) => { try { localStorage.setItem('account_last_item', key); } catch {} setLastUsedKey(key); };
   const go = (path, key) => { setLastUsed(key); setOpen(false); history.push(path); };
@@ -78,12 +78,14 @@ const AccountMenu = ({ compact = false }) => {
   };
 
   const items = isLoggedIn ? [
+
     { key: 'history', label: 'History', icon: <FaHistory className="opacity-80" />, onClick: () => go('/history', 'history') },
     { key: 'upgrade', label: 'Upgrade plan', icon: <FaCrown className="opacity-80" />, onClick: () => go('/upgrade', 'upgrade') },
     { key: 'profile', label: 'Profile', icon: <FaUser className="opacity-80" />, onClick: () => go('/profile', 'profile') },
     { key: 'help', label: 'Help', icon: <FaQuestionCircle className="opacity-80" />, onClick: () => go('/help', 'help') },
     { key: 'logout', label: 'Log out', icon: <FaSignOutAlt />, onClick: logout, danger: true },
   ] : [
+
     { key: 'history', label: 'History', icon: <FaHistory className="opacity-80" />, onClick: openAuthPrompt },
     { key: 'upgrade', label: 'Upgrade plan', icon: <FaCrown className="opacity-80" />, onClick: openAuthPrompt },
     { key: 'help', label: 'Help', icon: <FaQuestionCircle className="opacity-80" />, onClick: () => { setOpen(false); history.push('/help'); } },
@@ -91,8 +93,17 @@ const AccountMenu = ({ compact = false }) => {
     { key: 'signup', label: 'Sign Up', icon: <FaCrown className="opacity-80" />, onClick: () => { setOpen(false); history.push('/signup'); } },
   ];
 
+  // Click outside handler updated for Portal
   React.useEffect(() => {
-    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onDoc = (e) => { 
+      // check both the trigger container (ref) and the menu (menuRef)
+      const clickedTrigger = ref.current && ref.current.contains(e.target);
+      const clickedMenu = menuRef.current && menuRef.current.contains(e.target);
+      
+      if (!clickedTrigger && !clickedMenu) {
+        setOpen(false);
+      }
+    };
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
@@ -131,78 +142,7 @@ const AccountMenu = ({ compact = false }) => {
     }
   };
 
-  return (
-    <div 
-      className={`relative ${compact ? '' : 'w-full'}`} 
-      ref={ref}
-      onMouseLeave={() => {
-        if (!compact) setOpen(false);
-      }}
-    >
-      {!isLoggedIn ? (
-        <m.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          ref={triggerRef}
-          className={`${compact ? 'w-12 h-12 mx-auto' : 'w-[92%] mx-auto'} flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-colors font-medium text-sm`}
-          onClick={() => setOpen(o => !o)}
-          aria-haspopup="menu"
-          aria-expanded={open}
-        >
-          {compact ? '👨‍💼' : '👨‍💼 Account'}
-          <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
-        </m.button>
-      ) : compact ? (
-        <button
-          ref={triggerRef}
-          className="w-12 h-12 mx-auto flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-colors"
-          onClick={() => setOpen(o => !o)}
-          aria-haspopup="menu"
-          aria-expanded={open}
-          title={displayName}
-        >
-          {avatar && !avatarError ? (
-            <img
-              src={avatar}
-              alt={displayName}
-              className={`w-7 h-7 rounded-full object-cover transition-all ${open ? 'ring-2 ring-indigo-400/70 ring-offset-2 ring-offset-black/40' : ''}`}
-              onError={() => setAvatarError(true)}
-            />
-          ) : (
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold">
-              {initials}
-            </span>
-          )}
-        </button>
-      ) : (
-        <button
-          ref={triggerRef}
-          className="w-[92%] mx-auto flex items-center justify-between gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-3 py-2 rounded-xl transition-colors"
-          onClick={() => setOpen(o => !o)}
-          aria-haspopup="menu"
-          aria-expanded={open}
-        >
-          <span className="flex items-center gap-3">
-            {avatar && !avatarError ? (
-              <img
-                src={avatar}
-                alt={displayName}
-                className={`w-8 h-8 rounded-full object-cover transition-all ${open ? 'ring-2 ring-indigo-400/70 ring-offset-2 ring-offset-[#1a1d3a]' : ''}`}
-                onError={() => setAvatarError(true)}
-              />
-            ) : (
-              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold">
-                {initials}
-              </span>
-            )}
-            <span className="text-sm truncate max-w-[8rem]">{displayName}</span>
-          </span>
-          <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
-        </button>
-      )}
-
-      <AnimatePresence mode="wait">
-        {open && (
+  const menu = (
           <m.div
             initial={{ opacity: 0, scale: 0.92, y: compact ? -8 : 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -213,39 +153,44 @@ const AccountMenu = ({ compact = false }) => {
             tabIndex={0}
 className={`${
   compact
-    ? [
-        'fixed',
-        'bottom-24',
-        'left-1/2',
-        '-translate-x-1/2',
-        'w-56',
-        'max-h-[70vh]',
-        'overflow-y-auto',
-        'pointer-events-auto',
-        'mr-3'
+    ? fromSidebar 
+       ? [
+          'fixed',
+          'bottom-24', // Roughly aligns with button in sidebar
+          'left-20',   // Push to the right of the sidebar
+          'w-64',
+          'max-h-[70vh]',
+          'overflow-y-auto',
+          'pointer-events-auto',
+          'ml-2' // Extra spacing
+         ].join(' ')
+       : [
+          'fixed',
+          'bottom-24',
+          'left-1/2',
+          '-translate-x-1/2',
+          'w-64',
+          'max-h-[70vh]',
+          'overflow-y-auto',
+          'pointer-events-auto',
+          'mr-3'
       ].join(' ')
     : [
-        'absolute',
-        'bottom-12',
+        'fixed',
+        'bottom-24',
         'left-3',
-        'right-3',
+        'w-52', // 13rem, fits well within 14rem sidebar
+        'z-[9999]',
         'pointer-events-auto'
       ].join(' ')
 } 
-bg-gradient-to-b
-from-purple-900/60
-via-indigo-900/50
-to-slate-900/95
-border border-indigo-400/30
-rounded-lg
-shadow-2xl
-backdrop-blur-md
-p-3
-z-[200]`}
+p-2
+z-[200]
+bg-[#0F0F0F] border border-white/10 rounded-2xl shadow-2xl`}
             role="menu"
           >
           {isLoggedIn && email && (
-            <div className="px-3 py-2 text-xs text-gray-400 border-b border-white/5 mb-2 truncate font-medium">
+            <div className="px-4 py-2 text-xs text-gray-500 border-b border-white/5 mb-2 truncate font-bold uppercase tracking-wider">
               {email}
             </div>
           )}
@@ -260,12 +205,12 @@ z-[200]`}
                 onClick={item.onClick}
                 whileHover={{ scale: 1.02, x: 2 }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all relative group ${
-                  item.danger ? 'text-red-400 hover:bg-red-500/15' : 'text-gray-100 hover:bg-white/10'
-                } ${focusedIndex === idx ? 'bg-white/15' : ''}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all relative group ${
+                  item.danger ? 'text-red-400 hover:bg-red-500/15' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                } ${focusedIndex === idx ? 'bg-white/10 text-white' : ''}`}
               >
                 <span className="text-lg opacity-70 group-hover:opacity-100 transition-opacity">{item.icon}</span>
-                <span className="font-medium flex-1">{item.label}</span>
+                <span className="font-medium flex-1 whitespace-nowrap">{item.label}</span>
                 <div className="w-16 flex justify-end">
                   {lastUsedKey === item.key && isLoggedIn && (
                     <span className="text-xs bg-blue-500/40 px-2 py-1 rounded text-blue-200 whitespace-nowrap">Recent</span>
@@ -275,74 +220,88 @@ z-[200]`}
             ))}
           </div>
         </m.div>
-        )}
-      </AnimatePresence>
+  );
 
-      <AnimatePresence>
-        {showAuthPrompt && (
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setShowAuthPrompt(false)}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md z-[200] flex items-center justify-center p-4"
-          >
-            <m.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl border border-white/10 w-full max-w-[340px] sm:max-w-md p-8 sm:p-10 relative"
-              style={{
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1)'
-              }}
-            >
-              <button
-                onClick={() => setShowAuthPrompt(false)}
-                className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
-                aria-label="Go back"
-              >
-                <FaArrowLeft className="text-lg" />
-              </button>
-              
-              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 text-center tracking-tight">
-                Sign In Required
-              </h3>
-              <p className="text-gray-300/90 mb-8 text-center text-sm sm:text-base leading-relaxed">
-                Please sign in or create an account to access this feature.
-              </p>
-              
-              <div className="flex gap-3 w-full mb-5">
-                <m.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => { setShowAuthPrompt(false); history.push('/login'); }}
-                  className="flex-1 px-6 py-3.5 bg-white/5 hover:bg-white/10 border-2 border-white/20 hover:border-white/30 text-white rounded-xl font-semibold transition-all text-sm sm:text-base"
-                >
-                  Login
-                </m.button>
-                <m.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => { setShowAuthPrompt(false); history.push('/signup'); }}
-                  className="flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-bold transition-all shadow-lg text-sm sm:text-base"
-                >
-                  Sign Up
-                </m.button>
-              </div>
-              
-              <button
-                onClick={() => setShowAuthPrompt(false)}
-                className="w-full text-center text-gray-400 hover:text-white transition-colors text-sm font-medium"
-              >
-                Cancel
-              </button>
-            </m.div>
-          </m.div>
-        )}
-      </AnimatePresence>
+  return (
+    <div 
+      className={`relative ${compact ? '' : 'w-full'}`} 
+      ref={ref}
+    >
+      {!isLoggedIn ? (
+        <m.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          ref={triggerRef}
+          className={`${compact ? 'w-10 h-10 mx-auto' : 'w-[92%] mx-auto'} flex items-center justify-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-colors font-medium text-xs`}
+          onClick={() => setOpen(o => !o)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+        >
+          {compact ? '👨‍💼' : '👨‍💼 Account'}
+          <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
+        </m.button>
+      ) : compact ? (
+        <button
+          ref={triggerRef}
+          className={`w-10 h-10 mx-auto flex items-center justify-center text-white transition-colors ${transparent ? 'rounded-full' : 'bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl'}`}
+          onClick={() => setOpen(o => !o)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          title={displayName}
+        >
+          {avatar && !avatarError ? (
+            <img
+              src={avatar}
+              alt={displayName}
+              className={`w-7 h-7 rounded-full object-cover transition-all ${open ? 'ring-2 ring-orange-500/70 ring-offset-2 ring-offset-black/40' : ''}`}
+              onError={() => setAvatarError(true)}
+            />
+          ) : (
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold">
+              {initials}
+            </span>
+          )}
+        </button>
+      ) : (
+        <button
+          ref={triggerRef}
+          className="w-[92%] mx-auto flex items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-3 py-1.5 rounded-xl transition-colors"
+          onClick={() => setOpen(o => !o)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+        >
+          <span className="flex items-center gap-2">
+            {avatar && !avatarError ? (
+              <img
+                src={avatar}
+                alt={displayName}
+                className={`w-7 h-7 rounded-full object-cover transition-all ${open ? 'ring-2 ring-orange-500/70 ring-offset-2 ring-offset-black' : ''}`}
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold">
+                {initials}
+              </span>
+            )}
+            <span className="text-xs font-medium truncate max-w-[7rem]">{displayName}</span>
+          </span>
+          <span className={`transition-transform text-xs ${open ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+      )}
+
+       {/* Portal the menu to the body to break z-index/transform limits */}
+       {typeof document !== 'undefined' && ReactDOM.createPortal(
+            <AnimatePresence mode="wait">
+                {open && menu}
+            </AnimatePresence>,
+            document.body
+       )}
+
+
+      <AuthModal 
+        isOpen={showAuthPrompt} 
+        onClose={() => setShowAuthPrompt(false)} 
+      />
     </div>
   );
 };

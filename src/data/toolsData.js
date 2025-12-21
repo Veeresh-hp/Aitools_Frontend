@@ -4,7 +4,7 @@ const toolsData = [
     "name": "ChatGPT Alternatives",
     "tools": [
       {
-        "name": "ChatGPT AI",
+        "name": "ChatGPT",
         "pricing": "Freemium",
         "description": "ChatGPT-4o is OpenAI's fastest and smartest AI model yet.",
         "url": "https://www.ChatGPT.com",

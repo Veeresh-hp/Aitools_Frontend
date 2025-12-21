@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import { FaExternalLinkAlt, FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import { useHistory, Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { addRefToUrl } from '../utils/linkUtils';
 import { addToHistory } from '../utils/historyUtils';
 
-const ToolCard = ({ tool, openModal }) => {
+const ToolCard = ({ tool, className = '', style = {} }) => {
   const history = useHistory();
+  const [imageError, setImageError] = useState(false);
 
   // Helper to build a favicon URL when no image is available
   const getFaviconUrl = (url) => {
     try {
       if (!url) return null;
       const { hostname } = new URL(url);
-      return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+      return `https://www.google.com/s2/favicons?domain=${hostname}&sz=256`;
     } catch {
       return null;
     }
@@ -21,25 +22,19 @@ const ToolCard = ({ tool, openModal }) => {
 
   const handleClick = () => {
     if (!tool.comingSoon) {
-      // Generate tool slug from name
       const toolSlug = tool.name.toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
-
-      // Navigate to tool detail page with fallback for undefined category
       const categorySlug = tool.category || 'all';
       history.push(`/tools/${categorySlug}/${toolSlug}`);
     }
   };
 
-
-
-  // Bookmark (save) state: persist bookmarks in localStorage under 'ai_bookmarks'
   const getToolKey = React.useCallback(() => tool.url || tool.name || tool.id, [tool.url, tool.name, tool.id]);
   const [saved, setSaved] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     try {
       const key = getToolKey();
       const raw = localStorage.getItem('ai_bookmarks');
@@ -69,210 +64,118 @@ const ToolCard = ({ tool, openModal }) => {
     }
   };
 
-  const getCategoryGradient = (category) => {
-    const gradients = {
-      chatbots: 'from-violet-600/20 via-indigo-600/20 to-purple-600/20',
-      'image-generators': 'from-rose-600/20 via-pink-600/20 to-fuchsia-600/20',
-      'music-generators': 'from-green-600/20 via-teal-600/20 to-emerald-600/20',
-      'data-analysis': 'from-teal-600/20 via-cyan-600/20 to-sky-600/20',
-      'ai-diagrams': 'from-indigo-600/20 via-purple-600/20 to-violet-600/20',
-      'ai-coding-assistants': 'from-blue-600/20 via-indigo-600/20 to-purple-600/20',
-      'writing-tools': 'from-blue-600/20 via-sky-600/20 to-cyan-600/20',
-      'email-assistance': 'from-green-600/20 via-teal-600/20 to-emerald-600/20',
-      'spreadsheet-tools': 'from-emerald-600/20 via-green-600/20 to-lime-600/20',
-      'ai-scheduling': 'from-yellow-600/20 via-amber-600/20 to-orange-600/20',
-      'data-visualization': 'from-teal-600/20 via-cyan-600/20 to-sky-600/20',
-      'meeting-notes': 'from-yellow-600/20 via-amber-600/20 to-orange-600/20',
-      'video-generators': 'from-red-600/20 via-rose-600/20 to-orange-600/20',
-      'utility-tools': 'from-gray-600/20 via-slate-600/20 to-zinc-600/20',
-      'marketing-tools': 'from-orange-600/20 via-yellow-600/20 to-amber-600/20',
-      'voice-tools': 'from-yellow-600/20 via-amber-600/20 to-orange-600/20',
-      'presentation-tools': 'from-cyan-600/20 via-sky-600/20 to-indigo-600/20',
-      'website-builders': 'from-emerald-600/20 via-green-600/20 to-lime-600/20',
-      'gaming-tools': 'from-fuchsia-600/20 via-pink-600/20 to-purple-600/20',
-      'short-clippers': 'from-rose-600/20 via-red-600/20 to-orange-600/20',
-      'faceless-video': 'from-zinc-600/20 via-gray-600/20 to-slate-600/20',
-      'portfolio-tools': 'from-amber-600/20 via-yellow-600/20 to-orange-600/20',
-      'text-humanizer-ai': 'from-indigo-600/20 via-purple-600/20 to-pink-600/20',
-    };
-    return gradients[tool.category] || 'from-blue-600/20 via-purple-600/20 to-indigo-600/20';
-  };
-
-  const getBadgeClass = (badge) => {
-    switch (badge) {
-      case 'Paid':
-        return 'bg-red-500 text-white';
-      case 'Free':
-        return 'bg-green-500 text-white';
-      case 'Freemium':
-        return 'bg-orange-500 text-white';
-      case 'Recommended':
-        return 'bg-yellow-500 text-white';
-      case 'Admin Choice':
-        return 'bg-yellow-500 text-white font-bold border border-yellow-400 shadow-yellow-500/20';
-      case 'New':
-        return 'bg-blue-500 text-white';
-      case 'Trending':
-        return 'bg-purple-500 text-white';
-      case 'Free Trial':
-        return 'bg-indigo-500 text-white';
-      case 'Contact':
-        return 'bg-gray-500 text-white';
-      default:
-        return 'bg-gray-500 text-white';
-    }
-  };
-
-
+  const primaryImage = tool.image;
+  const fallbackImage = getFaviconUrl(tool.url);
+  const displayImage = !imageError ? (primaryImage || fallbackImage) : fallbackImage;
 
   return (
     <LazyMotion features={domAnimation}>
       <m.article
-        initial={false}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0 }}
-        className={`group relative rounded-2xl shadow-xl flex flex-col overflow-hidden transition-all duration-200 bg-gradient-to-br ${getCategoryGradient(tool.category)} backdrop-blur-xl border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2`}
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4 }}
+        onClick={handleClick}
+        className={`group relative overflow-hidden rounded-[2rem] bg-[#12121A] border border-white/10 hover:border-white/20 transition-all duration-500 cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-purple-500/10 ${className}`}
+        style={style}
       >
-        {/* Tool Image - Full Width at Top */}
-        <div
-          className="relative w-full h-48 bg-black/30 overflow-hidden cursor-pointer group/image"
-          onClick={handleClick}
-        >
-          {tool.image || tool.url ? (
-            <>
-              <img
-                src={tool.image || getFaviconUrl(tool.url)}
-                alt={tool.name}
-                loading="lazy"
-                decoding="async"
-                crossOrigin="anonymous"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                onError={e => {
-                  try {
-                    const imgEl = e.currentTarget;
-                    const current = imgEl.getAttribute('src') || '';
-                    // 1) Fix case-sensitive local assets
-                    if (current.includes('/images/')) {
-                      imgEl.onerror = null;
-                      imgEl.src = getFaviconUrl(tool.url);
-                      return;
-                    }
-                    // 2) Fallback to favicon
-                    imgEl.onerror = null;
-                    imgEl.src = getFaviconUrl(tool.url);
-                  } catch (err) {
-                    // ignore
-                  }
-                }}
-              />
-            </>
+        {/* --- Background Image Layer --- */}
+        <div className="absolute inset-0 z-0 bg-[#0A0A0A]">
+          {displayImage ? (
+            <img 
+              src={displayImage}
+              alt={tool.name}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
+              onError={() => setImageError(true)}
+            />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm bg-black/20">
-              No Image Available
-            </div>
+            // Abstract Gradient Fallback
+            <div className={`w-full h-full bg-gradient-to-br ${
+               tool.pricing === 'Free' ? 'from-green-900/40 to-black' : 
+               tool.pricing === 'Paid' ? 'from-red-900/40 to-black' : 
+               'from-indigo-900/40 to-black'
+            } group-hover:scale-110 transition-transform duration-700`} />
           )}
-
-          {/* Badge - Top Left */}
-          {(tool.isAiToolsChoice || tool.badge || tool.isNew) && (
-            <span className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold shadow-lg z-10 ${tool.isAiToolsChoice
-              ? 'bg-yellow-500 text-white font-bold border border-yellow-400 shadow-yellow-500/20'
-              : tool.isNew
-                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white animate-pulse'
-                : getBadgeClass(tool.badge)
-              }`}>
-              {tool.isAiToolsChoice ? 'Admin Choice' : (tool.isNew ? '🎉 NEW' : tool.badge)}
-            </span>
-          )}
-
-          {/* Bookmark (save) Icon - Top Right */}
-          <button
-            className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-lg ${saved ? 'bg-yellow-500 text-white' : 'bg-white/10 text-white'} backdrop-blur-md hover:scale-105 transition-all duration-150 z-30 border ${saved ? 'border-yellow-400' : 'border-white/20'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/70`}
-            onClick={toggleBookmark}
-            title={saved ? 'Saved' : 'Save'}
-            aria-pressed={saved}
-          >
-            {saved ? <FaBookmark className="w-4 h-4" /> : <FaRegBookmark className="w-4 h-4" />}
-          </button>
-
-          {/* View Now Overlay */}
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-            <span className="px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-semibold text-sm transform translate-y-4 group-hover/image:translate-y-0 transition-transform duration-300">
-              Click Here
-            </span>
-          </div>
-
-          {/* Open Tool Button moved to bottom-right corner of the card */}
+          
+          {/* Default Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-80" />
         </div>
 
-        {/* Content Section */}
-        <div className="flex-1 flex flex-col px-5 pt-4 pb-14 gap-3">
-          {/* Tool Name */}
-          <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors duration-200">
-            {tool.name}
-          </h3>
-
-          {/* Description */}
-          <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed group-hover:text-gray-200">
-            {tool.shortDescription || tool.description}
-          </p>
-        </div>
-
-        {/* Bottom Left Corner - Date and Category Tags */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
-          {/* Date Added */}
-          {tool.dateAdded && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-300 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-sm">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>
-                {new Date(tool.dateAdded).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </span>
-              {/* Pricing Badge */}
-              {tool.pricing && (
-                <Link
-                  to={`/?pricing=${tool.pricing.toLowerCase().replace(' ', '-')}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className={`px-3 py-1 text-xs font-medium rounded-full backdrop-blur-sm border shadow-sm transition-transform hover:scale-105 ${tool.pricing === 'Free' ? 'bg-green-500/20 text-green-200 border-green-500/30' :
-                    tool.pricing === 'Paid' ? 'bg-red-500/20 text-red-200 border-red-500/30' :
-                      tool.pricing === 'Open Source' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
-                        tool.pricing === 'Open Source' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
-                          tool.pricing === 'Free Trial' ? 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30' :
-                            tool.pricing === 'Contact' ? 'bg-gray-500/20 text-gray-200 border-gray-500/30' :
-                              tool.pricing === 'subscription' ? 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30' :
-                                'bg-yellow-500/20 text-yellow-100 border-yellow-500/30' // Freemium
-                    }`}
+        {/* --- Floating Actions (Top Right) --- */}
+        <div className="absolute top-4 right-4 z-30 flex gap-2 translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+             {tool.url && (
+                <a
+                    href={addRefToUrl(tool.url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => { e.stopPropagation(); addToHistory(tool); }}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors border border-white/10"
+                    title="Visit Website"
                 >
-                  {tool.pricing}
-                </Link>
-              )}
-            </div>
-          )}
+                    <FaExternalLinkAlt className="w-3.5 h-3.5" />
+                </a>
+            )}
+             <button
+                className={`w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md transition-all border border-white/10 ${saved ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                onClick={toggleBookmark}
+                title={saved ? 'Saved' : 'Save'}
+            >
+                {saved ? <FaBookmark className="w-3.5 h-3.5" /> : <FaRegBookmark className="w-3.5 h-3.5" />}
+            </button>
+        </div>
+        
+        {/* --- Top Left Badges --- */}
+        <div className="absolute top-4 left-4 z-30 flex flex-col items-start gap-2">
+           {(tool.isAiToolsChoice || tool.badge || tool.isNew) && (
+             <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full backdrop-blur-md shadow-lg ${
+                tool.isAiToolsChoice ? 'bg-gradient-to-r from-amber-400/80 to-orange-500/80 text-white' :
+                tool.isNew ? 'bg-gradient-to-r from-blue-500/80 to-purple-500/80 text-white' :
+                'bg-white/10 border border-white/10 text-gray-200'
+             }`}>
+                {tool.isAiToolsChoice ? 'Choice' : (tool.isNew ? 'New' : tool.badge)}
+             </span>
+           )}
         </div>
 
-        {tool.url && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              addToHistory(tool); // Add to history
-              try {
-                window.open(addRefToUrl(tool.url), '_blank', 'noopener,noreferrer');
-              } catch (err) {
-                window.location.href = addRefToUrl(tool.url);
-              }
-            }}
-            className="absolute bottom-3 right-3 p-0 text-white hover:text-blue-300 transition-colors z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 rounded"
-            title={`Open ${tool.name}`}
-            aria-label={`Open ${tool.name}`}
-          >
-            <FaExternalLinkAlt className="w-4 h-4 opacity-90" />
-          </button>
-        )}
+
+        {/* --- Main Content (Bottom) --- */}
+        <div className="relative z-20 h-full flex flex-col justify-end p-6">
+          <div className="transform transition-transform duration-300 group-hover:translate-y-[-5px]">
+            {/* Title */}
+            <h3 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-purple-300 transition-colors">
+              {tool.name}
+            </h3>
+            
+            {/* Description - Semi-transparent, becomes clearer on hover */}
+            <p className="text-sm text-gray-300/80 leading-relaxed line-clamp-2 mb-3 group-hover:text-gray-200 transition-colors">
+              {tool.shortDescription || tool.description}
+            </p>
+
+            {/* Footer Metadata */}
+            <div className="flex items-center gap-3 mt-1">
+                 {/* Pricing Pill */}
+                 {tool.pricing && (
+                    <span className={`px-2.5 py-1 text-[10px] font-semibold rounded-lg border backdrop-blur-sm ${
+                        tool.pricing === 'Free' ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' :
+                        tool.pricing === 'Paid' ? 'bg-rose-500/20 border-rose-500/30 text-rose-300' :
+                        'bg-blue-500/20 border-blue-500/30 text-blue-300'
+                    }`}>
+                        {tool.pricing}
+                    </span>
+                 )}
+                 
+                 {/* Date - Only show if space permits (optional) */}
+                 {tool.dateAdded && (
+                    <span className="text-[10px] text-gray-500/80 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {new Date(tool.dateAdded).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                 )}
+            </div>
+          </div>
+        </div>
+
+        {/* Hover Glow Effect */}
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
       </m.article>
     </LazyMotion>
   );

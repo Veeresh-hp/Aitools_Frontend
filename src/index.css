@@ -37,6 +37,19 @@
     animation: spin-slow 3s linear infinite;
   }
 
+  @keyframes spin-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+
+  .animate-spin-slow-reverse {
+    animation: spin-reverse 6s linear infinite;
+  }
+
+  .animate-spin-slower {
+    animation: spin-slow 10s linear infinite;
+  }
+
   .delay-150 {
     animation-delay: 150ms;
   }
@@ -74,11 +87,13 @@
   We will let the root div in App.js handle the main background and text colors.
 */
 body {
-  /* Ensure body doesn't have a conflicting background or text color */
-  /* You can set it to transparent or a very light/dark base if needed,
-     but the App.js root div should handle the main theme colors. */
-  margin: 0; /* Important for full-width/height layouts */
-  padding: 0; /* Important for full-width/height layouts */
+  background-color: #000000;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* GLOBAL FIX: Prevent horizontal scroll here instead of component wrappers to preserve sticky behavior */
 }
 
 
@@ -510,4 +525,22 @@ html {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+/* Custom Modal Scrollbar */
+.custom-modal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+.custom-modal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-modal-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-modal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 99px;
+}
+.custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.4);
 }

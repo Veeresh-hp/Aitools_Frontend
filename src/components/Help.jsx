@@ -1,53 +1,261 @@
-import React from 'react';
-import { motion as m } from 'framer-motion';
+import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { motion as m, AnimatePresence } from 'framer-motion';
+import { FaSearch, FaRocket, FaUserCog, FaTools, FaShieldAlt, FaChevronDown, FaEnvelope, FaExternalLinkAlt } from 'react-icons/fa';
 
 const Help = () => {
+  const history = useHistory();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeAccordion, setActiveAccordion] = useState(null);
+
+  const categories = [
+    { 
+      icon: <FaRocket />, 
+      title: 'Getting Started', 
+      desc: 'Everything you need to know to navigate AI Tools Hub.',
+      links: ['How to search for tools', 'Filtering by category', 'Using bookmarks']
+    },
+    { 
+      icon: <FaUserCog />, 
+      title: 'Account & Profile', 
+      desc: 'Manage your personal settings and preferences.',
+      links: ['Updating your profile', 'Resetting password', 'Privacy settings']
+    },
+    { 
+      icon: <FaTools />, 
+      title: 'Submitting Tools', 
+      desc: 'Guidelines for developers and tool creators.',
+      links: ['Submission guidelines', 'Verification process', 'Editing your tool']
+    },
+    { 
+      icon: <FaShieldAlt />, 
+      title: 'Billing & Support', 
+      desc: 'Information about plans and contacting our team.',
+      links: ['Subscription plans', 'Canceling subscription', 'Contact support']
+    },
+  ];
+
+  const faqs = [
+    { 
+      q: 'How do I add a new AI tool to the hub?', 
+      a: 'To add a tool, navigate to the "Submit Tool" page from the sidebar. You will need to provide the tool name, a brief description, the website URL, and select a relevant category. Our team reviews all submissions within 24-48 hours.' 
+    },
+    { 
+      q: 'Is AI Tools Hub free to use?', 
+      a: 'Yes, browsing, searching, and saving tools to your favorites is completely free for all users. We may introduce premium features for tool developers in the future to highlight their products.' 
+    },
+    { 
+      q: 'Can I suggest a new category?', 
+      a: 'Absolutely! We love community feedback. If you find a tool that doesn\'t fit into existing categories, please contact us via the support form or join our Discord community to suggest new additions.' 
+    },
+    { 
+      q: 'My tool information is incorrect. How can I fix it?', 
+      a: 'If you are the owner of the tool, please log in and navigate to your dashboard to request an edit. Alternatively, use the main contact form to report the inaccuracy, and we will update it promptly.' 
+    },
+  ];
+
+  const toggleAccordion = (index) => {
+    setActiveAccordion(activeAccordion === index ? null : index);
+  };
+
+  // Filter content based on search query
+  const filteredCategories = categories.filter(cat => {
+    const q = searchQuery.toLowerCase();
+    return (
+      cat.title.toLowerCase().includes(q) || 
+      cat.desc.toLowerCase().includes(q) || 
+      cat.links.some(link => link.toLowerCase().includes(q))
+    );
+  });
+
+  const filteredFaqs = faqs.filter(faq => {
+    const q = searchQuery.toLowerCase();
+    return (
+      faq.q.toLowerCase().includes(q) || 
+      faq.a.toLowerCase().includes(q)
+    );
+  });
+
+  const hasResults = filteredCategories.length > 0 || filteredFaqs.length > 0;
+
   return (
-    <div className="relative min-h-screen text-white overflow-hidden">
-      {/* Background theme layers like Home */}
-      <div className="absolute inset-0 bg-[#05060b]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#1a1f2e_0%,transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,#1e2235_0%,transparent_55%)]" />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.07]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
-      <m.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="relative px-6 py-16 max-w-4xl mx-auto">
-        <div className="mb-8 text-center">
-          <m.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl font-bold tracking-tight bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
-            Help & Support
-          </m.h1>
-          <m.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 text-gray-300 max-w-2xl mx-auto">
-            Find quick answers, tips, and ways to contact us.
-          </m.p>
-        </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          {[{
-            title: 'Getting Started',
-            body: 'Learn the basics: searching, bookmarking favorites, and navigating categories.'
-          },{
-            title: 'Account & Profile',
-            body: 'Update display name and manage account settings in your Profile.'
-          },{
-            title: 'Newsletter',
-            body: 'Subscribe to get curated AI tools and updates directly to your inbox.'
-          },{
-            title: 'Contact Support',
-            body: 'Email us anytime. We aim to respond within 1–2 business days.'
-          }].map((card, i) => (
-            <m.div
-              key={card.title}
-              initial={{ opacity: 0, y: 14, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.15 + i * 0.08 }}
-              className="rounded-2xl p-5 bg-white/5 border border-white/10 backdrop-blur-sm"
-            >
-              <h3 className="text-lg font-semibold mb-1">{card.title}</h3>
-              <p className="text-sm text-gray-300">{card.body}</p>
-            </m.div>
-          ))}
-        </div>
-        <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-12 text-center text-xs text-gray-400">
-          Still stuck? Reach out at <span className="text-indigo-300">support@aitoolshub2@gmail.com</span>
+    <div className="min-h-screen bg-[#050505] text-white font-sans relative overflow-x-hidden selection:bg-teal-500/30">
+      
+       {/* Global Background (Custom Black/Teal Theme) */}
+       <div className="fixed inset-0 z-0 pointer-events-none">
+         {/* Top Center Teal Glow */}
+         <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[800px] h-[500px] bg-teal-900/20 rounded-full blur-[120px]" />
+         {/* Bottom Right Subtle Glow */}
+         <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-teal-900/10 rounded-full blur-[100px]" />
+         
+         {/* Tech Grid Overlay */}
+         <div className="absolute inset-0 opacity-[0.03]" 
+              style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '50px 50px' }} 
+         />
+
+         {/* Giant Watermark Text */}
+         <div className="absolute top-32 left-1/2 -translate-x-1/2 font-bold text-[20vw] leading-none text-white/[0.02] select-none tracking-tighter font-sans">
+           HELP
+         </div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 flex flex-col items-center">
+        
+        {/* Header Section */}
+        <m.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-3xl w-full mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+            Help Center
+          </div>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 text-white drop-shadow-sm">
+            How can we help you?
+          </h1>
+          <p className="text-lg text-gray-300 mb-10">
+            Search our knowledge base for answers to common questions.
+          </p>
+
+          {/* Search Bar */}
+          <div className="relative group max-w-2xl mx-auto">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-blue-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
+            <div className="relative flex items-center bg-[#0F0F0F] border border-white/10 rounded-xl p-2 shadow-2xl">
+              <FaSearch className="text-gray-400 ml-4 text-lg" />
+              <input 
+                type="text" 
+                placeholder="Search articles (e.g., 'password', 'submit tool')..." 
+                className="w-full bg-transparent text-white px-4 py-3 focus:outline-none placeholder-gray-500 text-base"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg font-medium transition-colors text-sm">
+                Search
+              </button>
+            </div>
+          </div>
         </m.div>
-      </m.div>
+
+        {!hasResults && searchQuery.length > 0 ? (
+          <m.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            className="text-center py-20"
+          >
+            <h3 className="text-xl text-gray-400">No results found for "{searchQuery}"</h3>
+            <p className="text-sm text-gray-600 mt-2">Try checking for typos or using different keywords.</p>
+          </m.div>
+        ) : (
+          <>
+            {/* Categories Grid */}
+            {filteredCategories.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-20">
+                {filteredCategories.map((cat, i) => (
+                  <m.div
+                    key={cat.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * i, duration: 0.5 }}
+                    className="group p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-teal-500/30 hover:bg-white/[0.07] backdrop-blur-sm transition-all"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/20 to-blue-500/20 flex items-center justify-center text-teal-400 text-xl mb-5 group-hover:scale-110 transition-transform duration-300">
+                      {cat.icon}
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">{cat.title}</h3>
+                    <p className="text-sm text-gray-400 mb-6 min-h-[40px] leading-relaxed">{cat.desc}</p>
+                    
+                    <ul className="space-y-3">
+                      {cat.links.map((link, j) => (
+                        <li key={j}>
+                          <button className="text-sm text-gray-400 hover:text-teal-300 transition-colors flex items-center gap-2 group-hover:translate-x-1 duration-200 text-left">
+                            <FaExternalLinkAlt className="text-[10px] opacity-50 shrink-0" />
+                            {link}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </m.div>
+                ))}
+              </div>
+            )}
+
+            {/* FAQ Section */}
+            {filteredFaqs.length > 0 && (
+              <div className="w-full max-w-3xl mb-24">
+                <m.div 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  className="text-center mb-10"
+                >
+                  <h2 className="text-3xl font-bold mb-4">{searchQuery ? 'Matching FAQs' : 'Frequently Asked Questions'}</h2>
+                </m.div>
+                
+                <div className="space-y-4">
+                  {filteredFaqs.map((faq, i) => (
+                    <m.div 
+                      key={faq.q}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="border border-white/10 rounded-xl bg-white/[0.02] overflow-hidden hover:border-white/20 transition-colors"
+                    >
+                      <button 
+                        onClick={() => toggleAccordion(i)}
+                        className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors"
+                      >
+                        <span className="font-medium text-gray-200 text-lg pr-4">{faq.q}</span>
+                        <FaChevronDown className={`text-gray-500 shrink-0 transition-transform duration-300 ${activeAccordion === i ? 'rotate-180' : ''}`} />
+                      </button>
+                      <AnimatePresence>
+                        {activeAccordion === i && (
+                          <m.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="p-5 pt-0 text-gray-400 leading-relaxed border-t border-white/5">
+                              {faq.a}
+                            </div>
+                          </m.div>
+                        )}
+                      </AnimatePresence>
+                    </m.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Footer Support CTA */}
+        <m.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="w-full max-w-4xl p-8 rounded-3xl bg-gradient-to-r from-teal-900/20 to-blue-900/20 border border-teal-500/20 flex flex-col md:flex-row items-center justify-between gap-6"
+        >
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-400 text-2xl">
+               <FaEnvelope />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">Still need help?</h3>
+              <p className="text-gray-400 text-sm mt-1">Our support team is available 24/7 to assist you.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => history.push('/contact')}
+            className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-lg hover:shadow-teal-500/20"
+          >
+            Contact Support
+          </button>
+        </m.div>
+
+      </div>
     </div>
   );
 };
