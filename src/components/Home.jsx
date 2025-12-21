@@ -1026,7 +1026,10 @@ const Home = () => {
                                     src="/images/hero-person.png" 
                                     alt="Hero Persona" 
                                     className="h-[110%] w-auto object-cover object-top mask-image-linear-gradient opacity-90"
-                                    style={{ maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)' }}
+                                    style={{ 
+                                        maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+                                        WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)' 
+                                    }}
                                 />
                             </div>
                         </div>
