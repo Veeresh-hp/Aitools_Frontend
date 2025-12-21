@@ -42,6 +42,18 @@ const ChatBot = () => {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const chatRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+        if (isOpen && chatRef.current && !chatRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
   // Helper to flatten local tools data
   const getInitialTools = () => {
@@ -321,17 +333,17 @@ const ChatBot = () => {
       <button
         onClick={() => setIsOpen(true)}
         className="w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 group relative"
-        style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+          style={{
+          background: 'rgba(5, 5, 5, 0.6)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 8px 32px 0 rgba(255, 107, 0, 0.15)'
         }}
       >
           <div className="relative">
             <img src={LogoImage} alt="Chat" className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-900 shadow-lg shadow-green-400/50 animate-pulse" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#FF6B00] rounded-full border-2 border-black shadow-lg shadow-orange-500/50 animate-pulse" />
           </div>
       </button>
       )}
@@ -340,42 +352,43 @@ const ChatBot = () => {
       <AnimatePresence>
       {isOpen && (
         <motion.div
+            ref={chatRef}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             className="fixed bottom-24 right-4 sm:right-6 z-[100] w-[90vw] sm:w-[380px] h-[600px] max-h-[80vh] rounded-3xl overflow-hidden flex flex-col font-sans border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
             style={{
-                background: 'rgba(15, 23, 42, 0.65)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                background: 'rgba(5, 5, 5, 0.9)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                boxShadow: '0 20px 50px -12px rgba(0, 0, 0, 0.8)'
             }}
         >
           {/* Animated Background Blobs */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-            <div className="absolute -top-20 -left-20 w-60 h-60 bg-purple-500/20 rounded-full blur-[80px] animate-pulse" />
-            <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-cyan-500/20 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '1s' }} />
+            <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#FF6B00]/10 rounded-full blur-[80px] animate-pulse" />
+            <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-red-600/10 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '1s' }} />
           </div>
 
           {/* Header */}
           <div className="relative z-10 px-5 py-4 border-b border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full p-[1px] bg-gradient-to-tr from-cyan-400 to-purple-500">
-                    <div className="w-full h-full rounded-full bg-slate-900/50 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+                <div className="w-10 h-10 rounded-full p-[1px] bg-gradient-to-tr from-[#FF6B00] to-red-600">
+                    <div className="w-full h-full rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center overflow-hidden">
                          <img src={LogoImage} alt="AI" className="w-full h-full object-cover opacity-90" />
                     </div>
                 </div>
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-slate-900 shadow-[0_0_8px_rgba(74,222,128,0.5)] animate-pulse" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#FF6B00] rounded-full border-2 border-black shadow-[0_0_8px_rgba(255,107,0,0.5)] animate-pulse" />
               </div>
               <div>
                 <h3 className="text-white font-bold text-base tracking-wide flex items-center gap-1.5 shadow-black drop-shadow-md">
                   AI Hub Assistant
-                  <Sparkles className="w-3.5 h-3.5 text-yellow-400 animate-pulse" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#FF6B00] animate-pulse" />
                 </h3>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400/80 animate-pulse" />
-                  <span className="text-[10px] text-cyan-200/80 font-medium tracking-wider uppercase">Online</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00] animate-pulse" />
+                  <span className="text-[10px] text-orange-200/80 font-medium tracking-wider uppercase">Online</span>
                 </div>
               </div>
             </div>
@@ -411,7 +424,7 @@ const ChatBot = () => {
                     <div
                         className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-lg backdrop-blur-md border border-white/10 ${
                             msg.sender === 'user'
-                                ? 'bg-gradient-to-br from-cyan-600/80 to-blue-600/80 text-white rounded-br-none'
+                                ? 'bg-gradient-to-br from-[#FF6B00] to-orange-700 text-white rounded-br-none shadow-orange-900/20'
                                 : 'bg-white/10 text-gray-100 rounded-bl-none'
                         }`}
                     >
@@ -436,10 +449,10 @@ const ChatBot = () => {
                                         <img src={tool.image || LogoImage} alt={tool.name} className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-medium text-xs truncate group-hover:text-cyan-300 transition-colors">{tool.name}</h4>
+                                        <h4 className="text-white font-medium text-xs truncate group-hover:text-[#FF6B00] transition-colors">{tool.name}</h4>
                                         <p className="text-gray-400 text-[10px] truncate">{tool.description}</p>
                                     </div>
-                                    <FaExternalLinkAlt className="text-gray-500 text-xs group-hover:text-cyan-300" />
+                                    <FaExternalLinkAlt className="text-gray-500 text-xs group-hover:text-[#FF6B00]" />
                                 </motion.a>
                             ))}
                         </div>
@@ -454,9 +467,9 @@ const ChatBot = () => {
             {isTyping && (
                 <div className="flex justify-start">
                     <div className="bg-white/5 p-4 rounded-2xl rounded-bl-sm flex gap-1.5 items-center backdrop-blur-sm border border-white/10">
-                        <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                        <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                        <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                        <span className="w-1.5 h-1.5 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                        <span className="w-1.5 h-1.5 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                        <span className="w-1.5 h-1.5 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                     </div>
                 </div>
             )}
@@ -473,7 +486,7 @@ const ChatBot = () => {
                         <button
                             key={qr.label}
                             onClick={() => handleSend(qr.action)}
-                            className="text-xs bg-white/5 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-500/50 text-cyan-100 hover:text-white px-3 py-1.5 rounded-full transition-all backdrop-blur-sm shadow-sm"
+                            className="text-xs bg-white/5 hover:bg-[#FF6B00]/20 border border-white/10 hover:border-[#FF6B00]/50 text-gray-300 hover:text-white px-3 py-1.5 rounded-full transition-all backdrop-blur-sm shadow-sm"
                         >
                             {qr.label}
                         </button>
@@ -491,19 +504,19 @@ const ChatBot = () => {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                         placeholder="Type to find tools..."
-                        className="w-full bg-black/20 text-white pl-4 pr-12 py-3.5 rounded-xl border border-white/10 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/10 focus:outline-none transition-all placeholder:text-gray-500 text-sm shadow-inner backdrop-blur-sm"
+                        className="w-full bg-black/40 text-white pl-4 pr-12 py-3.5 rounded-xl border border-white/10 focus:border-[#FF6B00]/50 focus:ring-2 focus:ring-[#FF6B00]/10 focus:outline-none transition-all placeholder:text-gray-500 text-sm shadow-inner backdrop-blur-sm"
                     />
                     <button
                         onClick={() => handleSend()}
                         disabled={!input.trim()}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-cyan-400 hover:bg-cyan-500/20 disabled:text-gray-600 disabled:hover:bg-transparent transition-all"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-[#FF6B00] hover:bg-[#FF6B00]/10 disabled:text-gray-600 disabled:hover:bg-transparent transition-all"
                     >
                         <FaPaperPlane className={`text-sm transform transition-transform ${input.trim() ? 'scale-110' : 'scale-100'}`} />
                     </button>
                 </div>
                 <div className="mt-2 text-center">
                     <span className="text-[9px] text-gray-500 flex items-center justify-center gap-1.5">
-                        <FaMagic className="text-xs text-purple-400" /> AI Context Smart Search(Beta)
+                        <FaMagic className="text-xs text-[#FF6B00]" /> AI Context Smart Search(Beta)
                     </span>
                 </div>
             </div>

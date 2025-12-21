@@ -331,8 +331,8 @@ const Header = () => {
           .glass-header.scrolled { background: rgba(15, 23, 42, 0.95); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
           .logo-glow:hover { filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5)); transform: scale(1.02); }
           .mobile-menu-backdrop { background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%); }
-          .mobile-drawer { background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); }
-          .dropdown-glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+          .mobile-drawer { background: linear-gradient(180deg, rgba(15, 15, 15, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); }
+          .dropdown-glass { background: #0F0F0F; backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
           .action-btn { background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
           .action-btn:hover { box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
           .hamburger-modern { background: linear-gradient(135deg, #3b82f6, #8b5cf6); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
@@ -475,7 +475,7 @@ const Header = () => {
                   <AnimatePresence>
                     {isAccountDropdownOpen && (
                       <m.ul initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.2, ease: "easeOut" }} className="absolute right-0 mt-2 rounded-2xl py-2 z-50 text-sm w-48 dropdown-glass" onMouseEnter={cancelCloseAccountDropdown} onMouseLeave={closeAccountDropdownWithDelay} role="menu">
-                        <li role="menuitem"><Link to="/history" className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-blue-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faHistory} className="w-4 h-4" /> History</Link></li>
+
                         {isAdmin && <li role="menuitem"><Link to="/admin" className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-green-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faShieldAlt} className="w-4 h-4" /> Admin Dashboard</Link></li>}
                         <li role="menuitem"><Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-blue-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faUser} /> Profile</Link></li>
                         <li role="menuitem"><m.button onClick={handleLogout} className="flex items-center gap-3 w-full text-left px-4 py-3 text-gray-300 hover:text-red-300 hover:bg-white/10 rounded-xl mx-2 transition-all duration-200"><FontAwesomeIcon icon={faSignOutAlt} className="w-4 h-4" /> Sign Out</m.button></li>
@@ -761,16 +761,7 @@ const Header = () => {
                   <div className="mt-6 pt-6 border-t border-white/10">
                     {isLoggedIn ? (
                       <>
-                        <m.li role="menuitem" variants={menuItemVariants} initial="closed" animate="open" custom={mainNavItems.length + 3}>
-                          <m.div whileHover={{ x: 4, backgroundColor: 'rgba(59, 130, 246, 0.1)' }} whileTap={{ scale: 0.95 }}>
-                            <Link to="/history" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-white rounded-xl hover:bg-white/10 transition-all duration-300">
-                              <m.div whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
-                                <FontAwesomeIcon icon={faHistory} className="w-5 text-center" />
-                              </m.div>
-                              History
-                            </Link>
-                          </m.div>
-                        </m.li>
+
                         <m.li role="menuitem" variants={menuItemVariants} initial="closed" animate="open" custom={mainNavItems.length + 4}>
                           <m.div whileHover={{ x: 4, backgroundColor: 'rgba(59, 130, 246, 0.1)' }} whileTap={{ scale: 0.95 }}>
                             <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-white rounded-xl hover:bg-white/10 transition-all duration-300">

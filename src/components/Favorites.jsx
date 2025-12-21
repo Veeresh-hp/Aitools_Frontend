@@ -3,6 +3,7 @@ import { motion as m } from 'framer-motion';
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
 import api, { API_URL } from '../utils/api';
+import SavedBackground from '../assets/Saved-1.png';
 
 // Favorites page: shows user's saved tools with sorting and drag reordering (custom mode only)
 export default function Favorites() {
@@ -168,7 +169,7 @@ export default function Favorites() {
           aria-haspopup="listbox"
           aria-expanded={open}
           onClick={() => setOpen(o => !o)}
-          className="px-4 py-2 text-sm font-medium rounded-lg bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20 transition-all duration-200 flex items-center gap-2 min-w-[170px] justify-between shadow-lg"
+          className="px-4 py-2 text-sm font-medium rounded-lg bg-[#0A0A0A] text-white border border-white/10 hover:border-[#FF6B00]/50 hover:shadow-[0_0_15px_rgba(255,107,0,0.15)] transition-all duration-200 flex items-center gap-2 min-w-[170px] justify-between shadow-lg"
         >
           <span>{selected.label}</span>
           <span className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▼</span>
@@ -196,41 +197,45 @@ export default function Favorites() {
   return (
     <div className="min-h-screen text-white relative overflow-hidden pb-24">
       {/* Global background to match Home */}
+      {/* Global background to match Home */}
       <div className="fixed inset-0 z-0">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1d3a] via-[#252847] to-[#1a1d3a]" />
-        {/* Radial overlays */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-600/15 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-600/15 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-cyan-600/10 via-transparent to-transparent" />
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }} />
-        {/* Animated orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-2/3 left-2/3 w-80 h-80 bg-cyan-600/12 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+         <img 
+           src={SavedBackground} 
+           alt="Background" 
+           className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
+         />
+         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80 pointer-events-none" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
         {/* Header */}
-        <div className="relative mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-10 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg shadow-blue-500/50" />
-            <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Your Favorites</h1>
+        <div className="relative mb-8 p-6 rounded-3xl border border-white/10 bg-[#0A0A0A] shadow-2xl overflow-hidden group">
+           <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B00]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+           <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#FF6B00]" />
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 rounded-xl bg-[#FF6B00]/10 flex items-center justify-center border border-[#FF6B00]/20">
+               <span className="text-2xl">⭐</span>
+            </div>
+            <div>
+                 <h1 className="text-3xl font-bold text-white tracking-tight">Your Favorites</h1>
+                 <p className="text-gray-400 text-sm">Manage your saved AI tools collection</p>
+            </div>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-transparent" />
         </div>
 
         {displayedTools.length === 0 ? (
-          <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-6 sm:p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md max-w-2xl">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-xl">⭐</div>
+          <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-8 rounded-3xl border border-white/10 bg-[#0A0A0A] max-w-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-50" />
+            <div className="flex items-start gap-6 relative z-10">
+              <div className="w-16 h-16 rounded-2xl bg-[#FF6B00]/10 border border-[#FF6B00]/20 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(255,107,0,0.1)]">⭐</div>
               <div>
-                <h3 className="text-white font-semibold">No favorites yet</h3>
-                <p className="text-gray-300 text-sm leading-relaxed mt-1">Explore tools and click the star on any card to save it to your collection.</p>
+                <h3 className="text-xl font-bold text-white mb-2">No favorites yet</h3>
+                <p className="text-gray-400 leading-relaxed">
+                    Start building your personal AI toolkit. Browse our collection and click the star icon on any tool to save it here for quick access.
+                </p>
+                <button onClick={() => window.location.href = '/'} className="mt-6 px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition-colors">
+                    Browse Tools
+                </button>
               </div>
             </div>
           </m.div>
@@ -241,8 +246,8 @@ export default function Favorites() {
               <p className="text-gray-300 text-sm">Saved: <span className="font-semibold text-white">{displayedTools.length}</span></p>
               <div className="flex items-center gap-3">
                 <SortDropdown value={sortMode} onChange={setSortMode} />
-                {sortMode !== 'custom' && <span className="hidden sm:inline text-xs text-gray-400 italic">Drag disabled in sorted mode</span>}
-                <button onClick={clearAll} className="px-3 py-2 text-sm rounded-lg bg-white/10 border border-white/20 text-gray-200 hover:bg-white/20 transition-colors">Clear all</button>
+                {sortMode !== 'custom' && <span className="hidden sm:inline text-xs text-gray-500 italic">Drag disabled in sorted mode</span>}
+                <button onClick={clearAll} className="px-3 py-2 text-sm rounded-lg bg-[#0A0A0A] border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-all">Clear all</button>
               </div>
             </div>
 
