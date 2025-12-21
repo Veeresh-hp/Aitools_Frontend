@@ -1319,7 +1319,7 @@ const Home = () => {
 
                                     <div className="w-full relative flex flex-col lg:flex-row gap-8">
                                         {/* Left Sidebar: Filtering & Controls - Sticky */}
-                                        <aside className={`w-full lg:w-48 xl:w-64 flex-shrink-0 space-y-8 z-30 ${isMobile ? 'mb-6' : 'lg:sticky lg:top-32'}`}>
+                                        <aside className={`w-full lg:w-48 xl:w-64 flex-shrink-0 space-y-8 z-30 self-start ${isMobile ? 'mb-6' : 'lg:sticky lg:top-32'}`}>
                                             {/* Header Group */}
                                             <div className="space-y-4">
                                                 <div className="flex items-center">
