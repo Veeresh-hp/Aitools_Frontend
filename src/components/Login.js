@@ -103,10 +103,21 @@ const Login = () => {
      useEffect(() => {
         if (!googleClientId) return;
         if (window.google && window.google.accounts) {
-            window.google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleSuccess });
+            window.google.accounts.id.initialize({ 
+                client_id: googleClientId, 
+                callback: handleGoogleSuccess,
+                auto_select: true, // Attempt to automatically sign in returning users
+                cancel_on_tap_outside: false // Optional: keeps popup open unless explicitly closed
+            });
             if (googleButtonRef.current) {
                 window.google.accounts.id.renderButton(googleButtonRef.current, { theme: "filled_black", shape: "pill", width: "100%" });
             }
+            // Display the One Tap prompt
+            window.google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    // console.log("One Tap not displayed:", notification.getNotDisplayedReason());
+                }
+            });
         }
     }, [googleClientId, handleGoogleSuccess]);
 
