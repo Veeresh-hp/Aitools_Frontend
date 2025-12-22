@@ -991,6 +991,11 @@ const Home = () => {
 
                                 100% { background-position: 0 60px; }
                             }
+                            @media (min-width: 1024px) {
+                                .desktop-hero-zoom {
+                                    zoom: 0.90;
+                                }
+                            }
                         `}</style>
 
                         {/* Animated gradient orbs - Enhanced with Framer Motion & Color Shift */}
@@ -1012,7 +1017,7 @@ const Home = () => {
                     {/* Hero Section - Dominic Style - Clean, Dark, Bold */}
                     <section
                         ref={searchSectionRef}
-                        className={`relative pt-32 pb-8 md:pb-24 px-6 sm:px-12 lg:px-24 z-20 flex flex-col transition-opacity duration-300 ${showStickyNav ? 'opacity-0 pointer-events-none select-none' : 'opacity-100'}`}
+                        className={`desktop-hero-zoom relative pt-32 pb-8 md:pb-24 px-6 sm:px-12 lg:px-24 z-20 flex flex-col transition-opacity duration-300 ${showStickyNav ? 'opacity-0 pointer-events-none select-none' : 'opacity-100'}`}
                         aria-hidden={showStickyNav ? 'true' : 'false'}
                     >
                         {/* Background Elements - Minimal & Dark */}
@@ -1023,7 +1028,7 @@ const Home = () => {
                             {/* Central Hero Image */}
                             <div className="absolute inset-x-0 bottom-0 top-0 flex items-center justify-center opacity-100">
                                 <img 
-                                    src="/images/hero-person.png" 
+                                    src="/Images/hero-person.png" 
                                     alt="Hero Persona" 
                                     className="h-[110%] w-auto object-cover object-top mask-image-linear-gradient opacity-90"
                                     style={{ 
