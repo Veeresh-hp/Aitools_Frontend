@@ -1,26 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import {
   FaLinkedin, FaGithub, FaYoutube, FaTwitter, FaDiscord,
   FaEnvelope, FaHeart, FaArrowUp, FaShieldAlt,
   FaArrowRight,
   FaCheck,
-  FaInstagram, FaFacebook, FaPinterest
+  FaInstagram, FaFacebook, FaPinterest,
+  FaGlobe, FaChevronRight
 } from 'react-icons/fa';
 import { motion as m, AnimatePresence } from 'framer-motion';
 import Logo from '../assets/logo.png';
 import SubscriptionSuccess from './SubscriptionSuccess';
 
 import AuthModal from './AuthModal';
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState({ state: 'idle', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  const { language, setLanguage, t } = useLanguage();
   const history = useHistory();
   const location = useLocation();
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+  useEffect(() => {
+    setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+  }, []);
 
   // Pages where footer should be hidden
   const hiddenPages = ['/signup', '/login', '/history', '/sign-up', '/log-in'];
@@ -91,22 +101,26 @@ const Footer = () => {
             
             <div className="relative z-10 max-w-xl text-center md:text-left">
                 <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-6 tracking-tight">
-                    Ready to supercharge your workflow?
+                    {t('footer_ready_title')}
                 </h2>
                 <p className="text-gray-400 text-lg mb-8 font-light">
-                    Join thousands of professionals already using AI Tools Hub to discover the best tools and grow their productivity.
+                    {t('footer_ready_desc')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <Link to="/signup" className="px-8 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-gray-200 transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                        Start Free Trial <FaArrowRight className="inline ml-2 text-sm" />
+                    <Link 
+                        to={isLoggedIn ? "/upgrade" : "/signup"} 
+                        onClick={scrollToTop}
+                        className="px-8 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-gray-200 transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                    >
+                        {isLoggedIn ? t('footer_upgrade') : t('footer_start_trial')} <FaArrowRight className="inline ml-2 text-sm" />
                     </Link>
                     <Link to="/contact" className="px-8 py-3.5 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-all backdrop-blur-md">
-                        Contact Sales
+                        {t('footer_contact_sales')}
                     </Link>
                 </div>
                  <div className="mt-8 flex items-center justify-center md:justify-start gap-6 text-sm text-gray-500">
-                    <span className="flex items-center gap-2"><FaCheck className="text-orange-500" /> No setup fees</span>
-                    <span className="flex items-center gap-2"><FaCheck className="text-orange-500" /> Cancel anytime</span>
+                    <span className="flex items-center gap-2"><FaCheck className="text-orange-500" /> {t('footer_no_setup')}</span>
+                    <span className="flex items-center gap-2"><FaCheck className="text-orange-500" /> {t('footer_cancel_anytime')}</span>
                 </div>
             </div>
 
@@ -189,40 +203,79 @@ const Footer = () => {
                     </a>
                 ))}
             </div>
+
+            {/* Language Selector */}
+            <div className="pt-2 relative">
+                <button 
+                  onClick={() => setShowLangMenu(!showLangMenu)}
+                  className="flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 text-gray-400 text-sm hover:text-white hover:border-white/30 hover:bg-white/10 transition-all group"
+                >
+                    <FaGlobe className="text-lg" />
+                    <span className="font-medium">{language}</span>
+                    <FaChevronRight className={`text-xs ml-1 opacity-50 group-hover:opacity-100 transition-transform duration-300 ${showLangMenu ? 'rotate-90' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {showLangMenu && (
+                    <m.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute bottom-full left-0 mb-2 w-40 bg-[#111] border border-white/10 rounded-xl overflow-hidden shadow-xl z-50"
+                    >
+                      {['English', 'Hindi', 'Kannada'].map((lang) => (
+                        <button
+                          key={lang}
+                          onClick={() => {
+                            setLanguage(lang);
+                            setShowLangMenu(false);
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-white/5 transition-colors ${language === lang ? 'text-[#FF4D00]' : 'text-gray-400'}`}
+                        >
+                          {lang}
+                        </button>
+                      ))}
+                    </m.div>
+                  )}
+                </AnimatePresence>
+            </div>
         </div>
 
         {/* Links Columns */}
         <div className="lg:col-span-2 space-y-6">
-            <h4 className="text-white font-semibold">Product</h4>
+            <h4 className="text-white font-semibold">{t('footer_product')}</h4>
             <ul className="space-y-3 text-gray-500 text-sm">
+                <li><Link to="/blog" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('nav_blog')}</Link></li>
                 <li>
-                    <button onClick={() => handleRestrictedLink('/upgrade')} className="hover:text-orange-400 transition-colors text-left w-full">Pricing</button>
+                    <button onClick={() => handleRestrictedLink('/upgrade')} className="hover:text-orange-400 transition-colors text-left w-full">{t('footer_pricing')}</button>
                 </li>
-                <li><Link to="/showcase" className="hover:text-orange-400 transition-colors">Showcase</Link></li>
+                <li><Link to="/showcase" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('footer_showcase')}</Link></li>
+                <li><Link to="/add-tool" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('nav_submit')}</Link></li>
                 <li>
-                    <button onClick={() => handleRestrictedLink('/favorites')} className="hover:text-orange-400 transition-colors text-left w-full">Favorites</button>
+                    <button onClick={() => handleRestrictedLink('/favorites')} className="hover:text-orange-400 transition-colors text-left w-full">{t('nav_favorites')}</button>
                 </li>
                 <li>
-                    <button onClick={() => handleRestrictedLink('/history')} className="hover:text-orange-400 transition-colors text-left w-full">History</button>
+                    <button onClick={() => handleRestrictedLink('/history')} className="hover:text-orange-400 transition-colors text-left w-full">{t('footer_history')}</button>
                 </li>
             </ul>
         </div>
 
          <div className="lg:col-span-2 space-y-6">
-            <h4 className="text-white font-semibold">Support</h4>
+            <h4 className="text-white font-semibold">{t('footer_support')}</h4>
              <ul className="space-y-3 text-gray-500 text-sm">
-                <li><Link to="/help" className="hover:text-orange-400 transition-colors">Help Center</Link></li>
-                <li><Link to="/contact" className="hover:text-orange-400 transition-colors">Contact Us</Link></li>
-                <li><Link to="/terms" className="hover:text-orange-400 transition-colors">Terms of Service</Link></li>
-                <li><Link to="/privacy" className="hover:text-orange-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/about" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('nav_about')}</Link></li>
+                <li><Link to="/help" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('footer_help')}</Link></li>
+                <li><Link to="/contact" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('nav_contact')}</Link></li>
+                <li><Link to="/terms" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('footer_terms')}</Link></li>
+                <li><Link to="/privacy" onClick={scrollToTop} className="hover:text-orange-400 transition-colors">{t('footer_privacy')}</Link></li>
             </ul>
         </div>
 
         {/* Newsletter Column */}
         <div className="lg:col-span-4 space-y-6">
-             <h4 className="text-white font-semibold">Get Updates</h4>
+             <h4 className="text-white font-semibold">{t('footer_get_updates')}</h4>
              <p className="text-gray-500 text-sm">
-                Latest AI tools and trends sent to your inbox weekly.
+                {t('footer_updates_desc')}
             </p>
              <form onSubmit={handleSubscribe} className="relative">
                 <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-1 focus-within:border-orange-500/50 focus-within:ring-1 focus-within:ring-orange-500/50 transition-all shadow-lg shadow-black/20">
@@ -231,7 +284,7 @@ const Footer = () => {
                         type="email" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email" 
+                        placeholder={t('footer_enter_email')}
                         className="bg-transparent !bg-transparent border-none !border-none outline-none focus:ring-0 focus:outline-none text-sm text-white w-full px-4 py-3 placeholder-gray-500 appearance-none"
                     />
                     <button 
@@ -239,7 +292,7 @@ const Footer = () => {
                         disabled={isSubmitting || status.state === 'success'}
                         className="bg-white text-black px-6 py-2.5 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors disabled:opacity-50 flex-shrink-0"
                     >
-                        {isSubmitting ? '...' : (status.state === 'success' ? <FaCheck /> : 'Subscribe')}
+                        {isSubmitting ? '...' : (status.state === 'success' ? <FaCheck /> : t('footer_subscribe'))}
                     </button>
                 </div>
                  {/* Status Message */}
@@ -265,8 +318,8 @@ const Footer = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600 gap-4">
         <p>© {new Date().getFullYear()} AI Tools Hub. All rights reserved.</p>
         <div className="flex items-center gap-6">
-            <Link to="/privacy" className="hover:text-gray-400 transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-gray-400 transition-colors">Terms of Service</Link>
+            <Link to="/privacy" onClick={scrollToTop} className="hover:text-gray-400 transition-colors">{t('footer_privacy')}</Link>
+            <Link to="/terms" onClick={scrollToTop} className="hover:text-gray-400 transition-colors">{t('footer_terms')}</Link>
              <button
                 onClick={scrollToTop}
                 className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white transition-colors"

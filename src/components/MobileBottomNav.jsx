@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { FaHome, FaPlus, FaUser, FaHeart, FaEnvelope } from 'react-icons/fa';
+import { FaHome, FaPlus, FaUser, FaHeart, FaEnvelope, FaNewspaper } from 'react-icons/fa';
 import AccountMenu from './AccountMenu';
 
 export default function MobileBottomNav() {
@@ -11,12 +11,16 @@ export default function MobileBottomNav() {
 
   // Configuration for the menu items matching app routes
   const menuItems = [
-    { name: 'Home', icon: <FaHome size={22} />, path: '/' },
-    { name: 'Favorites', icon: <FaHeart size={22} />, path: '/favorites' },
-    { name: 'Add', icon: <FaPlus size={22} />, path: '/add-tool' },
-    { name: 'Contact', icon: <FaEnvelope size={22} />, path: '/contact' },
+    { name: 'Home', icon: <FaHome size={20} />, path: '/' },
+    { name: 'Favs', icon: <FaHeart size={20} />, path: '/favorites' },
+    { name: 'Blog', icon: <FaNewspaper size={20} />, path: '/blog' },
+    { name: 'Add', icon: <FaPlus size={20} />, path: '/add-tool' },
+    { name: 'Contact', icon: <FaEnvelope size={20} />, path: '/contact' },
     { name: 'Profile', isProfile: true, path: '/profile' }, // Profile uses AccountMenu
   ];
+  
+  const itemCount = menuItems.length;
+  const itemWidth = 100 / itemCount; // 16.666% for 6 items
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -38,8 +42,9 @@ export default function MobileBottomNav() {
   };
 
   // Calculate mask position for "Dip" effect
-  // 5 items -> each is 20% width. Center is at 10%, 30%, 50%, 70%, 90%.
-  const maskPosition = `${activeIndex * 20 + 10}%`;
+  // Center is at index * width + width/2
+  const centerPercent = activeIndex * itemWidth + (itemWidth / 2);
+  const maskPosition = `${centerPercent}%`;
 
   // Scroll visibility logic
   const [isVisible, setIsVisible] = useState(true);
@@ -79,8 +84,11 @@ export default function MobileBottomNav() {
         
         {/* Floating Active Button - Sibling to bar so it's NOT masked */}
         <div 
-            className="absolute bottom-[40px] left-0 h-14 w-[20%] z-50 flex justify-center transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none"
-            style={{ transform: `translateX(${activeIndex * 100}%)` }}
+            className="absolute bottom-[40px] left-0 h-14 z-50 flex justify-center transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none"
+            style={{ 
+                width: `${itemWidth}%`,
+                transform: `translateX(${activeIndex * 100}%)` 
+            }}
         >
              <div className={`w-14 h-14 bg-[#FF6B00] rounded-full shadow-lg shadow-orange-500/40 flex items-center justify-center text-white ${activeItem.isProfile ? 'pointer-events-auto' : ''}`}>
                  {activeItem.isProfile ? (
@@ -105,7 +113,10 @@ export default function MobileBottomNav() {
           }}
         >
           {/* The Menu List */}
-          <ul className="grid grid-cols-5 w-full h-full relative z-20">
+          <ul 
+            className="grid w-full h-full relative z-20"
+            style={{ gridTemplateColumns: `repeat(${itemCount}, minmax(0, 1fr))` }}
+          >
             {menuItems.map((item, i) => {
               const isActive = i === activeIndex;
               
@@ -123,7 +134,7 @@ export default function MobileBottomNav() {
                         {/* Label logic - same as buttons */}
                          <span
                             className={`
-                              absolute text-[11px] font-semibold tracking-wide transition-all duration-300 transform pointer-events-none
+                              absolute text-[10px] font-semibold tracking-wide transition-all duration-300 transform pointer-events-none
                               ${isActive 
                                 ? 'opacity-100 translate-y-[20px] text-[#FF6B00]' 
                                 : 'opacity-0 translate-y-[20px]'}
@@ -154,7 +165,7 @@ export default function MobileBottomNav() {
                     
                     <span
                       className={`
-                        absolute text-[11px] font-semibold tracking-wide transition-all duration-300 transform
+                        absolute text-[10px] font-semibold tracking-wide transition-all duration-300 transform
                         ${isActive 
                           ? 'opacity-100 translate-y-[12px] text-[#FF6B00]' 
                           : 'opacity-0 translate-y-[20px]'}

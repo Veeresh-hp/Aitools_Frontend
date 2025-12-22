@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import { motion as m, AnimatePresence } from 'framer-motion';
 import { FaArrowLeft, FaExternalLinkAlt, FaStar, FaBookmark, FaRegBookmark, FaCalendar, FaTag, FaChevronDown, FaChevronUp, FaInfoCircle, FaList, FaQuestionCircle, FaGlobe, FaDollarSign, FaDesktop } from 'react-icons/fa';
 import toolsData from '../data/toolsData';
 import { ToolDetailSkeleton } from './SkeletonLoader';
 import Breadcrumb from './Breadcrumb';
+import ReviewSection from './ReviewSection';
 import { addRefToUrl } from '../utils/linkUtils';
 import { addToHistory } from '../utils/historyUtils';
 
@@ -71,6 +73,7 @@ const FAQItem = ({ question, answer }) => {
 
 const ToolDetail = () => {
   const { category, toolSlug } = useParams();
+  const { t } = useLanguage();
   const history = useHistory();
   const [tool, setTool] = useState(null);
   const [saved, setSaved] = useState(false);
@@ -470,10 +473,10 @@ const ToolDetail = () => {
             </div>
 
             <h1 className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 mb-2 tracking-tighter">404</h1>
-            <h2 className="text-3xl font-bold text-white mb-6">Tool Not Found</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">{t('tool_not_found')}</h2>
             
             <p className="text-gray-400 text-lg mb-8 leading-relaxed font-light">
-              The tool you're looking for doesn't exist or has been removed from our database.
+              {t('tool_not_found_desc')}
             </p>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 text-left backdrop-blur-md">
@@ -497,13 +500,13 @@ const ToolDetail = () => {
               onClick={() => history.push('/')}
               className="px-8 py-3.5 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-all transform hover:scale-105 shadow-lg shadow-white/10 flex items-center gap-2"
             >
-              <FaArrowLeft /> Back to Home
+              <FaArrowLeft /> {t('back_home')}
             </button>
             <button
               onClick={() => history.goBack()}
               className="px-8 py-3.5 bg-white/10 text-white border border-white/10 rounded-full font-bold hover:bg-white/20 transition-all backdrop-blur-md"
             >
-              Go Back
+              {t('go_back')}
             </button>
           </div>
         </div>
@@ -515,7 +518,7 @@ const ToolDetail = () => {
   const copyLink = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      alert('Link copied to clipboard!');
+      alert(t('tool_share_alert'));
     }).catch(() => {
       alert('Failed to copy link');
     });
@@ -620,7 +623,7 @@ const ToolDetail = () => {
                    onClick={copyLink}
                    className="px-6 py-3 bg-white/5 text-white border border-white/10 rounded-full font-bold hover:bg-white/10 transition-all"
                  >
-                   Share
+                   {t('tool_share')}
                  </button>
                </div>
             </div>
@@ -638,7 +641,7 @@ const ToolDetail = () => {
                         <FaInfoCircle className="text-9xl text-white" />
                      </div>
                      <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                        <FaInfoCircle className="text-[#FF6B00]" /> About {tool.name}
+                        <FaInfoCircle className="text-[#FF6B00]" /> {t('tool_about')} {tool.name}
                      </h3>
                      <div className="prose prose-invert max-w-none text-gray-300 leading-7 font-light">
                         {tool.description || tool.shortDescription || "No detailed description available."}
@@ -659,7 +662,7 @@ const ToolDetail = () => {
                 {/* FAQ Card */}
                 <div className="bg-[#12121A] rounded-3xl p-8 border border-white/10">
                     <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                        <FaQuestionCircle className="text-[#FF6B00]" /> Questions & Answers
+                        <FaQuestionCircle className="text-[#FF6B00]" /> {t('tool_faq')}
                     </h3>
                     <div className="space-y-1">
                         {faqs.map((faq, idx) => (
@@ -667,33 +670,36 @@ const ToolDetail = () => {
                         ))}
                     </div>
                 </div>
+                
+                {/* Review Section */}
+                {tool._id && <ReviewSection toolId={tool._id} />}
             </div>
 
             {/* Right Column: Sidebar Meta */}
             <div className="lg:col-span-1">
                 <div className="bg-[#12121A] rounded-3xl p-6 border border-white/10 sticky top-24">
                     <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <FaList className="text-[#FF6B00]" /> Tool Information
+                        <FaList className="text-[#FF6B00]" /> {t('tool_info')}
                     </h3>
                     
                     <div className="space-y-4">
                         <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
-                            <span className="text-gray-400 flex items-center gap-2"><FaGlobe className="text-xs" /> Category</span>
+                            <span className="text-gray-400 flex items-center gap-2"><FaGlobe className="text-xs" /> {t('label_category')}</span>
                             <span className="text-white font-medium capitalize">{tool.category}</span>
                         </div>
                         <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
-                            <span className="text-gray-400 flex items-center gap-2"><FaDollarSign className="text-xs" /> Pricing</span>
+                            <span className="text-gray-400 flex items-center gap-2"><FaDollarSign className="text-xs" /> {t('label_pricing')}</span>
                             <span className={`font-medium ${
                                 tool.pricing === 'Free' ? 'text-emerald-400' : 
                                 tool.pricing === 'Paid' ? 'text-rose-400' : 'text-amber-400'
                             }`}>{tool.pricing || 'Unknown'}</span>
                         </div>
                          <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
-                            <span className="text-gray-400 flex items-center gap-2"><FaCalendar className="text-xs" /> Added On</span>
+                            <span className="text-gray-400 flex items-center gap-2"><FaCalendar className="text-xs" /> {t('label_added')}</span>
                             <span className="text-white font-medium">{new Date(tool.dateAdded).toLocaleDateString()}</span>
                         </div>
                          <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
-                            <span className="text-gray-400 flex items-center gap-2"><FaDesktop className="text-xs" /> Platform</span>
+                            <span className="text-gray-400 flex items-center gap-2"><FaDesktop className="text-xs" /> {t('label_platform')}</span>
                             <span className="text-white font-medium">Web</span>
                         </div>
                     </div>
@@ -718,7 +724,7 @@ const ToolDetail = () => {
              <div className="mt-20">
                 <div className="flex items-center gap-4 mb-10">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-                    <h2 className="text-3xl font-bold text-white">More Tools Like This</h2>
+                    <h2 className="text-3xl font-bold text-white">{t('tool_more_like')}</h2>
                     <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
                 </div>
                 
@@ -729,6 +735,7 @@ const ToolDetail = () => {
                             <Link 
                                 key={t.name}
                                 to={`/tools/${tool.categoryId}/${tSlug}`}
+                                onClick={() => window.scrollTo(0, 0)}
                                 className="group bg-[#12121A] rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all hover:-translate-y-1 block"
                             >
                                 <div className="aspect-video bg-black/50 relative overflow-hidden">

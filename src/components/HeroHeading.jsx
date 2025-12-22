@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion as m, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 
 const HeroHeading = () => {
+  const { t } = useLanguage();
+
   // Get username from localStorage
   const username = localStorage.getItem('username') || localStorage.getItem('userEmail') || '';
   const isLoggedIn = !!username;
@@ -14,29 +17,14 @@ const HeroHeading = () => {
     return 'Good Evening';
   };
 
-  const phrases = [
-    'Coding Assistants',
-    'AI Chatbots',
-    'Video Generators',
-    'Writing Tools',
-    'Presentation Tools',
-    'Marketing Tools',
-    'Voice Tools',
-    'Website Builders',
-    'Image Generators',
-    'Email Assistance',
-    'Text Humanizer Ai',
-    'Spreadsheet Tools',
-    'Music Generators',
-    'Data Analysis',
-    'Ai Diagrams',
-    'Ai Portfolio',
-    'Ai Scheduling',
-    'Data Visualization',
-    'Gaming Tools',
-    'Utility Tools',
-    'AI Prompts',
-  ];
+  const getPhrases = () => {
+      const p = t('hero_phrases');
+      return Array.isArray(p) ? p : [
+        'Coding Assistants', 'AI Chatbots', 'Video Generators', 'Writing Tools'
+      ];
+  };
+
+  const phrases = getPhrases();
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -79,7 +67,7 @@ const HeroHeading = () => {
       {/* Mobile Layout */}
       <div className="block md:hidden w-full">
         <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-white text-center">
-          Discover the perfect AI tools for your
+          {t('hero_title_prefix')}
           <span className="block mt-3 bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
             {phrases[currentIndex]}
           </span>
@@ -88,7 +76,7 @@ const HeroHeading = () => {
 
       {/* Desktop Layout */}
       <h1 className="hidden md:block text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-white text-center px-6">
-        Discover the perfect AI tools for your{' '}
+        {t('hero_title_prefix')}{' '}
         <span className="inline-block w-72 lg:w-80 h-[1.2em] relative align-top">
           <AnimatePresence mode="wait">
             <m.span

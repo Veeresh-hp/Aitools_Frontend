@@ -7,10 +7,30 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', message: '', interest: 'General Inquiry' });
+  const [customInterest, setCustomInterest] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+  React.useEffect(() => {
+    // Auto-fill details if logged in
+    const storedEmail = localStorage.getItem('userEmail');
+    const storedName = localStorage.getItem('username');
+    
+    if (storedEmail || storedName) {
+      setIsUserLoggedIn(true);
+      setForm(prev => ({ 
+        ...prev, 
+        email: storedEmail || prev.email,
+        name: storedName || prev.name 
+      }));
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Prevent changes if logged in and field is name or email
+    if (isUserLoggedIn && (name === 'name' || name === 'email')) return;
+    
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -21,16 +41,31 @@ const Contact = () => {
       return;
     }
 
+    const payload = {
+        ...form,
+        interest: form.interest === 'Other' ? (customInterest || 'Other') : form.interest
+    };
+
     try {
       setIsLoading(true);
       const apiUrl = (process.env.REACT_APP_API_URL?.trim() || 'http://localhost:5000') + '/api/contact';
       
-      const res = await axios.post(apiUrl, form, {
+      const res = await axios.post(apiUrl, payload, {
         headers: { 'Content-Type': 'application/json' }
       });
 
       toast.success(res.data.message || 'Message sent successfully!');
-      setForm({ name: '', email: '', message: '', interest: 'Explaining a Project' });
+      // Reset form but keep user details if logged in
+      const storedEmail = localStorage.getItem('userEmail');
+      const storedName = localStorage.getItem('username');
+      
+      setForm({ 
+        name: storedName || '', 
+        email: storedEmail || '', 
+        message: '', 
+        interest: 'General Inquiry' 
+      });
+      setCustomInterest('');
     } catch (error) {
       toast.error(error.response?.data?.error || 'Server error');
     } finally {
@@ -109,7 +144,8 @@ const Contact = () => {
                         value={form.name}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-b border-white/10 py-2 text-white outline-none focus:border-white focus:bg-white/5 hover:border-white/30 transition-all duration-300 text-sm placeholder-white/20" 
+                        readOnly={isUserLoggedIn}
+                        className={`w-full bg-transparent border-b ${isUserLoggedIn ? 'border-white/5 text-gray-400 cursor-not-allowed' : 'border-white/10 text-white'} py-2 outline-none focus:border-white focus:bg-white/5 hover:border-white/30 transition-all duration-300 text-sm placeholder-white/20`} 
                     />
                 </div>
 
@@ -121,7 +157,8 @@ const Contact = () => {
                         value={form.email}
                         onChange={handleChange}
                         required
-                        className="w-full bg-transparent border-b border-white/10 py-2 text-white outline-none focus:border-white focus:bg-white/5 hover:border-white/30 transition-all duration-300 text-sm placeholder-white/20" 
+                        readOnly={isUserLoggedIn}
+                        className={`w-full bg-transparent border-b ${isUserLoggedIn ? 'border-white/5 text-gray-400 cursor-not-allowed' : 'border-white/10 text-white'} py-2 outline-none focus:border-white focus:bg-white/5 hover:border-white/30 transition-all duration-300 text-sm placeholder-white/20`} 
                     />
                 </div>
 
@@ -131,13 +168,40 @@ const Contact = () => {
                         name="interest"
                         value={form.interest}
                         onChange={handleChange}
-                        className="w-full bg-transparent border-b border-white/10 py-2 text-white/70 outline-none focus:border-white focus:bg-white/5 hover:border-white/30 transition-all duration-300 text-sm appearance-none cursor-pointer"
+                        className="w-full bg-transparent border-b border-white/10 py-2 text-white/70 outline-none focus:border-white focus:bg-white/5 hover:border-white/30 transition-all duration-300 text-sm cursor-pointer appearance-none"
+                        style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 0.5rem center',
+                            backgroundSize: '1rem',
+                            paddingRight: '2rem'
+                        }}
                     >
-                        <option className="bg-[#111] text-white">General Inquiry</option>
-                        <option className="bg-[#111] text-white">Submit a Tool</option>
-                        <option className="bg-[#111] text-white">Report an Issue</option>
-                        <option className="bg-[#111] text-white">Advertising / Partnership</option>
+                        <option className="bg-[#111] text-white" value="General Inquiry">General Inquiry</option>
+                        <option className="bg-[#111] text-white" value="Submit a Tool">Submit a Tool</option>
+                        <option className="bg-[#111] text-white" value="Report an Issue">Report an Issue</option>
+                        <option className="bg-[#111] text-white" value="Advertising / Partnership">Advertising / Partnership</option>
+                        <option className="bg-[#111] text-white" value="Other">Other</option>
                     </select>
+
+                    {/* Conditional Input for "Other" */}
+                    {form.interest === 'Other' && (
+                        <m.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="mt-4"
+                        >
+                            <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2">Specify (Max 50 chars)</label>
+                            <input 
+                                type="text" 
+                                value={customInterest}
+                                onChange={(e) => setCustomInterest(e.target.value.slice(0, 50))}
+                                placeholder="Tell us more..."
+                                className="w-full bg-transparent border-b border-white/10 py-2 text-white outline-none focus:border-white focus:bg-white/5 transition-all duration-300 text-sm"
+                                required
+                            />
+                        </m.div>
+                    )}
                 </div>
 
                  <div className="group">

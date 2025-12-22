@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
 import FuseNamespace from 'fuse.js';
 import { Player } from '@lottiefiles/react-lottie-player';
+import ToolOfTheDay from './ToolOfTheDay';
 
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
@@ -30,6 +32,7 @@ const CATEGORY_IDS = toolsData.map(c => c.id);
 // --- Main Home Component ---
 const Home = () => {
     // nav-related state moved to a global Sidebar component
+    const { t } = useLanguage();
 
     // Show more categories state
 
@@ -326,49 +329,9 @@ const Home = () => {
     };
 
     // Mobile and Desktop placeholder texts with fade effect
-    const mobilePlaceholderTexts = [
-        'Search AI tools...',
-        'Find the best ChatGPT alternatives...',
-        'Discover new AI models...',
-        'Type any tool name...',
-        'Find aitools picks',
-        'find Presentation ai'
-    ];
-
-    const desktopPlaceholderTexts = [
-        'Search All AI tools and collections...',
-        'Find AI coding assistants to speed up development...',
-        'Discover faceless video tools for anonymous creators...',
-        'Explore video generators for instant clips and edits...',
-        'Find writing tools to draft, edit, and refine text...',
-        'Search presentation tools to build slides quickly...',
-        'Locate short clippers for creating video highlights...',
-        'Discover marketing tools to grow your audience...',
-        'Find voice tools for synthesis, dubbing, and editing...',
-        'Search website builders for fast landing pages...',
-        'Explore image generators for custom visuals...',
-        'Find email assistance tools to write better emails...',
-        'Search chatbots for customer support and chat flows...',
-        'Discover user favorite tools loved by the community...',
-        'Find text humanizer AI to make copy sound natural...',
-        'Search spreadsheet tools for smarter data work...',
-        'Find meeting notes tools to transcribe and summarize...',
-        'Discover music generators to create original tracks...',
-        'Search data analysis tools for insights and reports...',
-        'Find AI diagrams to visualize processes and systems...',
-        'Find AI scheduling tools to manage meetings easily...',
-        'Search data visualization tools for beautiful charts...',
-        'Discover gaming tools for AI-assisted game design...',
-        'Find other tools across categories and utilities...',
-        'Search utility tools for quick one-off tasks...',
-        'Explore AI prompts to jumpstart creative workflows...',
-        'Find AI design tools for layouts, mockups, and UX...',
-        'Search logo generators to create brand marks fast...',
-        'Discover social media tools for content and analytics...',
-        'Find productivity tools to organize and automate work...',
-        'Explore AI-powered product tools for feature discovery...',
-        'Search for tools across categories, from A to Z...'
-    ];
+    // Simplified for i18n
+    const mobilePlaceholderTexts = [ t('search_placeholder_mobile') ];
+    const desktopPlaceholderTexts = [ t('search_placeholder_desktop') ];
 
     const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
     const [placeholderFade, setPlaceholderFade] = useState(true);
@@ -527,9 +490,16 @@ const Home = () => {
         fetchApprovedTools();
     }, [API_URL]);
 
+    // Helper for "isNew" logic (7 days)
+    const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    const isRecent = useCallback((date) => {
+        if (!date) return false;
+        return (Date.now() - date) < ONE_WEEK_MS;
+    }, []);
+
     // Convert approved tools from database to display format with NEW badge
     const convertedApprovedTools = useMemo(() => {
-        console.log('🔄 Converting approved tools, count:', approvedTools.length);
+        // console.log('🔄 Converting approved tools, count:', approvedTools.length);
 
         const buildSnapshotUrl = (snap) => {
             if (!snap) return null;
@@ -560,7 +530,7 @@ const Home = () => {
                     link: tool.url || '#',
                     url: tool.url || '#',
                     image: snapshot || fallback || null,
-                    isNew: true,
+                    isNew: isRecent(safeTime),
                     category: normalizedCategory,
                     dateAdded: safeTime,
 
@@ -569,11 +539,18 @@ const Home = () => {
                 };
             });
         return converted;
-    }, [approvedTools, API_URL, getFaviconUrl, toSlug]);
+    }, [approvedTools, API_URL, getFaviconUrl, toSlug, isRecent]);
 
     const mergedToolsData = useMemo(() => {
+        // Process static tools to update isNew based on dateAdded
         const staticCategoriesMap = new Map(
-            toolsData.map(cat => [cat.id, { ...cat, tools: [...cat.tools] }])
+            toolsData.map(cat => ({
+                ...cat,
+                tools: cat.tools.map(t => ({
+                    ...t,
+                    isNew: isRecent(t.dateAdded || 0) // Override static isNew
+                }))
+            })).map(cat => [cat.id, cat])
         );
         const newCategoriesMap = new Map();
 
@@ -593,8 +570,11 @@ const Home = () => {
                 newCategoriesMap.get(tool.category).tools.push(tool);
             }
         });
+        
+        // Sort tools inside categories by date (newest first)? Optional but good practice.
+        // For now, just returning the merged list.
         return [...staticCategoriesMap.values(), ...newCategoriesMap.values()];
-    }, [convertedApprovedTools]);
+    }, [convertedApprovedTools, isRecent]);
 
     // Mobile Categories (Sorted A-Z) - Derived from merged data to include server categories
     const mobileCategories = useMemo(() => {
@@ -1123,6 +1103,9 @@ const Home = () => {
                             </div>
                         </div>
                     </section>
+
+                    {/* Tool of the Day */}
+                    <ToolOfTheDay />
 
                     {/* Unified Sticky Navigation - In Flow */}
                     {(!isMobile) && (

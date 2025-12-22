@@ -1,13 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion as m } from 'framer-motion';
-import { useHistory } from 'react-router-dom';
-import { FaHome, FaRegBookmark, FaPlusSquare, FaInfoCircle, FaEnvelope, FaShieldAlt, FaStar } from 'react-icons/fa';
+import { useHistory, useLocation } from 'react-router-dom';
+import { FaHome, FaRegBookmark, FaPlusSquare, FaInfoCircle, FaEnvelope, FaShieldAlt, FaStar, FaNewspaper } from 'react-icons/fa';
 import SidebarNavButton from './SidebarNavButton';
 import AccountMenu from './AccountMenu';
 import Logo from '../assets/logo.png';
+import { useLanguage } from '../context/LanguageContext';
 
 const Sidebar = () => {
+  const { t } = useLanguage();
   const history = useHistory();
+  const location = useLocation();
   const navRefs = useRef([]);
   const [activeNav, setActiveNav] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -150,7 +153,7 @@ const Sidebar = () => {
               ref={el => (navRefs.current[0] = el)}
               active={activeNav === 0}
               icon={<FaHome />}
-              label={effectiveOpen ? 'Home' : ''}
+              label={effectiveOpen ? t('nav_home') : ''}
               aria-label="Home"
               onClick={() => handleNavAction(0, () => history.push('/'))}
             />
@@ -158,7 +161,7 @@ const Sidebar = () => {
               ref={el => (navRefs.current[1] = el)}
               active={activeNav === 1}
               icon={<FaRegBookmark />}
-              label={effectiveOpen ? 'Favorites' : ''}
+              label={effectiveOpen ? t('nav_favorites') : ''}
               aria-label="Favorites"
               onClick={() => handleNavAction(1, () => history.push('/favorites'))}
             />
@@ -167,7 +170,7 @@ const Sidebar = () => {
               ref={el => (navRefs.current[2] = el)}
               active={activeNav === 2}
               icon={<FaPlusSquare />}
-              label={effectiveOpen ? 'Submit Tool' : ''}
+              label={effectiveOpen ? t('nav_submit') : ''}
               aria-label="Submit Tool"
               onClick={() => handleNavAction(2, () => history.push('/add-tool'))}
             />
@@ -175,16 +178,26 @@ const Sidebar = () => {
               ref={el => (navRefs.current[6] = el)}
               active={activeNav === 6}
               icon={<FaStar className="text-yellow-400" />}
-              label={effectiveOpen ? 'AI Tools Picks' : ''}
+              label={effectiveOpen ? t('nav_picks') : ''}
               aria-label="AI Tools Picks"
               onClick={() => handleNavAction(6, () => history.push('/#choice'))}
+            />
+
+            <SidebarNavButton
+              icon={<FaNewspaper />}
+              label={effectiveOpen ? t('nav_blog') : ''}
+              isActive={location.pathname === '/blog'}
+              onClick={() => {
+                  history.push('/blog');
+                  if (isMobile) setIsSidebarOpen(false);
+              }}
             />
 
             <SidebarNavButton
               ref={el => (navRefs.current[4] = el)}
               active={activeNav === 4}
               icon={<FaEnvelope />}
-              label={effectiveOpen ? 'Contact Us' : ''}
+              label={effectiveOpen ? t('nav_contact') : ''}
               aria-label="Contact Us"
               onClick={() => handleNavAction(4, () => history.push('/contact'))}
             />
@@ -192,7 +205,7 @@ const Sidebar = () => {
               ref={el => (navRefs.current[5] = el)}
               active={activeNav === 5}
               icon={<FaInfoCircle />}
-              label={effectiveOpen ? 'About' : ''}
+              label={effectiveOpen ? t('nav_about') : ''}
               aria-label="About"
               onClick={() => handleNavAction(5, () => history.push('/about'))}
             />
@@ -206,7 +219,7 @@ const Sidebar = () => {
               onOpenChange={setIsAccountOpen}
             />
             {isLoggedIn && isAdmin && effectiveOpen && (
-              <SidebarNavButton ref={el => (navRefs.current[9] = el)} active={activeNav === 9} icon={<FaShieldAlt />} label={'Admin Dashboard'} aria-label="Admin Dashboard" onClick={() => handleNavAction(9, () => history.push('/admin'))} />
+              <SidebarNavButton ref={el => (navRefs.current[9] = el)} active={activeNav === 9} icon={<FaShieldAlt />} label={t('nav_admin')} aria-label="Admin Dashboard" onClick={() => handleNavAction(9, () => history.push('/admin'))} />
             )}
           </div>
         </m.aside>

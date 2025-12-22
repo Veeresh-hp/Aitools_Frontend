@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 // --- CONTEXT PROVIDER ---
 import { LoadingProvider } from './contexts/LoadingContext'; // Make sure this path is correct
 import { ThemeProvider } from './contexts/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // --- STATIC COMPONENTS (Normal Imports) ---
 import Footer from './components/Footer';
@@ -27,6 +28,8 @@ const Contact = lazy(() => import('./components/Contact'));
 const HistoryPage = lazy(() => import('./components/HistoryPage'));
 const ResetPassword = lazy(() => import('./components/ResetPassword'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const BlogList = lazy(() => import('./components/BlogList'));
+const BlogPost = lazy(() => import('./components/BlogPost'));
 const AddTool = lazy(() => import('./components/AddTool'));
 // 1. LAZY-LOAD THE USERPROFILE COMPONENT
 const UserProfile = lazy(() => import('./components/UserProfile'));
@@ -62,6 +65,7 @@ function App() {
   const closeModal = () => setIsModalOpen(false);
 
   return (
+    <LanguageProvider>
     <ThemeProvider>
       <div className="App min-h-screen flex flex-col bg-black text-white transition-colors duration-300">
         {initialLoad && <CinematicLoader onComplete={() => setInitialLoad(false)} />}
@@ -89,6 +93,8 @@ function App() {
                   <Route path="/reset-password" component={ResetPassword} />
                   <Route path="/admin/newsletter" component={AdminDashboard} />
                   <Route path="/admin" component={AdminDashboard} />
+            <Route exact path="/blog" component={BlogList} />
+            <Route path="/blog/:slug" component={BlogPost} />
                   <Route path="/add-tool" component={AddTool} />
                   <Route path="/upgrade" component={Upgrade} />
                   <Route path="/help" component={Help} />
@@ -114,6 +120,7 @@ function App() {
         </Router>
       </div>
     </ThemeProvider>
+    </LanguageProvider>
   );
 }
 
