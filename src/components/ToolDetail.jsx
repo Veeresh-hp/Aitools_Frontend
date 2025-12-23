@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { motion as m, AnimatePresence } from 'framer-motion';
-import { FaArrowLeft, FaExternalLinkAlt, FaStar, FaBookmark, FaRegBookmark, FaCalendar, FaTag, FaChevronDown, FaChevronUp, FaInfoCircle, FaList, FaQuestionCircle, FaGlobe, FaDollarSign, FaDesktop } from 'react-icons/fa';
+import { FaArrowLeft, FaExternalLinkAlt, FaStar, FaBookmark, FaRegBookmark, FaCalendar, FaTag, FaChevronDown, FaChevronUp, FaInfoCircle, FaList, FaQuestionCircle, FaGlobe, FaDollarSign, FaDesktop, FaArrowUp } from 'react-icons/fa';
 import toolsData from '../data/toolsData';
 import { ToolDetailSkeleton } from './SkeletonLoader';
 import Breadcrumb from './Breadcrumb';
@@ -75,7 +75,28 @@ const ToolDetail = () => {
   const { category, toolSlug } = useParams();
   const { t } = useLanguage();
   const history = useHistory();
+
+  // Scroll to top on mount and when slug changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [category, toolSlug]);
+
   const [tool, setTool] = useState(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Toggle Scroll Button Visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const [saved, setSaved] = useState(false);
   const [relatedTools, setRelatedTools] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -758,6 +779,22 @@ const ToolDetail = () => {
         )}
 
       </div>
+
+      {/* Scroll to Top Button (Mobile Optimized) */}
+      <AnimatePresence>
+        {showScrollTop && (
+            <m.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                onClick={scrollToTop}
+                className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-50 p-3 bg-[#FF6B00] hover:bg-[#ff8533] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-white/10"
+                aria-label="Scroll to top"
+            >
+                <FaArrowUp className="text-xl" />
+            </m.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

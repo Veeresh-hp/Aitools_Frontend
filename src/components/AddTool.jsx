@@ -117,8 +117,44 @@ const AddTool = ({ historyProp }) => {
   const [categories, setCategories] = useState([]);
   const [showQuickFill, setShowQuickFill] = useState(false);
   const [promptMode, setPromptMode] = useState('json'); // 'json' or 'text'
+  const [isDragging, setIsDragging] = useState(false);
   const token = localStorage.getItem('token');
   const isLoggedIn = !!token;
+
+  // Paste Support (Step 3)
+  useEffect(() => {
+    const handlePaste = (e) => {
+        if (currentStep === 3 && e.clipboardData.files.length > 0) {
+            const pastedFile = e.clipboardData.files[0];
+            if (pastedFile.type.startsWith('image/')) {
+                setFile(pastedFile);
+                e.preventDefault();
+            }
+        }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [currentStep]);
+
+  // Drag & Drop Handlers
+  const handleDragOver = (e) => {
+      e.preventDefault();
+      setIsDragging(true);
+  };
+  const handleDragLeave = (e) => {
+      e.preventDefault();
+      setIsDragging(false);
+  };
+  const handleDrop = (e) => {
+      e.preventDefault();
+      setIsDragging(false);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          const droppedFile = e.dataTransfer.files[0];
+          if (droppedFile.type.startsWith('image/')) {
+              setFile(droppedFile);
+          }
+      }
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -351,7 +387,11 @@ const AddTool = ({ historyProp }) => {
   };
 
   // Helper: Get comma-separated list of categories for the prompt
-  const categoryListString = categories.map(c => c.name).join(', ');
+  // Include the user's typed category if it's not already in the list to trigger the AI to use it
+  const categoryListString = [
+      ...categories.map(c => c.name),
+      (form.category && !categories.find(c => c.name.toLowerCase() === form.category.toLowerCase()) ? form.category : null)
+  ].filter(Boolean).join(', ');
   
   // Dynamic Prompt Construction
   const jsonPromptText = `Analyze the tool at ${form.url || form.name || 'this URL'} and generate a JSON object for my directory AI Tools Hub.
@@ -363,7 +403,7 @@ Return ONLY this raw JSON structure (no markdown, no backticks):
   "url": "${form.url || 'https://...'}",
   "shortDescription": "Max 150 chars catchy summary, user-friendly.",
   "description": "1-2 short professional paragraphs explaining main features and value. Avoid hype.",
-  "category": "Choose ONE best fit from: ${categoryListString || 'Video, Coding, Writing, Marketing, Design...'}",
+  "category": "Choose ONE best fit from: ${categoryListString || '(Loading categories...)'}",
   "pricing": "Free / Freemium / Paid / Free Trial / Contact",
   "hashtags": "#Tag1 #Tag2 #Tag3"
 }`;
@@ -373,7 +413,7 @@ Return ONLY this raw JSON structure (no markdown, no backticks):
 Format:
 Name: [Tool Name]
 URL: ${form.url || 'https://...'}
-Category: [Choose from: ${categoryListString || 'Video, Coding...'}]
+Category: [Choose from: ${categoryListString || '(Loading categories...)'}]
 Pricing: [Free/Freemium/Paid/Free Trial/Contact]
 Short Description: [Max 150 chars]
 Description: [1-2 professional paragraphs]
@@ -511,18 +551,27 @@ Hashtags: #Tag1 #Tag2`;
                    {/* STEP 3: VISUALS */}
                    {currentStep === 3 && (
                       <>
-                         <div className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-[#FF6B00]/50 transition-colors group cursor-pointer relative bg-black/20">
-                           <input type="file" accept="image/*" onChange={handleFile} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                           <div className="flex flex-col items-center">
-                              {file ? (
-                                 <span className="text-[#FF6B00] font-semibold">{file.name}</span>
-                              ) : (
-                                 <>
-                                    <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">📸</span>
-                                    <p className="text-sm text-gray-300 font-medium">Click to upload screenshot</p>
-                                    <p className="text-xs text-gray-500 mt-1">PNG, JPG (Max 5MB)</p>
-                                 </>
-                              )}
+                         <div 
+                             className={`border-2 border-dashed rounded-xl p-8 text-center transition-all group cursor-pointer relative ${isDragging ? 'border-[#FF6B00] bg-[#FF6B00]/10 scale-[1.02]' : 'border-white/10 hover:border-[#FF6B00]/50 bg-black/20'}`}
+                             onDragOver={handleDragOver}
+                             onDragLeave={handleDragLeave}
+                             onDrop={handleDrop}
+                         >
+                           <input type="file" accept="image/*" onChange={handleFile} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                           <div className="flex flex-col items-center pointer-events-none">
+                               {file ? (
+                                  <>
+                                    <span className="text-3xl mb-2">✅</span>
+                                    <span className="text-[#FF6B00] font-semibold">{file.name}</span>
+                                    <p className="text-xs text-gray-500 mt-1">Click or Drop to replace</p>
+                                  </>
+                               ) : (
+                                  <>
+                                     <span className={`text-3xl mb-2 transition-transform ${isDragging ? 'scale-125' : 'group-hover:scale-110'}`}>📸</span>
+                                     <p className="text-sm text-gray-300 font-medium">{isDragging ? 'Drop it here!' : 'Click, Paste, or Drop screenshot'}</p>
+                                     <p className="text-xs text-gray-500 mt-1">PNG, JPG (Max 5MB)</p>
+                                  </>
+                               )}
                            </div>
                          </div>
 

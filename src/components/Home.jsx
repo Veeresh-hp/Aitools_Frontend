@@ -597,7 +597,15 @@ const Home = () => {
         } catch (e) { FuseCtor = FuseNamespace; }
 
         try {
-            return new FuseCtor(toolList, { keys: ['name', 'description', 'tags'], threshold: 0.4 });
+            return new FuseCtor(toolList, {
+                keys: [
+                    { name: 'name', weight: 0.7 },
+                    { name: 'tags', weight: 0.2 },
+                    { name: 'description', weight: 0.1 }
+                ],
+                threshold: 0.4,
+                includeScore: true
+            });
         } catch (err) { return { search: () => [] }; }
     }, [toolList]);
 
@@ -725,11 +733,62 @@ const Home = () => {
     }, [searchQuery, activeFilter, activePricing, dateFilter, sortOrder, nameFilter, mergedToolsData]);
 
     const allToolsFlatSorted = useMemo(() => {
+        // If searching, PRIORITIZE RELEVANCE from Fuse results
+        if (searchQuery.trim().length > 0) {
+             const results = fuse.search(searchQuery);
+             // Verify we have results
+             let searchHits = results.map(r => r.item).filter(t => t && t.name);
+
+             // Apply other filters (Category, Pricing, etc.) to these hits
+             // We do this manually because 'filteredTools' relies on the old .includes logic
+             searchHits = searchHits.filter(tool => {
+                   // Category
+                   let matchesCategory = true;
+                   if (activeFilter === 'choice') {
+                       matchesCategory = tool.isAiToolsChoice || tool.badge === 'Recommended' || tool.badge === "Editor's Choice";
+                   } else if (activeFilter !== 'all') {
+                       // We need to match category ID. Tool objects have 'category' property which is the slug ID.
+                       matchesCategory = tool.category === activeFilter;
+                   }
+                   
+                   // Pricing
+                   let matchesPricing = true;
+                   if (activePricing !== 'all') {
+                       const toolPricing = (tool.pricing || 'free').toLowerCase();
+                       if (activePricing === 'free') matchesPricing = toolPricing === 'free';
+                       else if (activePricing === 'freemium') matchesPricing = toolPricing === 'freemium';
+                       else if (activePricing === 'paid') matchesPricing = toolPricing === 'paid';
+                       else if (activePricing === 'open-source') matchesPricing = toolPricing === 'open source' || toolPricing === 'open-source';
+                   }
+
+                   // Date
+                   let matchesDate = true;
+                   const toolDate = new Date(tool.dateAdded || 0);
+                   const now = new Date();
+                   if (dateFilter.type === 'today') {
+                       matchesDate = toolDate.getDate() === now.getDate() && toolDate.getMonth() === now.getMonth() && toolDate.getFullYear() === now.getFullYear();
+                   } else if (dateFilter.type === 'month') {
+                       matchesDate = toolDate.getMonth() === now.getMonth() && toolDate.getFullYear() === now.getFullYear();
+                   } else if (dateFilter.type === 'custom' && dateFilter.value) {
+                        const [y, m, d] = dateFilter.value.split('-').map(Number);
+                        matchesDate = toolDate.getDate() === d && toolDate.getMonth() === (m - 1) && toolDate.getFullYear() === y;
+                   }
+
+                   // Name (Letter)
+                   let matchesNameFilter = true;
+                   if (nameFilter.length > 0) {
+                       const firstChar = tool.name.trim().charAt(0).toUpperCase();
+                       matchesNameFilter = nameFilter.includes(firstChar);
+                   }
+
+                   return matchesCategory && matchesPricing && matchesDate && matchesNameFilter;
+             });
+
+             return searchHits;
+        }
+
+        // Default behavior (Not searching)
         const all = filteredTools.flatMap(category => category.tools.filter(t => t && t.name));
-        // filteredTools is already sorted by sortOrder inside categories.
-        // If we want a global flat list sorted, we must resort it unless categories don't matter.
-        // Actually this flat list seems to be for search or mobile?
-        // Let's re-sort it to be safe.
         return all.sort((a, b) => {
              const nameA = a.name.toLowerCase();
              const nameB = b.name.toLowerCase();
@@ -737,7 +796,7 @@ const Home = () => {
              if (sortOrder === 'name_desc') return nameB.localeCompare(nameA);
              return (b.dateAdded || 0) - (a.dateAdded || 0);
         });
-    }, [filteredTools, sortOrder]);
+    }, [filteredTools, sortOrder, searchQuery, fuse, activeFilter, activePricing, dateFilter, nameFilter]);
 
     useEffect(() => {
         const id = location.hash?.replace('#', '');
@@ -1280,7 +1339,7 @@ const Home = () => {
                     }
 
                     {/* Main Content */}
-                    <div className={`transition-all duration-300 relative z-10 ${isMobile ? '' : 'ml-20'}`}>
+                    <div className={`transition-all duration-300 relative z-30 ${isMobile ? '' : 'ml-20'}`}>
                         <div className="w-full px-6 lg:px-12">
                             {/* Main content area - Full width */}
                             <main className="w-full">
