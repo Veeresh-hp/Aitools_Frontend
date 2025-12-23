@@ -17,6 +17,7 @@ const AdminDashboard = () => {
   const [editSnapshot, setEditSnapshot] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [viewingImage, setViewingImage] = useState(null);
 
   const token = localStorage.getItem('token');
 
@@ -406,7 +407,10 @@ const AdminDashboard = () => {
 
                         <div className="flex flex-col md:flex-row gap-8">
                         {/* Snapshot */}
-                        <div className="w-full md:w-48 aspect-video bg-black relative grayscale hover:grayscale-0 transition-all duration-500">
+                        <div 
+                            className="w-full md:w-48 aspect-video bg-black relative grayscale hover:grayscale-0 transition-all duration-500 cursor-zoom-in overflow-hidden"
+                            onClick={() => tool.snapshotUrl && setViewingImage(tool.snapshotUrl)}
+                        >
                             {tool.snapshotUrl ? (
                             <img
                                 src={tool.snapshotUrl}
@@ -636,6 +640,36 @@ const AdminDashboard = () => {
 
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Update Snapshot</label>
+                        
+                        {/* Image Preview */}
+                        <div 
+                            className="w-full aspect-video bg-black/50 border border-white/10 mb-2 flex items-center justify-center overflow-hidden relative cursor-zoom-in hover:border-[#FF4D00]/50 transition-colors"
+                            onClick={() => {
+                                if (editSnapshot) {
+                                    // Make a preview URL for the new file if possible, or just ignore
+                                    // Actually better to create object URL for preview
+                                    const url = URL.createObjectURL(editSnapshot);
+                                    setViewingImage(url);
+                                } else if (editingTool.snapshotUrl) {
+                                    setViewingImage(editingTool.snapshotUrl);
+                                }
+                            }}
+                        >
+                            {editSnapshot ? (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <p className="text-xs text-[#FF4D00] font-bold uppercase tracking-widest">New Image Selected (Click to View)</p>
+                                </div>
+                            ) : editingTool.snapshotUrl ? (
+                                <img 
+                                    src={editingTool.snapshotUrl} 
+                                    alt="Current Snapshot" 
+                                    className="w-full h-full object-cover opacity-80"
+                                />
+                            ) : (
+                                <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">No Image</p>
+                            )}
+                        </div>
+
                         <input
                             type="file"
                             accept="image/*"
@@ -667,6 +701,31 @@ const AdminDashboard = () => {
           </div>
         )}
       </AnimatePresence >
+
+      {/* Full Screen Image Viewer */}
+      <AnimatePresence>
+        {viewingImage && (
+            <div 
+                className="fixed inset-0 z-[150] bg-black/95 flex items-center justify-center p-4 cursor-zoom-out"
+                onClick={() => setViewingImage(null)}
+            >
+                <motion.img
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    src={viewingImage}
+                    alt="Full View"
+                    className="max-w-full max-h-full object-contain"
+                />
+                <button 
+                    className="absolute top-8 right-8 text-white/50 hover:text-white"
+                    onClick={() => setViewingImage(null)}
+                >
+                    <FaTimes size={32} />
+                </button>
+            </div>
+        )}
+      </AnimatePresence>
     </div >
   );
 };
