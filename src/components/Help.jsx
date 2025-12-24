@@ -149,7 +149,7 @@ const Help = () => {
         <div className="space-y-4">
           <p>You can cancel anytime:</p>
           <ol className="list-decimal pl-5 space-y-2 text-gray-300">
-            <li>Go to <strong>Settings</strong> > <strong>Billing</strong>.</li>
+            <li>Go to <strong>Settings</strong><strong>Billing</strong>.</li>
             <li>Click <strong>"Manage Subscription"</strong> (opens Stripe portal).</li>
             <li>Select <strong>Cancel Plan</strong>.</li>
           </ol>
