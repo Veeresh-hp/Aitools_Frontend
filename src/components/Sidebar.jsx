@@ -186,7 +186,7 @@ const Sidebar = () => {
             <SidebarNavButton
               icon={<FaNewspaper />}
               label={effectiveOpen ? t('nav_blog') : ''}
-              isActive={location.pathname === '/blog'}
+              active={location.pathname === '/blog'}
               onClick={() => {
                   history.push('/blog');
                   if (isMobile) setIsSidebarOpen(false);
