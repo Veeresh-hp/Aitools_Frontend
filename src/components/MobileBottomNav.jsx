@@ -39,6 +39,7 @@ export default function MobileBottomNav() {
   const handleNavigation = (index, path) => {
     setActiveIndex(index);
     history.push(path);
+    window.scrollTo(0, 0);
   };
 
   // Calculate mask position for "Dip" effect

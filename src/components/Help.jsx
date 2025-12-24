@@ -7,6 +7,171 @@ const Help = () => {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeAccordion, setActiveAccordion] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
+  const articles = {
+    'How to search for tools': {
+      title: 'How to Search for Tools',
+      content: (
+        <div className="space-y-4">
+          <p>Finding the perfect AI tool is easy with our search bar:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li><strong>Keyword Search:</strong> Type keywords like "image generator", "coding assistant", or "marketing" into the main search bar on the Home page.</li>
+            <li><strong>Real-time Results:</strong> Results update instantly as you type.</li>
+            <li><strong>Specific Names:</strong> If you know the name of the tool (e.g., "ChatGPT"), type it directly to find its dedicated page.</li>
+          </ul>
+        </div>
+      )
+    },
+    'Filtering by category': {
+      title: 'Filtering by Category',
+      content: (
+        <div className="space-y-4">
+          <p>Narrow down your options using categories:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li><strong>Sidebar Navigation:</strong> On the Home page, use the left sidebar to click on major categories like "Text & Writing" or "Image & Video".</li>
+            <li><strong>Mobile Usage:</strong> On mobile, swipe through the category tabs at the top of the screen.</li>
+            <li><strong>Sub-categories:</strong> Some major categories may have specific tags or sub-filters available in the future.</li>
+          </ul>
+        </div>
+      )
+    },
+    'Using bookmarks': {
+      title: 'Using Bookmarks (Favorites)',
+      content: (
+        <div className="space-y-4">
+          <p>Save tools for later with Bookmarks:</p>
+          <ol className="list-decimal pl-5 space-y-2 text-gray-300">
+            <li><strong>Click the Heart:</strong> On any tool card, click the <span className="inline-block text-gray-400"><FaRocket className="inline w-3 h-3"/></span> Heart icon. If you are logged in, it will turn red/highlighted.</li>
+            <li><strong>Access Favorites:</strong> Go to your Profile menu and select <strong>"Favs"</strong> or click the Heart icon in the bottom navigation bar on mobile.</li>
+            <li><strong>Manage:</strong> You can remove a tool from favorites by clicking the Heart icon again.</li>
+          </ol>
+          <p className="text-sm text-gray-400 mt-2">Note: You must be logged in to use this feature.</p>
+        </div>
+      )
+    },
+    'Updating your profile': {
+      title: 'Updating your Profile',
+      content: (
+        <div className="space-y-4">
+          <p>Keep your account information up to date:</p>
+          <ol className="list-decimal pl-5 space-y-2 text-gray-300">
+            <li>Click on your <strong>Profile Icon</strong> in the top right (or "Profile" in mobile nav).</li>
+            <li>Select <strong>"Profile"</strong> from the menu.</li>
+            <li>Click the <strong>"Edit Profile"</strong> button to change your display name or bio.</li>
+            <li>You can also update your generic avatar to a custom one if supported.</li>
+          </ol>
+        </div>
+      )
+    },
+    'Resetting password': {
+      title: 'Resetting Password',
+      content: (
+        <div className="space-y-4">
+          <p>If you've lost your password:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li>Go to the <strong>Login</strong> page.</li>
+            <li>Click <strong>"Forgot Password?"</strong>.</li>
+            <li>Enter your registered email address.</li>
+            <li>Check your email for a reset link (ensure to check Spam folder).</li>
+            <li>Follow the link to set a new secure password.</li>
+          </ul>
+        </div>
+      )
+    },
+    'Privacy settings': {
+      title: 'Privacy Settings',
+      content: (
+        <div className="space-y-4">
+          <p>We value your privacy. Currently, your profile is:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li><strong>Private by default:</strong> Your favorites list is only visible to you unless shared (feature coming soon).</li>
+            <li><strong>Data Usage:</strong> We only use your email for authentication and critical updates. We do not sell your data.</li>
+            <li>To delete your account completely, please contact support.</li>
+          </ul>
+        </div>
+      )
+    },
+    'Submission guidelines': {
+      title: 'Submission Guidelines',
+      content: (
+        <div className="space-y-4">
+          <p>Ensure your tool gets approved quickly:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li><strong>Working URL:</strong> The link must be active and accessible.</li>
+            <li><strong>Clear Description:</strong> Write a professional, hype-free description of what the tool actually does.</li>
+            <li><strong>High-Quality Image:</strong> Upload a clear screenshot of the dashboard or landing page (16:9 ratio preferred).</li>
+            <li><strong>Correct Category:</strong> Choose the most relevant category.</li>
+          </ul>
+        </div>
+      )
+    },
+    'Verification process': {
+      title: 'Verification Process',
+      content: (
+        <div className="space-y-4">
+          <p>How we review tools:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li><strong>Automated Check:</strong> We check if the URL is reachable.</li>
+            <li><strong>Admin Review:</strong> A human admin reviews the content, image, and safety of the tool.</li>
+            <li><strong>Timeline:</strong> Most tools are approved within 24-48 hours.</li>
+            <li><strong>Rejection:</strong> If rejected, you will receive an email explaining why (e.g., broken link, inappropriate content).</li>
+          </ul>
+        </div>
+      )
+    },
+    'Editing your tool': {
+      title: 'Editing Your Tool',
+      content: (
+        <div className="space-y-4">
+          <p>Need to update your listing?</p>
+          <p>Currently, only Admins can edit live listings to ensure quality consistency.</p>
+          <p>If you are the owner, please use the <strong>"Contact Support"</strong> form with the subject "Edit Request" and provide the new details. We are building a "Claim Tool" feature for self-service editing soon.</p>
+        </div>
+      )
+    },
+    'Subscription plans': {
+      title: 'Subscription Plans',
+      content: (
+        <div className="space-y-4">
+          <p>AI Tools Hub offers flexible plans:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li><strong>Free User:</strong> Unlimited browsing, search, and bookmarks.</li>
+            <li><strong>Pro (Coming Soon):</strong> Advanced analytics, API access, and ad-free experience.</li>
+            <li><strong>Tool Creator:</strong> Featured listings and traffic analytics for your submitted tools.</li>
+          </ul>
+        </div>
+      )
+    },
+    'Canceling subscription': {
+      title: 'Canceling Subscription',
+      content: (
+        <div className="space-y-4">
+          <p>You can cancel anytime:</p>
+          <ol className="list-decimal pl-5 space-y-2 text-gray-300">
+            <li>Go to <strong>Settings</strong> > <strong>Billing</strong>.</li>
+            <li>Click <strong>"Manage Subscription"</strong> (opens Stripe portal).</li>
+            <li>Select <strong>Cancel Plan</strong>.</li>
+          </ol>
+          <p>Your premium benefits will continue until the end of the current billing cycle.</p>
+        </div>
+      )
+    },
+    'Contact support': {
+      title: 'Contact Support',
+      content: (
+        <div className="space-y-4">
+          <p>We are here to help!</p>
+          <p>You can reach us via:</p>
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
+            <li><strong>Form:</strong> Use the "Contact Support" button at the bottom of this page.</li>
+            <li><strong>Email:</strong> support@aitoolshub.com</li>
+            <li><strong>Discord:</strong> Join our community server for quick peer support.</li>
+          </ul>
+        </div>
+      )
+    }
+  };
 
   const categories = [
     { 
@@ -168,7 +333,16 @@ const Help = () => {
                     <ul className="space-y-3">
                       {cat.links.map((link, j) => (
                         <li key={j}>
-                          <button className="text-sm text-gray-400 hover:text-teal-300 transition-colors flex items-center gap-2 group-hover:translate-x-1 duration-200 text-left">
+                          <button 
+                             onClick={() => {
+                               if (articles[link]) {
+                                 setSelectedArticle(articles[link]);
+                               } else {
+                                 console.warn('No article found for:', link);
+                               }
+                             }}
+                             className="text-sm text-gray-400 hover:text-teal-300 transition-colors flex items-center gap-2 group-hover:translate-x-1 duration-200 text-left w-full"
+                          >
                             <FaExternalLinkAlt className="text-[10px] opacity-50 shrink-0" />
                             {link}
                           </button>
@@ -256,6 +430,51 @@ const Help = () => {
         </m.div>
 
       </div>
+
+      {/* Article Modal */}
+      <AnimatePresence>
+          {selectedArticle && (
+              <div 
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                  onClick={() => setSelectedArticle(null)}
+              >
+                  <m.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-2xl relative flex flex-col"
+                  >
+                      {/* Modal Header */}
+                      <div className="p-6 border-b border-white/10 sticky top-0 bg-[#111] z-10 flex justify-between items-center">
+                          <h2 className="text-2xl font-bold text-white">{selectedArticle.title}</h2>
+                          <button 
+                              onClick={() => setSelectedArticle(null)}
+                              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+                          >
+                              ✕
+                          </button>
+                      </div>
+                      
+                      {/* Modal Body */}
+                      <div className="p-8 text-gray-300 leading-relaxed text-lg">
+                          {selectedArticle.content}
+                      </div>
+
+                      {/* Modal Footer */}
+                      <div className="p-6 border-t border-white/10 bg-white/[0.02] flex justify-end">
+                          <button 
+                              onClick={() => setSelectedArticle(null)}
+                              className="px-6 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold transition-colors"
+                          >
+                              Close
+                          </button>
+                      </div>
+                  </m.div>
+              </div>
+          )}
+      </AnimatePresence>
+
     </div>
   );
 };

@@ -386,6 +386,9 @@ const AddTool = ({ historyProp }) => {
     alert('Copied to clipboard!');
   };
 
+  // Pricing Options
+  const PRICING_OPTIONS = ['Free', 'Freemium', 'Paid', 'Free Trial', 'Contact'];
+
   // Helper: Get comma-separated list of categories for the prompt
   // Include the user's typed category if it's not already in the list to trigger the AI to use it
   const categoryListString = [
@@ -404,7 +407,7 @@ Return ONLY this raw JSON structure (no markdown, no backticks):
   "shortDescription": "Max 150 chars catchy summary, user-friendly.",
   "description": "1-2 short professional paragraphs explaining main features and value. Avoid hype.",
   "category": "Choose ONE best fit from: ${categoryListString || '(Loading categories...)'}",
-  "pricing": "Free / Freemium / Paid / Free Trial / Contact",
+  "pricing": "Choose ONE from: ${PRICING_OPTIONS.join(', ')}",
   "hashtags": "#Tag1 #Tag2 #Tag3"
 }`;
 
@@ -414,12 +417,24 @@ Format:
 Name: [Tool Name]
 URL: ${form.url || 'https://...'}
 Category: [Choose from: ${categoryListString || '(Loading categories...)'}]
-Pricing: [Free/Freemium/Paid/Free Trial/Contact]
+Pricing: [Choose from: ${PRICING_OPTIONS.join(', ')}]
 Short Description: [Max 150 chars]
 Description: [1-2 professional paragraphs]
 Hashtags: #Tag1 #Tag2`;
 
   const activePrompt = promptMode === 'json' ? jsonPromptText : textPromptText;
+
+  // Image Preview Side Effect
+  const [previewUrl, setPreviewUrl] = useState(null);
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-sans">
@@ -448,24 +463,26 @@ Hashtags: #Tag1 #Tag2`;
                  </button>
              </div>
 
-             <div className="space-y-6 relative">
-                 {/* Connecting Line */}
-                 <div className="absolute left-[15px] top-4 bottom-4 w-[2px] bg-white/10 z-0"></div>
+             <div className="flex justify-between items-start lg:block lg:space-y-6 relative">
+                 {/* Connecting Line (Vertical - Desktop) */}
+                 <div className="hidden lg:block absolute left-[15px] top-4 bottom-4 w-[2px] bg-white/10 z-0"></div>
+                 {/* Connecting Line (Horizontal - Mobile) */}
+                 <div className="lg:hidden absolute top-[15px] left-4 right-4 h-[2px] bg-white/10 z-0"></div>
 
                  {steps.map((step) => {
                      const isCompleted = currentStep > step.id;
                      const isActive = currentStep === step.id;
                      
                      return (
-                         <div key={step.id} className={`relative z-10 flex items-center gap-4 transition-all duration-300 ${isActive || isCompleted ? 'opacity-100' : 'opacity-40'}`}>
+                         <div key={step.id} className={`relative z-10 flex flex-col lg:flex-row items-center gap-2 lg:gap-4 transition-all duration-300 ${isActive || isCompleted ? 'opacity-100' : 'opacity-40'}`}>
                              {/* Icon Circle */}
                              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 shrink-0 ${isCompleted ? 'bg-green-500 border-green-500' : isActive ? 'bg-[#FF6B00] border-[#FF6B00]' : 'bg-black border-white/20'}`}>
                                  {isCompleted ? <FaCheck className="text-white text-xs" /> : <step.icon className="text-white text-xs" />}
                              </div>
                              
                              {/* Text */}
-                             <div>
-                                 <h3 className={`text-sm font-bold ${isActive ? 'text-white' : 'text-gray-300'}`}>{step.title}</h3>
+                             <div className="text-center lg:text-left">
+                                 <h3 className={`text-[10px] lg:text-sm font-bold ${isActive ? 'text-white' : 'text-gray-300'}`}>{step.title}</h3>
                                  <p className="text-xs text-gray-500 hidden xl:block">{step.desc}</p>
                              </div>
                          </div>
@@ -522,7 +539,7 @@ Hashtags: #Tag1 #Tag2`;
                                 placeholder="Type or Select Category" 
                             />
 
-                            <CustomDropdown label="Pricing *" options={[{ value: 'Free', label: 'Free' }, { value: 'Freemium', label: 'Freemium' }, { value: 'Paid', label: 'Paid' }, { value: 'Free Trial', label: 'Free Trial' }, { value: 'Contact', label: 'Contact' }]} value={form.pricing} onChange={handleChange} name="pricing" placeholder="Select Pricing" dropUp={true} />
+                            <CustomDropdown label="Pricing *" options={PRICING_OPTIONS.map(p => ({ value: p, label: p }))} value={form.pricing} onChange={handleChange} name="pricing" placeholder="Select Pricing" dropUp={true} />
                          </div>
                       </>
                    )}
@@ -552,19 +569,20 @@ Hashtags: #Tag1 #Tag2`;
                    {currentStep === 3 && (
                       <>
                          <div 
-                             className={`border-2 border-dashed rounded-xl p-8 text-center transition-all group cursor-pointer relative ${isDragging ? 'border-[#FF6B00] bg-[#FF6B00]/10 scale-[1.02]' : 'border-white/10 hover:border-[#FF6B00]/50 bg-black/20'}`}
+                             className={`border-2 border-dashed rounded-xl p-8 text-center transition-all group cursor-pointer relative overflow-hidden ${isDragging ? 'border-[#FF6B00] bg-[#FF6B00]/10 scale-[1.02]' : 'border-white/10 hover:border-[#FF6B00]/50 bg-black/20'}`}
                              onDragOver={handleDragOver}
                              onDragLeave={handleDragLeave}
                              onDrop={handleDrop}
                          >
                            <input type="file" accept="image/*" onChange={handleFile} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                           <div className="flex flex-col items-center pointer-events-none">
-                               {file ? (
-                                  <>
-                                    <span className="text-3xl mb-2">✅</span>
-                                    <span className="text-[#FF6B00] font-semibold">{file.name}</span>
-                                    <p className="text-xs text-gray-500 mt-1">Click or Drop to replace</p>
-                                  </>
+                           <div className="flex flex-col items-center pointer-events-none relative z-20">
+                               {previewUrl ? (
+                                  <div className="relative">
+                                     <img src={previewUrl} alt="Preview" className="max-h-48 rounded-lg shadow-2xl border border-white/20 mb-3" />
+                                     <div className="flex items-center justify-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs text-white absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                                        <span>✅ {file.name}</span>
+                                     </div>
+                                  </div>
                                ) : (
                                   <>
                                      <span className={`text-3xl mb-2 transition-transform ${isDragging ? 'scale-125' : 'group-hover:scale-110'}`}>📸</span>

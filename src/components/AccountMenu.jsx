@@ -31,7 +31,7 @@ const AccountMenu = ({ compact = false, fromSidebar = false, onOpenChange, trans
   }, [open, onOpenChange]);
 
   const setLastUsed = (key) => { try { localStorage.setItem('account_last_item', key); } catch {} setLastUsedKey(key); };
-  const go = (path, key) => { setLastUsed(key); setOpen(false); history.push(path); };
+  const go = (path, key) => { setLastUsed(key); setOpen(false); history.push(path); window.scrollTo(0, 0); };
   const logout = () => {
     setOpen(false);
     try { localStorage.clear(); } catch {}
@@ -88,9 +88,9 @@ const AccountMenu = ({ compact = false, fromSidebar = false, onOpenChange, trans
 
     { key: 'history', label: 'History', icon: <FaHistory className="opacity-80" />, onClick: openAuthPrompt },
     { key: 'upgrade', label: 'Upgrade plan', icon: <FaCrown className="opacity-80" />, onClick: openAuthPrompt },
-    { key: 'help', label: 'Help', icon: <FaQuestionCircle className="opacity-80" />, onClick: () => { setOpen(false); history.push('/help'); } },
-    { key: 'login', label: 'Login', icon: <FaUser className="opacity-80" />, onClick: () => { setOpen(false); history.push('/login'); } },
-    { key: 'signup', label: 'Sign Up', icon: <FaCrown className="opacity-80" />, onClick: () => { setOpen(false); history.push('/signup'); } },
+    { key: 'help', label: 'Help', icon: <FaQuestionCircle className="opacity-80" />, onClick: () => { setOpen(false); history.push('/help'); window.scrollTo(0, 0); } },
+    { key: 'login', label: 'Login', icon: <FaUser className="opacity-80" />, onClick: () => { setOpen(false); history.push('/login'); window.scrollTo(0, 0); } },
+    { key: 'signup', label: 'Sign Up', icon: <FaCrown className="opacity-80" />, onClick: () => { setOpen(false); history.push('/signup'); window.scrollTo(0, 0); } },
   ];
 
   // Click outside handler updated for Portal
