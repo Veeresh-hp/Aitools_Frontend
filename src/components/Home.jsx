@@ -519,7 +519,9 @@ const Home = () => {
                 const fallback = !snapshot ? getFaviconUrl(tool.url) : null;
                 const rawCategory = tool.category || 'utility-tools';
                 const normalizedCategory = toSlug(rawCategory) || 'utility-tools';
-                const parsed = Date.parse(tool.createdAt || tool.updatedAt || '');
+                
+                // Prioritize approvedAt for "New" badge and sorting
+                const parsed = Date.parse(tool.approvedAt || tool.createdAt || tool.updatedAt || '');
                 const safeTime = isNaN(parsed) ? Date.now() : parsed;
 
                 return {
@@ -1226,7 +1228,21 @@ const Home = () => {
                                                 return (
                                                     <button
                                                         key={cat.id}
-                                                        onClick={() => setActiveFilter(cat.id)}
+                                                        onClick={() => {
+                                                            setActiveFilter(cat.id);
+                                                            setTimeout(() => {
+                                                                const toolsEl = document.getElementById('tools');
+                                                                if (toolsEl) {
+                                                                    const headerOffset = 85;
+                                                                    const elementPosition = toolsEl.getBoundingClientRect().top;
+                                                                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                                                    window.scrollTo({
+                                                                        top: offsetPosition,
+                                                                        behavior: "smooth"
+                                                                    });
+                                                                }
+                                                            }, 50);
+                                                        }}
                                                         className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap border ${
                                                             isActive 
                                                             ? 'bg-[#FF6B00] text-white border-[#FF6B00] shadow-lg shadow-orange-900/20' 
@@ -1265,6 +1281,18 @@ const Home = () => {
                                                                     onClick={() => {
                                                                         setActiveFilter(cat.id);
                                                                         setShowMoreMenu(false);
+                                                                        setTimeout(() => {
+                                                                            const toolsEl = document.getElementById('tools');
+                                                                            if (toolsEl) {
+                                                                                const headerOffset = 85;
+                                                                                const elementPosition = toolsEl.getBoundingClientRect().top;
+                                                                                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                                                                window.scrollTo({
+                                                                                    top: offsetPosition,
+                                                                                    behavior: "smooth"
+                                                                                });
+                                                                            }
+                                                                        }, 50);
                                                                     }}
                                                                     className={`w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
                                                                         isActive 
@@ -1440,6 +1468,8 @@ const Home = () => {
                                                             setActivePricing={setActivePricing}
                                                             sortOrder={sortOrder}
                                                             setSortOrder={setSortOrder}
+                                                            dateFilter={dateFilter}
+                                                            setDateFilter={setDateFilter}
                                                         />
                                                     </div>
                                                     <button

@@ -199,7 +199,10 @@ const Sidebar = () => {
               icon={<FaEnvelope />}
               label={effectiveOpen ? t('nav_contact') : ''}
               aria-label="Contact Us"
-              onClick={() => handleNavAction(4, () => history.push('/contact'))}
+              onClick={() => handleNavAction(4, () => {
+                history.push('/contact');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              })}
             />
             <SidebarNavButton
               ref={el => (navRefs.current[5] = el)}
@@ -207,7 +210,10 @@ const Sidebar = () => {
               icon={<FaInfoCircle />}
               label={effectiveOpen ? t('nav_about') : ''}
               aria-label="About"
-              onClick={() => handleNavAction(5, () => history.push('/about'))}
+              onClick={() => handleNavAction(5, () => {
+                history.push('/about');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              })}
             />
           </nav>
 

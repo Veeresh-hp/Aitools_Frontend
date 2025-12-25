@@ -518,14 +518,7 @@ html {
 /* Background / theme variables - REMOVED: Now using inline navy blue theme */
 /* Old background image system removed in favor of consistent navy blue theme across all sections */
 
-/* Hide scrollbar for horizontal filter scroll */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* Hide scrollbar for horizontal filter scroll - Already defined above */
 /* Custom Modal Scrollbar */
 .custom-modal-scrollbar {
   scrollbar-width: thin;
@@ -544,3 +537,10 @@ html {
 .custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.4);
 }
+
+/* Linear fade mask for horizontal scrolling lists - Right side only */
+.mask-linear-fade {
+  mask-image: linear-gradient(to right, black 0%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 85%, transparent 100%);
+}
+

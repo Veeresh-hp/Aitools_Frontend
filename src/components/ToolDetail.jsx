@@ -207,7 +207,8 @@ const ToolDetail = () => {
         const rawCategory = t.category || 'voice-tools';
         const slugCategory = toSlug(rawCategory);
 
-        const parsed = Date.parse(t.createdAt || t.updatedAt || '');
+        // Prioritize approvedAt for "New" badge and sorting
+        const parsed = Date.parse(t.approvedAt || t.createdAt || t.updatedAt || '');
         const safeTime = isNaN(parsed) ? Date.now() : parsed;
 
         return {
