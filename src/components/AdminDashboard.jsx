@@ -18,6 +18,8 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [viewingImage, setViewingImage] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null); // { id, name }
+  const [editPreviewUrl, setEditPreviewUrl] = useState(null);
 
   const token = localStorage.getItem('token');
 
@@ -102,6 +104,28 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUpdateCategory = async (e) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+
+    try {
+        setIsLoading(true);
+        const res = await api.put(`/api/categories/${editingCategory._id}`, { name: editingCategory.name });
+        
+        // Update local state
+        setPendingCategories(pendingCategories.map(c => c._id === editingCategory._id ? res.data.category : c));
+        setMessage('Category updated');
+        setMessageType('success');
+        setEditingCategory(null);
+    } catch (err) {
+        console.error(err);
+        setMessage(err.response?.data?.error || 'Failed to update category');
+        setMessageType('error');
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
   const handleEditClick = (tool) => {
     setEditingTool(tool);
     setEditForm({
@@ -114,8 +138,21 @@ const AdminDashboard = () => {
       hashtags: Array.isArray(tool.hashtags) ? tool.hashtags.join(', ') : tool.hashtags,
       isAiToolsChoice: tool.isAiToolsChoice
     });
+
     setEditSnapshot(null);
+    setEditPreviewUrl(null);
   };
+
+  // Preview Effect for Edit Snapshot
+  useEffect(() => {
+    if (!editSnapshot) {
+      setEditPreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(editSnapshot);
+    setEditPreviewUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [editSnapshot]);
 
   const handleEditChange = (e) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
@@ -356,6 +393,13 @@ const AdminDashboard = () => {
                             className="text-[10px] font-bold uppercase tracking-widest text-white hover:text-[#FF4D00] transition-colors"
                         >
                             Approve
+                        </button>
+                        <span className="text-gray-700">|</span>
+                        <button
+                            onClick={() => setEditingCategory(cat)}
+                            className="text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors"
+                        >
+                            Edit
                         </button>
                         <span className="text-gray-700">|</span>
                         <button
@@ -645,19 +689,23 @@ const AdminDashboard = () => {
                         <div 
                             className="w-full aspect-video bg-black/50 border border-white/10 mb-2 flex items-center justify-center overflow-hidden relative cursor-zoom-in hover:border-[#FF4D00]/50 transition-colors"
                             onClick={() => {
-                                if (editSnapshot) {
-                                    // Make a preview URL for the new file if possible, or just ignore
-                                    // Actually better to create object URL for preview
-                                    const url = URL.createObjectURL(editSnapshot);
-                                    setViewingImage(url);
+                                if (editPreviewUrl) {
+                                    setViewingImage(editPreviewUrl);
                                 } else if (editingTool.snapshotUrl) {
                                     setViewingImage(editingTool.snapshotUrl);
                                 }
                             }}
                         >
-                            {editSnapshot ? (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <p className="text-xs text-[#FF4D00] font-bold uppercase tracking-widest">New Image Selected (Click to View)</p>
+                            {editSnapshot && editPreviewUrl ? (
+                                <div className="relative w-full h-full group">
+                                     <img 
+                                        src={editPreviewUrl} 
+                                        alt="New Snapshot" 
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <p className="text-xs text-[#FF4D00] font-bold uppercase tracking-widest">New Image Selected</p>
+                                    </div>
                                 </div>
                             ) : editingTool.snapshotUrl ? (
                                 <img 
@@ -726,6 +774,56 @@ const AdminDashboard = () => {
             </div>
         )}
       </AnimatePresence>
+
+
+
+      {/* Edit Category Modal */}
+      <AnimatePresence>
+        {editingCategory && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-[#050505] border border-white/10 w-full max-w-md shadow-2xl relative p-8"
+                >
+                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <FaEdit className="text-[#FF4D00]" /> Edit Category
+                    </h3>
+                    
+                    <form onSubmit={handleUpdateCategory} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Category Name</label>
+                            <input
+                                value={editingCategory.name}
+                                onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
+                                className="w-full bg-[#111] border border-white/10 focus:border-[#FF4D00] px-4 py-3 text-white outline-none"
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setEditingCategory(null)}
+                                className="flex-1 py-3 border border-white/10 hover:bg-white/5 text-gray-400 text-xs font-bold uppercase"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isLoading || !editingCategory.name.trim()}
+                                className="flex-1 py-3 bg-[#FF4D00] hover:bg-white hover:text-black text-white text-xs font-bold uppercase transition-colors"
+                            >
+                                {isLoading ? 'Saving...' : 'Save Update'}
+                            </button>
+                        </div>
+                    </form>
+                </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
+
     </div >
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaCheck, FaLink, FaListUl, FaImage, FaLightbulb, FaCopy } from 'react-icons/fa';
+import { FaCheck, FaLink, FaListUl, FaImage, FaLightbulb, FaCopy, FaTimes } from 'react-icons/fa';
 import api from '../utils/api';
 import bgVideo from '../assets/Cinematic_Mosaic_Wall_Animation.mp4';
 
@@ -394,7 +394,7 @@ const AddTool = ({ historyProp }) => {
   const categoryListString = [
       ...categories.map(c => c.name),
       (form.category && !categories.find(c => c.name.toLowerCase() === form.category.toLowerCase()) ? form.category : null)
-  ].filter(Boolean).join(', ');
+  ].filter(Boolean).filter(c => c.toLowerCase() !== 'contact').join(', ');
   
   // Dynamic Prompt Construction
   const jsonPromptText = `Analyze the tool at ${form.url || form.name || 'this URL'} and generate a JSON object for my directory AI Tools Hub.
@@ -405,8 +405,8 @@ Return ONLY this raw JSON structure (no markdown, no backticks):
   "name": "Tool Name",
   "url": "${form.url || 'https://...'}",
   "shortDescription": "Max 150 chars catchy summary, user-friendly.",
-  "description": "1-2 short professional paragraphs explaining main features and value. Avoid hype.",
-  "category": "Choose ONE best fit from: ${categoryListString || '(Loading categories...)'}",
+  "description": "1-2 short professional paragraphs explaining main features and value. Avoid hype. Ensure accuracy.",
+  "category": "Choose the best matching category from this list: ${categoryListString || '(Loading categories...)'}. If NONE fit, suggest a new, short, descriptive category name (e.g., 'Video Generators'). Do NOT use 'Contact'.",
   "pricing": "Choose ONE from: ${PRICING_OPTIONS.join(', ')}",
   "hashtags": "#Tag1 #Tag2 #Tag3"
 }`;
@@ -416,10 +416,10 @@ Return ONLY this raw JSON structure (no markdown, no backticks):
 Format:
 Name: [Tool Name]
 URL: ${form.url || 'https://...'}
-Category: [Choose from: ${categoryListString || '(Loading categories...)'}]
+Category: [Choose from: ${categoryListString || '(Loading categories...)'}. or suggest new if needed]
 Pricing: [Choose from: ${PRICING_OPTIONS.join(', ')}]
 Short Description: [Max 150 chars]
-Description: [1-2 professional paragraphs]
+Description: [1-2 professional paragraphs, accurate info only]
 Hashtags: #Tag1 #Tag2`;
 
   const activePrompt = promptMode === 'json' ? jsonPromptText : textPromptText;
@@ -435,6 +435,39 @@ Hashtags: #Tag1 #Tag2`;
     setPreviewUrl(objectUrl);
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      // Alt+Q to toggle Quick Fill
+      if (e.altKey && e.key.toLowerCase() === 'q') {
+        e.preventDefault();
+        setShowQuickFill(prev => !prev);
+      }
+      // Escape to close Quick Fill
+      if (e.key === 'Escape' && showQuickFill) {
+        setShowQuickFill(false);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [showQuickFill]);
+
+  // Handle Enter Key Navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+        // Allow textarea to function normally
+        if (e.target.tagName === 'TEXTAREA') return;
+
+        e.preventDefault();
+        if (currentStep < 3) {
+            nextStep();
+        } else {
+            // Only submit if we have a file (required for step 3)
+            if (file && !isSubmitting) handleSubmit(e);
+        }
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-sans">
@@ -458,8 +491,9 @@ Hashtags: #Tag1 #Tag2`;
                  <button 
                     onClick={() => setShowQuickFill(true)}
                     className="w-full py-2 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
+                    title="Press Alt+Q to open"
                  >
-                    <span>⚡</span> Quick Fill
+                    <span>⚡</span> Quick Fill <span className="text-[10px] opacity-60 font-mono hidden xl:inline">(Alt+Q)</span>
                  </button>
              </div>
 
@@ -509,7 +543,7 @@ Hashtags: #Tag1 #Tag2`;
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
              <AnimatePresence custom={direction} mode="wait">
                 <motion.div
                   key={currentStep}
@@ -576,9 +610,22 @@ Hashtags: #Tag1 #Tag2`;
                          >
                            <input type="file" accept="image/*" onChange={handleFile} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                            <div className="flex flex-col items-center pointer-events-none relative z-20">
-                               {previewUrl ? (
-                                  <div className="relative">
+                               {file && previewUrl ? (
+                                  <div className="relative group/preview">
                                      <img src={previewUrl} alt="Preview" className="max-h-48 rounded-lg shadow-2xl border border-white/20 mb-3" />
+                                     {/* Deselect Button */}
+                                     <button 
+                                       type="button"
+                                       onClick={(e) => {
+                                           e.stopPropagation();
+                                           e.preventDefault();
+                                           setFile(null);
+                                       }}
+                                       className="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-transform hover:scale-110 z-50 pointer-events-auto"
+                                       title="Remove Image"
+                                     >
+                                       <FaTimes size={14} />
+                                     </button>
                                      <div className="flex items-center justify-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs text-white absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
                                         <span>✅ {file.name}</span>
                                      </div>
@@ -608,11 +655,11 @@ Hashtags: #Tag1 #Tag2`;
                 )}
                 
                 {currentStep < 3 ? (
-                  <button type="button" onClick={nextStep} className="flex-1 py-3 rounded-xl bg-[#FF6B00] hover:bg-[#ff8533] text-white font-bold shadow-lg hover:shadow-[#FF6B00]/20 transition-all">
+                  <button key="next-btn" type="button" onClick={nextStep} className="flex-1 py-3 rounded-xl bg-[#FF6B00] hover:bg-[#ff8533] text-white font-bold shadow-lg hover:shadow-[#FF6B00]/20 transition-all">
                     Next: {steps[currentStep].title}
                   </button>
                 ) : (
-                  <button type="submit" disabled={isSubmitting || !file} className="flex-1 py-3 rounded-xl bg-[#FF6B00] hover:bg-[#ff8533] text-white font-bold shadow-lg hover:shadow-[#FF6B00]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button key="submit-btn" type="submit" disabled={isSubmitting || !file} className="flex-1 py-3 rounded-xl bg-[#FF6B00] hover:bg-[#ff8533] text-white font-bold shadow-lg hover:shadow-[#FF6B00]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     {isSubmitting ? 'Submitting...' : 'Submit Tool 🚀'}
                   </button>
                 )}
@@ -732,6 +779,7 @@ Hashtags: #Tag1 #Tag2`;
                         <button 
                             onClick={() => setShowQuickFill(false)}
                             className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                            title="Press Esc"
                         >
                             Cancel
                         </button>
@@ -741,8 +789,9 @@ Hashtags: #Tag1 #Tag2`;
                                 if(ta) handleQuickFill(ta.value);
                             }}
                             className="px-6 py-2 rounded-lg bg-[#FF6B00] hover:bg-[#ff8533] text-white font-bold shadow-lg shadow-orange-500/20"
+                            title="Press Ctrl+Enter"
                         >
-                            Auto-Fill
+                            Auto-Fill (Ctrl+Enter)
                         </button>
                     </div>
                 </div>

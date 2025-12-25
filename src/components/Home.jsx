@@ -542,14 +542,36 @@ const Home = () => {
     }, [approvedTools, API_URL, getFaviconUrl, toSlug, isRecent]);
 
     const mergedToolsData = useMemo(() => {
-        // Process static tools to update isNew based on dateAdded
+        // Helper to normalize strings for comparison
+        const normalize = (s) => String(s || '').trim().toLowerCase().replace(/\/$/, ''); // remove trailing slash
+
+        // 1. Identify all Backend Tools by unique keys (URL and Name) to prioritize them
+        const backendSignatures = new Set();
+        convertedApprovedTools.forEach(t => {
+             // We use both URL and Name as signatures. 
+             // If a static tool matches EITHER, we assume it's the same tool and let the Backend version win.
+             if (t.url) backendSignatures.add(normalize(t.url));
+             if (t.name) backendSignatures.add(normalize(t.name));
+        });
+
+        // 2. Process Static Tools: Exclude if they exist in Backend
         const staticCategoriesMap = new Map(
             toolsData.map(cat => ({
                 ...cat,
-                tools: cat.tools.map(t => ({
-                    ...t,
-                    isNew: isRecent(t.dateAdded || 0) // Override static isNew
-                }))
+                tools: cat.tools
+                    .filter(t => {
+                        const urlSig = normalize(t.url);
+                        const nameSig = normalize(t.name);
+                        // If backend has this tool, skip static version (deduplicate)
+                        if (backendSignatures.has(urlSig) || backendSignatures.has(nameSig)) {
+                            return false; 
+                        }
+                        return true;
+                    })
+                    .map(t => ({
+                        ...t,
+                        isNew: isRecent(t.dateAdded || 0) // Override static isNew
+                    }))
             })).map(cat => [cat.id, cat])
         );
         const newCategoriesMap = new Map();
