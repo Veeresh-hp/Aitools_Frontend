@@ -82,7 +82,7 @@ function App() {
                   {/* Tool Detail Route - Must be before "/" route */}
                   <Route path="/tools/:category/:toolSlug" component={ToolDetail} />
 
-                  <Route path="/" exact component={Home} />
+                  <Route path="/" exact render={(props) => <Home {...props} isCinematicLoading={initialLoad} />} />
                   <Route path="/login" component={Login} />
                   <Route path="/signup" component={Signup} />
                   <Route path="/about" component={About} />

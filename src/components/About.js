@@ -3,7 +3,9 @@ import { motion as m } from 'framer-motion';
 import { Brain, Users, Zap, Shield, ArrowRight, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toolsData from '../data/toolsData';
+import LinkPreview from './LinkPreview'
 import HeroCards from './HeroCards';
+import AnimatedTooltip from './AnimatedTooltip';
 
 const About = () => {
   const stats = [
@@ -212,6 +214,82 @@ const About = () => {
                 </p>
              </m.div>
         </div>
+
+        {/* Built With Section (LinkPreview Demo) */}
+        <m.div 
+            className="text-center py-12 border-t border-white/10"
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ delay: 0.7 }}
+        >
+            <h4 className="text-xl font-bold text-white mb-6">Built with Modern Tech</h4>
+            <div className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed flex flex-wrap justify-center gap-2 items-center">
+              <span>We leverage the power of</span>
+              <LinkPreview url="https://react.dev" className="font-bold text-white hover:text-blue-400 transition-colors">
+                React
+              </LinkPreview>
+              <span>and</span>
+              <LinkPreview url="https://tailwindcss.com" className="font-bold text-white hover:text-cyan-400 transition-colors">
+                Tailwind CSS
+              </LinkPreview>
+              <span>to build fast, responsive interfaces. Animations are driven by</span>
+              <LinkPreview url="https://www.framer.com/motion/" className="font-bold text-white hover:text-purple-400 transition-colors">
+                Framer Motion
+              </LinkPreview>
+              <span>for a seamless experience.</span>
+            </div>
+        </m.div>
+
+        {/* Meet the Minds Section (Animated Tooltip) */}
+        <m.div
+            className="flex flex-col items-center justify-center py-16 border-t border-white/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.75 }}
+        >
+             <h4 className="text-2xl font-bold text-white mb-8">Meet the Minds</h4>
+             <div className="flex flex-row items-center justify-center mb-10 w-full">
+                <AnimatedTooltip items={[
+                  {
+                    id: 1,
+                    name: "John Doe",
+                    designation: "Software Engineer",
+                    image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80",
+                  },
+                  {
+                    id: 2,
+                    name: "Robert Johnson",
+                    designation: "Product Manager",
+                    image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60",
+                  },
+                  {
+                    id: 3,
+                    name: "Jane Smith",
+                    designation: "Data Scientist",
+                    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60",
+                  },
+                  {
+                    id: 4,
+                    name: "Emily Davis",
+                    designation: "UX Designer",
+                    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGF2YXRhcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60",
+                  },
+                  {
+                    id: 5,
+                    name: "Tyler Durden",
+                    designation: "Soap Developer",
+                    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3540&q=80",
+                  },
+                  {
+                    id: 6,
+                    name: "Dora",
+                    designation: "The Explorer",
+                    image: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3534&q=80",
+                  },
+                ]} />
+             </div>
+             <p className="text-xs text-gray-500 italic">* Representative avatars for demonstration purposes.</p>
+        </m.div>
 
         {/* Quote Section */}
         <m.div 

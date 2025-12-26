@@ -16,10 +16,13 @@ import MobileSortMenu from './MobileSortMenu';
 import HeroHeading from './HeroHeading';
 import InfiniteMarquee from './InfiniteMarquee';
 import ChatBot from './ChatBot';
+import NumberTicker from './NumberTicker';
 
 import ProCarousel from './ProCarousel';
 import PricingDropdown from './PricingDropdown';
 import UnifiedSortDropdown from './UnifiedSortDropdown';
+import VanishingInput from './VanishingInput';
+import Particles from './Particles';
 
 
 
@@ -30,7 +33,7 @@ const CATEGORY_IDS = toolsData.map(c => c.id);
 
 
 // --- Main Home Component ---
-const Home = () => {
+const Home = ({ isCinematicLoading }) => {
     // nav-related state moved to a global Sidebar component
     const { t } = useLanguage();
 
@@ -1031,6 +1034,15 @@ const Home = () => {
                     <div className="fixed inset-0 z-0">
                         {/* Base gradient background - Deep Navy Blue */}
                         <div className="absolute inset-0 bg-gradient-to-br from-[#1a1d3a] via-[#252847] to-[#1a1d3a]" />
+                        
+                        {/* Interactive Particles Background */}
+                        <Particles
+                            className="absolute inset-0 z-0"
+                            quantity={100}
+                            ease={100}
+                            color="#ffffff"
+                            refresh
+                        />
                         {/* Background image layer for Home page */}
                         <div
                             aria-hidden="true"
@@ -1151,15 +1163,21 @@ const Home = () => {
                                 {/* Mobile Stats Row (Fills gap) */}
                                 <div className="lg:hidden grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-6 mt-6">
                                     <div className="text-center px-2">
-                                        <div className="text-2xl font-black text-white">300+</div>
+                                        <div className="text-2xl font-black text-white">
+                                            <NumberTicker value={toolList.length || 300} className="text-white" start={!isCinematicLoading} />+
+                                        </div>
                                         <div className="text-[10px] text-gray-500 font-medium uppercase tracking-wider mt-0.5">Tools</div>
                                     </div>
                                     <div className="text-center px-2">
-                                        <div className="text-2xl font-black text-white">100%</div>
+                                        <div className="text-2xl font-black text-white">
+                                            <NumberTicker value={100} className="text-white" />%
+                                        </div>
                                         <div className="text-[10px] text-gray-500 font-medium uppercase tracking-wider mt-0.5">Free</div>
                                     </div>
                                     <div className="text-center px-2">
-                                        <div className="text-2xl font-black text-white">20+</div>
+                                        <div className="text-2xl font-black text-white">
+                                            <NumberTicker value={categories.length || 20} className="text-white" start={!isCinematicLoading} />+
+                                        </div>
                                         <div className="text-[10px] text-gray-500 font-medium uppercase tracking-wider mt-0.5">Cats</div>
                                     </div>
                                 </div>
@@ -1169,17 +1187,23 @@ const Home = () => {
                             <div className="hidden lg:flex flex-col gap-8 items-end text-right">
                                 <div className="space-y-6">
                                      <div className="group">
-                                        <h3 className="text-6xl font-black text-white group-hover:text-[#FF6B00] transition-colors duration-300">300+</h3>
+                                        <h3 className="text-6xl font-black text-white group-hover:text-[#FF6B00] transition-colors duration-300">
+                                            <NumberTicker value={toolList.length || 300} className="text-white group-hover:text-[#FF6B00] transition-colors duration-300" start={!isCinematicLoading} />+
+                                        </h3>
                                         <p className="text-sm text-gray-500 font-medium uppercase tracking-widest mt-1">AI Tools</p>
                                      </div>
                                      <div className="w-full h-px bg-white/10" />
                                      <div className="group">
-                                        <h3 className="text-6xl font-black text-white group-hover:text-[#FF6B00] transition-colors duration-300">100%</h3>
+                                        <h3 className="text-6xl font-black text-white group-hover:text-[#FF6B00] transition-colors duration-300">
+                                            <NumberTicker value={100} className="text-white group-hover:text-[#FF6B00] transition-colors duration-300" />%
+                                        </h3>
                                         <p className="text-sm text-gray-500 font-medium uppercase tracking-widest mt-1">Free & Verified</p>
                                      </div>
                                      <div className="w-full h-px bg-white/10" />
                                      <div className="group">
-                                        <h3 className="text-6xl font-black text-white group-hover:text-[#FF6B00] transition-colors duration-300">20+</h3>
+                                        <h3 className="text-6xl font-black text-white group-hover:text-[#FF6B00] transition-colors duration-300">
+                                            <NumberTicker value={categories.length || 20} className="text-white group-hover:text-[#FF6B00] transition-colors duration-300" start={!isCinematicLoading} />+
+                                        </h3>
                                         <p className="text-sm text-gray-500 font-medium uppercase tracking-widest mt-1">Categories</p>
                                      </div>
                                 </div>
@@ -1206,15 +1230,22 @@ const Home = () => {
 
                                         {/* Middle/Right: Search Bar (Integrated) */}
                                         <div className="w-full md:w-[400px] relative group">
-                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#FF6B00] transition-colors">
+                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#FF6B00] transition-colors z-10">
                                                 <FaSearch />
                                              </div>
-                                             <input
-                                                type="text"
-                                                placeholder="Search AI tools..."
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B00]/50 focus:bg-white/10 transition-all shadow-inner"
+                                             <VanishingInput
+                                                placeholders={[
+                                                    "Search AI tools...",
+                                                    "Find a chatbot...",
+                                                    "Create a logo...",
+                                                    "Write an article...",
+                                                    "Automate workflows...",
+                                                    "Debug code...",
+                                                    "Generate video..."
+                                                ]}
                                                 value={searchQuery}
                                                 onChange={handleInputChange}
+                                                inputClassName="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-transparent focus:outline-none focus:border-[#FF6B00]/50 focus:bg-white/10 transition-all shadow-inner"
                                              />
                                         </div>
                                     </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { motion as m, AnimatePresence } from 'framer-motion';
+import LinkPreview from './LinkPreview'
 import { FaArrowLeft, FaExternalLinkAlt, FaStar, FaBookmark, FaRegBookmark, FaCalendar, FaTag, FaChevronDown, FaChevronUp, FaInfoCircle, FaList, FaQuestionCircle, FaGlobe, FaDollarSign, FaDesktop, FaArrowUp } from 'react-icons/fa';
 import toolsData from '../data/toolsData';
 import { ToolDetailSkeleton } from './SkeletonLoader';
@@ -622,15 +623,18 @@ const ToolDetail = () => {
 
                <div className="mt-auto flex flex-wrap gap-4">
                  {tool.url && (
-                   <a
-                     href={addRefToUrl(tool.url)}
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     onClick={() => addToHistory(tool)}
-                     className="px-6 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-transform active:scale-95 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                   <LinkPreview
+                     url={addRefToUrl(tool.url)}
+                     className="block" // ensure it doesn't break layout
+                     width={320}
                    >
-                     Visit Site <FaExternalLinkAlt className="text-sm" />
-                   </a>
+                     <span
+                       onClick={() => addToHistory(tool)}
+                       className="px-6 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-transform active:scale-95 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)] cursor-pointer"
+                     >
+                       Visit Site <FaExternalLinkAlt className="text-sm" />
+                     </span>
+                   </LinkPreview>
                  )}
                  <button
                     onClick={toggleBookmark}

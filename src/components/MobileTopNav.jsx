@@ -3,6 +3,7 @@ import { motion as m, AnimatePresence } from 'framer-motion';
 import Logo from '../assets/logo.png';
 
 import { FaStar, FaSearch, FaArrowLeft, FaTimes } from 'react-icons/fa';
+import VanishingInput from './VanishingInput';
 
 export default function MobileTopNav({ 
     categories = [], 
@@ -75,14 +76,21 @@ export default function MobileTopNav({
                         }}
                     >
                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm" />
-                        <input
+                        <VanishingInput
                             ref={searchInputRef}
-                            type="text"
+                            placeholders={[
+                                "Search AI tools...",
+                                "Find a chatbot...",
+                                "Create a logo...",
+                                "Write an article...",
+                                "Automate workflows...",
+                                "Debug code...",
+                                "Generate video..."
+                            ]}
                             enterKeyHint="search"
                             value={searchQuery}
                             onChange={onSearchChange}
-                            placeholder="Search tools..."
-                            className="w-full bg-white/10 border border-white/10 rounded-xl pl-9 pr-8 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B00]/50"
+                            inputClassName="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-transparent focus:outline-none focus:border-[#FF6B00]/50 focus:bg-white/10 transition-all shadow-inner"
                         />
                         {searchQuery && (
                             <button 

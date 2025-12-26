@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaStar, FaArrowRight } from 'react-icons/fa';
 import { useLanguage } from '../context/LanguageContext';
+import GlowBorder from './GlowBorder';
 
 import toolsData from '../data/toolsData';
 
@@ -74,10 +75,13 @@ const ToolOfTheDay = () => {
                 </h2>
              </div>
 
-            <div className="relative rounded-2xl overflow-hidden p-[1px] bg-gradient-to-br from-[#FF6B00] via-purple-600 to-blue-600">
-                <div className="absolute inset-0 bg-[#050505] m-[1px] rounded-2xl" />
-                
-                <div className="relative bg-[#12121A]/90 backdrop-blur-xl rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <GlowBorder 
+                color={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
+                borderRadius={24}
+                borderWidth={3}
+                className="w-full"
+            >
+                <div className="relative bg-[#12121A]/80 backdrop-blur-xl p-6 flex flex-col md:flex-row items-center gap-6 md:gap-8 h-full">
                      {/* Background Glow */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
 
@@ -140,7 +144,7 @@ const ToolOfTheDay = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </GlowBorder>
         </div>
     );
 };

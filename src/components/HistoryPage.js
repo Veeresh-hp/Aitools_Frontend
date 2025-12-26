@@ -16,6 +16,7 @@ import {
   Zap,
   MoreVertical
 } from 'lucide-react';
+import VanishingInput from './VanishingInput';
 
 // Helper for electric/glass border effect
 const GlassCard = ({ children, className = "", hoverEffect = true }) => (
@@ -203,13 +204,16 @@ const HistoryPage = () => {
           <div className="sticky top-24 z-30 mb-8">
             <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex flex-col sm:flex-row gap-2 shadow-2xl">
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                <input 
-                  type="text"
-                  placeholder="Search mission logs..."
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 z-10" size={18} />
+                <VanishingInput 
+                  placeholders={[
+                    "Search mission logs...",
+                    "Find past tools...",
+                    "Locate specific entries..."
+                  ]}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 border border-transparent rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-500 focus:outline-none focus:bg-white/10 transition-all"
+                  inputClassName="w-full bg-white/5 border border-transparent rounded-xl py-3 pl-11 pr-4 text-white placeholder-transparent focus:outline-none focus:bg-white/10 transition-all"
                 />
               </div>
               <div className="flex gap-2">

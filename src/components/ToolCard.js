@@ -3,6 +3,7 @@ import { m, LazyMotion, domAnimation } from 'framer-motion';
 import { FaExternalLinkAlt, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 import { addRefToUrl } from '../utils/linkUtils';
+import LinkPreview from './LinkPreview'
 import { addToHistory } from '../utils/historyUtils';
 
 const ToolCard = ({ tool, className = '', style = {} }) => {
@@ -104,16 +105,18 @@ const ToolCard = ({ tool, className = '', style = {} }) => {
         {/* --- Floating Actions (Top Right) --- */}
         <div className="absolute top-4 right-4 z-30 flex gap-2 translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
              {tool.url && (
-                <a
-                    href={addRefToUrl(tool.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => { e.stopPropagation(); addToHistory(tool); }}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors border border-white/10"
-                    title="Visit Website"
-                >
-                    <FaExternalLinkAlt className="w-3.5 h-3.5" />
-                </a>
+                <LinkPreview url={addRefToUrl(tool.url)} width={250} height={140} className="block">
+                    <a
+                        href={addRefToUrl(tool.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => { e.stopPropagation(); addToHistory(tool); }}
+                        className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors border border-white/10"
+                        title="Visit Website"
+                    >
+                        <FaExternalLinkAlt className="w-3.5 h-3.5" />
+                    </a>
+                </LinkPreview>
             )}
              <button
                 className={`w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md transition-all border border-white/10 ${saved ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-white/10 text-white hover:bg-white/20'}`}

@@ -4,6 +4,7 @@ import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import toolsData from '../data/toolsData';
 import ToolCard from './ToolCard';
+import VanishingInput from './VanishingInput';
 import { FaTimes } from 'react-icons/fa';
 
 // Utility functions
@@ -352,13 +353,20 @@ const Hero = ({ openModal }) => {
             transition={{ duration: 0.3 }}  // Reduced from 0.4
           >
             <div className="relative w-full sm:w-72">
-              <input
-                type="text"
-                placeholder="Search tools..."
-                className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              <VanishingInput
+                placeholders={[
+                  "Search AI tools...",
+                  "Find a chatbot...",
+                  "Create a logo...",
+                  "Write an article...",
+                  "Automate workflows...",
+                  "Debug code...",
+                  "Generate video..."
+                ]}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
+                onSubmit={handleSearch}
+                inputClassName="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 placeholder-transparent"
               />
               {searchQuery && (
                 <FaTimes
